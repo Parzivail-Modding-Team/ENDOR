@@ -8,23 +8,28 @@ import { resolvers } from './resolvers.js';
 // Using middleware implementation because unsure of auth scheme currently
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import pkg from 'body-parser';
+import { getMongo } from './mongo.js';
+const { json } = pkg;
 
 async function init() {
   const app = express();
   const httpServer = http.createServer(app);
 
+  getMongo();
+
   const server = new ApolloServer({
-    plugins: [
-      ApolloServerPluginDrainHttpServer({ typeDefs, resolvers, httpServer }),
-    ],
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await server.start();
 
   // leaving middleware empty for now till auth scheme decision
-  app.options(
+  app.use(
     '/api/gql',
-    cors(),
+    cors(true),
     json(),
     expressMiddleware(server, {
       context: async (c) => {

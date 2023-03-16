@@ -103,6 +103,7 @@ export default function Home() {
               width: 'fit-content',
               height: 'auto',
               margin: 0,
+              boxShadow: 'none',
             }}
             disabled={!search || !search.length}
             onClick={() => {

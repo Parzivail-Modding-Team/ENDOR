@@ -23,12 +23,14 @@ export default function Browse() {
   useEffect(() => {
     if (!localStorage.getItem('gridSize')) {
       localStorage.setItem('gridSize', '350px');
-    } else if (localStorage.getItem('gridSize')) {
-      setGridSize(localStorage.getItem('gridSize'));
     }
+    setGridSize(localStorage.getItem('gridSize'));
   }, []);
 
   useEffect(() => {
+    if (!gridSize) {
+      return;
+    }
     localStorage.setItem('gridSize', gridSize);
   }, [gridSize]);
 
@@ -105,6 +107,7 @@ export default function Browse() {
                 width: 'fit-content',
                 height: 'auto',
                 margin: 0,
+                boxShadow: 'none',
               }}
               disabled={!search || !search.length}
               onClick={() => {

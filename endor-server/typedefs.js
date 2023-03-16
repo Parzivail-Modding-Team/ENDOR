@@ -1,5 +1,3 @@
-// Post field Author's value is the _id of the user
-
 export const typeDefs = `#graphql
   type User {
     _id: String
@@ -18,13 +16,29 @@ export const typeDefs = `#graphql
   }
 
   type Tag {
-    _id: String
-    title: String
+    _id: ID
+    value: String
+    label: String
   }
 
-  type PostResponse {
-    posts: [Post]
+  input TagInput {
+    _id: ID
+    value: String
+    label: String
   }
 
-  type Query {getPosts}
+  input PostInput {
+    message: String
+    addTags: [TagInput]
+    createTags: [TagInput]
+  }
+
+  type Query {
+    getPosts: [Post]
+    getTags: [Tag]
+  }
+
+  type Mutation {
+    createPost(input: PostInput): ID
+  }
 `;

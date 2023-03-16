@@ -24,6 +24,8 @@ MongoDB
 
 - [ ] Refactor the client from Javascript to Typescript
 
+- [ ] Refactor the server from Javascript to Typescript
+
 - [ ] Make Endor a fully deployable application that can be stood up by others for their own purposes with minimal config.
 
 ![ENDOR](https://cdn.discordapp.com/attachments/451560063933612044/1033484876214710302/Image_database.jpg)

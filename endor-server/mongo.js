@@ -1,14 +1,8 @@
-import { MongoClient } from ('mongodb');
-
-async function listDatabases(client) {
-  databasesList = await client.db().admin().listDatabases();
-
-  console.log('Databases:');
-  databasesList.databases.forEach((db) => console.log(` - ${db.name}`));
-}
+import { MongoClient } from 'mongodb';
 
 async function main() {
-  const uri = process.env.MONGO_URL;
+  const uri =
+    'mongodb+srv://miller:Crusader13@cluster0.fhgpomb.mongodb.net/?retryWrites=true&w=majority';
 
   const client = new MongoClient(uri);
 
@@ -16,17 +10,14 @@ async function main() {
     // Connect to the MongoDB cluster
     await client.connect();
 
-    // Make the appropriate DB calls
-    await listDatabases(client);
+    return client;
   } catch (e) {
     console.error(e);
-  } finally {
-    await client.close();
   }
 }
 
-main().catch(console.error);
+main();
 
-export function getMongo() {
-  main();
+export async function getMongo() {
+  return await main();
 }

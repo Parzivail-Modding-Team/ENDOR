@@ -1,7 +1,7 @@
 {
   "name": "endor-client",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +16,7 @@
     "antd": "^5.2.2",
     "dotenv": "^16.0.3",
     "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
     "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

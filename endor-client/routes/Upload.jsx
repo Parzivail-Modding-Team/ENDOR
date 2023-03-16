@@ -1,24 +1,36 @@
 /** @jsxImportSource theme-ui */
 
 import { useEffect, useState } from 'react';
-import { Button, Form, Input, Select, Upload } from 'antd';
+import { Button, Form, Input, message, Select, Upload } from 'antd';
 import { options, tagRender } from '../utils';
 import { TagOutlined, InboxOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-
-// Tatooine
-// Tag aggregation tool
-
-// Naboo
-// Kyber
-// Ilum - Image 
-// Media aggregation and classification tool
-// TIE - Taggable Image Editor
+import { useMutation, useQuery } from '@apollo/client';
+import { CreatePost, GetTags } from '../queries';
 
 // TODO: input sanitization and pre-post validation
 // TODO: file uploading
 export function UploadRoute() {
   const [submission, setSubmission] = useState({});
+  const [tags, setTags] = useState([]);
+
+  useQuery(GetTags, {
+    onCompleted: (data) => {
+      setTags(data.getTags);
+    },
+    onError: (error) => {
+      message.error('There was a problem fetching tags');
+    },
+  });
+
+  const [createPost, { loading, error, data }] = useMutation(CreatePost, {
+    onCompleted: () => {
+      message.success('Post Created');
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const navigate = useNavigate();
 
@@ -28,18 +40,18 @@ export function UploadRoute() {
         layout="vertical"
         style={{ width: '100%', display: 'flex', flexDirection: 'column' }}
       >
-        <Form.Item label="Message">
+        <Form.Item label="Description">
           <Input
-            placeholder="Ex. Here is a fun message about this image"
+            placeholder="Ex. Here is a fun description about this image"
             onChange={(e) => {
               setSubmission({ ...submission, message: e.target.value });
             }}
             allowClear
           />
         </Form.Item>
-        <Form.Item label="Tags">
+        <Form.Item label="Tags" required>
           <Select
-            mode="multiple"
+            mode="tags"
             allowClear
             style={{ width: '100%' }}
             placeholder={
@@ -62,32 +74,42 @@ export function UploadRoute() {
             onChange={(e) => {
               setSubmission({ ...submission, tags: e });
             }}
-            options={options}
+            options={tags}
             value={submission.tags}
-            maxTagCount="responsive"
+            labelInValue
           />
         </Form.Item>
-        <Form.Item label="File To Upload">
+        <Form.Item label="File To Upload" required>
           <Upload.Dragger listType="picture" multiple={false} maxCount={1}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
             <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
-            <p className="ant-upload-hint">
-              Support for a single or bulk upload. Strictly prohibit from
-              uploading company data or other band files
+              Click or drag image here to upload
             </p>
           </Upload.Dragger>
         </Form.Item>
         <Form.Item style={{ alignSelf: 'flex-end' }}>
           <Button
             type="primary"
-            style={{ alignSelf: 'flex-end' }}
+            style={{ alignSelf: 'flex-end', boxShadow: 'none' }}
             disabled={!submission.tags || !submission.message}
             onClick={() => {
-              navigate('/browse');
+              const newSubmission = { ...submission };
+              // Group together existing tags (i.e. tags that have a key)
+              newSubmission.addTags = newSubmission.tags
+                .filter((tag) => !!tag.key)
+                .map((tag2) => {
+                  return { _id: tag2.value };
+                });
+              // Group together new tags (i.e. tags that don't have a key)
+              newSubmission.createTags = newSubmission.tags
+                .filter((tag) => !tag.key)
+                .map((tag2) => {
+                  return { label: tag2.value };
+                });
+              delete newSubmission.tags;
+              createPost({ variables: { input: newSubmission } });
             }}
           >
             Submit
