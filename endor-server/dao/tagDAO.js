@@ -10,15 +10,9 @@ class TagDAO {
   static async createTags(tags) {
     const useMongo = await connectToMongo('endor-tag');
 
-    return new Promise(async (resolve) => {
-      await useMongo.insertMany(tags, (error, result) => {
-        if (error) resolve({});
-        else {
-          console.log(result);
-          resolve(result);
-        }
-      });
-    });
+    const thing = await useMongo.insertMany(tags, { ordered: true });
+
+    return thing.insertedCount;
   }
 }
 

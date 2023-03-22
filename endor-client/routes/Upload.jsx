@@ -14,6 +14,8 @@ export function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
 
+  const navigate = useNavigate();
+
   useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
@@ -23,16 +25,17 @@ export function UploadRoute() {
     },
   });
 
-  const [createPost, { loading, error, data }] = useMutation(CreatePost, {
-    onCompleted: () => {
-      message.success('Post Created');
+  const [createPost] = useMutation(CreatePost, {
+    onCompleted: (data) => {
+      if (data && data.createPost) {
+        navigate(`/${data.createPost}`);
+        message.success('Post Created');
+      }
     },
     onError: (error) => {
       console.log(error);
     },
   });
-
-  const navigate = useNavigate();
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>

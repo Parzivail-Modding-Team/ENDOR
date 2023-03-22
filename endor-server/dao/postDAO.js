@@ -9,14 +9,9 @@ class PostDAO {
   static async createPost(post) {
     const useMongo = await connectToMongo('endor-post');
 
-    return new Promise((resolve) => {
-      useMongo.insertOne(post, (error, result) => {
-        if (error) resolve({});
-        else {
-          resolve(result);
-        }
-      });
-    });
+    const thing = await useMongo.insertOne(post);
+
+    return thing.insertedId;
   }
 }
 

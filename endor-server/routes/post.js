@@ -1,16 +1,28 @@
 import moment from 'moment/moment.js';
+import { ObjectId } from 'mongodb';
 import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
 
-async function getPosts() {
+async function getPosts(_, request, __) {
   let query = [{ $match: {} }];
+
+  if (request && request._id) {
+    const postData = await postDAO
+      .findPosts([{ $match: { _id: new ObjectId(request._id) } }])
+      .catch((e) => {
+        console.error(e);
+        return [];
+      });
+
+    return postData;
+  }
 
   const postData = await postDAO.findPosts(query).catch((e) => {
     console.error(e);
     return [];
   });
 
-  return { posts: postData };
+  return postData;
 }
 
 async function createPost(_, request, __) {
@@ -28,22 +40,26 @@ async function createPost(_, request, __) {
     sanitizeArray(requestParams.createTags)
   );
 
-  if (newTags) {
+  if (newTags && newTags >= 0) {
     const post = {
-      tags: sanitizeArray(newTags).concat(sanitizeArray(requestParams.addTags)),
+      tags: sanitizeArray(requestParams.createTags)
+        .map((tag) => {
+          return {
+            _id: tag._id.toString(),
+          };
+        })
+        .concat(sanitizeArray(requestParams.addTags)),
       message: requestParams.message,
       createdAt: time,
       updatedAt: time,
     };
-
-    console.log(post);
 
     const newPost = await postDAO.createPost(post).catch((e) => {
       console.error(e);
       return {};
     });
 
-    console.log(newPost);
+    return newPost;
   }
 }
 

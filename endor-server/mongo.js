@@ -1,8 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 async function main() {
-  const uri =
-    'mongodb+srv://miller:Crusader13@cluster0.fhgpomb.mongodb.net/?retryWrites=true&w=majority';
+  const uri = process.env.MONGO_URL;
 
   const client = new MongoClient(uri);
 

@@ -5,6 +5,26 @@ import { useLocation } from 'react-router-dom';
 import { thing } from '../assets/index';
 import moment from 'moment';
 
+function RowItem({ title, content }) {
+  return (
+    <div
+      sx={{
+        display: 'flex',
+        width: '100%',
+        height: 'fit-content',
+        alignItems: 'center',
+      }}
+    >
+      <Typography.Text style={{ margin: 0, marginRight: '0.5rem' }} strong>
+        {title}
+      </Typography.Text>
+      <Typography.Text style={{ margin: 0 }} type="secondary" italic>
+        {content}
+      </Typography.Text>
+    </div>
+  );
+}
+
 export default function PostDetail() {
   const [post, setPost] = useState(null);
   const location = useLocation();
@@ -72,9 +92,6 @@ export default function PostDetail() {
           flexDirection: 'column',
         }}
       >
-        <Typography.Text style={{ margin: 0 }} type="secondary" italic>
-          {post.author.sub}
-        </Typography.Text>
         <Typography.Title level={4} style={{ margin: 0 }}>
           {post.message}
         </Typography.Title>
@@ -102,36 +119,15 @@ export default function PostDetail() {
           ))}
         </div>
         <Divider style={{ margin: '0.4rem 0rem 0.5rem 0rem' }} />
-        <div
-          sx={{
-            display: 'flex',
-            width: '100%',
-            height: 'fit-content',
-            alignItems: 'center',
-          }}
-        >
-          <Typography.Text style={{ margin: 0, marginRight: '0.5rem' }} strong>
-            Created:
-          </Typography.Text>
-          <Typography.Text style={{ margin: 0 }} type="secondary" italic>
-            {moment(post.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
-          </Typography.Text>
-        </div>
-        <div
-          sx={{
-            display: 'flex',
-            width: '100%',
-            height: 'fit-content',
-            alignItems: 'center',
-          }}
-        >
-          <Typography.Text style={{ margin: 0, marginRight: '0.5rem' }} strong>
-            Last Updated:
-          </Typography.Text>
-          <Typography.Text style={{ margin: 0 }} type="secondary" italic>
-            {moment(post.updatedAt).format('MMMM Do YYYY, h:mm:ss a')}
-          </Typography.Text>
-        </div>
+        <RowItem title="Author:" content={post.author.sub} />
+        <RowItem
+          title="Created:"
+          content={moment(post.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
+        />
+        <RowItem
+          title="Last Updated:"
+          content={moment(post.updatedAt).format('MMMM Do YYYY, h:mm:ss a')}
+        />
       </div>
     </div>
   );

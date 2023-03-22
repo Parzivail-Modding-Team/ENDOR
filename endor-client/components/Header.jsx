@@ -35,7 +35,11 @@ export default function Header() {
     >
       <Typography.Title
         level={2}
-        style={{ margin: 0, fontFamily: 'Gloock', cursor: 'pointer' }}
+        style={{
+          margin: 0,
+          fontFamily: 'Gloock',
+          cursor: 'pointer',
+        }}
         onClick={() => {
           location.assign('/');
         }}
