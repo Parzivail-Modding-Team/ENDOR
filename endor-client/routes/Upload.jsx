@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 
 import { useEffect, useState } from 'react';
-import { Button, Form, Input, message, Select, Upload } from 'antd';
+import { Button, Form, Input, message, Select, Spin, Upload } from 'antd';
 import { options, tagRender } from '../utils';
 import { TagOutlined, InboxOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import { CreatePost, GetTags } from '../queries';
 export function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
+  const [localFileList, setLocalFileList] = useState([]);
 
   const navigate = useNavigate();
 
@@ -36,6 +37,10 @@ export function UploadRoute() {
       console.log(error);
     },
   });
+
+  useEffect(() => {
+    console.log(localFileList);
+  }, [localFileList]);
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
@@ -83,7 +88,44 @@ export function UploadRoute() {
           />
         </Form.Item>
         <Form.Item label="File To Upload" required>
-          <Upload.Dragger listType="picture" multiple={false} maxCount={1}>
+          <Upload.Dragger
+            listType="picture"
+            multiple={false}
+            maxCount={1}
+            action="http://localhost:4000/upload"
+            name="upload"
+            fileList={localFileList}
+            onChange={({ fileList }) => {
+              console.log(fileList);
+
+              setLocalFileList(fileList);
+            }}
+            itemRender={() => {
+              if (
+                localFileList &&
+                localFileList[0] &&
+                localFileList[0].status &&
+                localFileList[0].status === 'uploading'
+              ) {
+                <Spin />;
+              } else if (
+                localFileList &&
+                localFileList[0] &&
+                localFileList[0].response &&
+                localFileList[0].response === 'Uploaded'
+              ) {
+                return localFileList.map((file) => {
+                  console.log(file);
+                  return (
+                    <img
+                      style={{ width: '100%' }}
+                      src={import.meta.env.VITE_CDN_URL + '/' + file.name}
+                    />
+                  );
+                });
+              }
+            }}
+          >
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
