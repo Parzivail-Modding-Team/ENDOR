@@ -1,9 +1,10 @@
 /** @jsxImportSource theme-ui */
-import { Divider, Empty, Tag, Typography } from 'antd';
-import { useState, useEffect } from 'react';
+import { Divider, Empty, Spin, Tag, Typography } from 'antd';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { thing } from '../assets/index';
 import moment from 'moment';
+import { useQuery } from '@apollo/client';
+import { GetPosts } from '../queries';
 
 function RowItem({ title, content }) {
   return (
@@ -29,13 +30,23 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const location = useLocation();
 
-  useEffect(() => {
-    setPost(
-      thing[
-        thing.findIndex((item) => item._id === location.pathname.split('/')[1])
-      ]
+  const { loading } = useQuery(GetPosts, {
+    variables: { _id: location.pathname.substring(1) },
+    onCompleted: (data) => {
+      setPost(data.getPosts[0]);
+    },
+    onError: () => {
+      message.error('There was a problem fetching the post');
+    },
+  });
+
+  if (loading) {
+    return (
+      <div>
+        <Spin />
+      </div>
     );
-  }, []);
+  }
 
   if (!post) {
     return (
@@ -107,7 +118,7 @@ export default function PostDetail() {
           {post.tags.map((tag) => (
             <Tag
               color="#389e0d"
-              key={tag._id}
+              key={tag.value}
               style={{
                 width: 'fit-content',
                 marginRight: '0.5rem',
@@ -119,14 +130,18 @@ export default function PostDetail() {
           ))}
         </div>
         <Divider style={{ margin: '0.4rem 0rem 0.5rem 0rem' }} />
-        <RowItem title="Author:" content={post.author.sub} />
+        {/* <RowItem title="Author:" content={post.author.sub} /> */}
         <RowItem
           title="Created:"
-          content={moment(post.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
+          content={moment
+            .unix(post.createdAt)
+            .format('MMMM Do YYYY, h:mm:ss a')}
         />
         <RowItem
           title="Last Updated:"
-          content={moment(post.updatedAt).format('MMMM Do YYYY, h:mm:ss a')}
+          content={moment
+            .unix(post.updatedAt)
+            .format('MMMM Do YYYY, h:mm:ss a')}
         />
       </div>
     </div>

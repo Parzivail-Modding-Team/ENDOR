@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { useNavigate } from 'react-router-dom';
-import { Button, Select, Typography, Tag, Input } from 'antd';
-import { thing } from '../assets';
+import six from '../assets/6.png';
 
 function GridItem({ item, gridSize }) {
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ function GridItem({ item, gridSize }) {
       }}
     >
       <img
-        src={item.src}
+        src={item.src || six}
         sx={{
           width: '100%',
           height: '100%',
@@ -37,7 +36,7 @@ function GridItem({ item, gridSize }) {
   );
 }
 
-export default function ImageGrid({ gridSize }) {
+export default function ImageGrid({ gridSize, data }) {
   return (
     <div
       sx={{
@@ -53,7 +52,7 @@ export default function ImageGrid({ gridSize }) {
           gridTemplateColumns: `repeat(auto-fit, minmax(${gridSize}, 1fr))`,
         }}
       >
-        {thing.map((item) => (
+        {data.map((item) => (
           <GridItem item={item} key={item._id} gridSize={gridSize} />
         ))}
       </div>

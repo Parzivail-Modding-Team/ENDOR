@@ -1,18 +1,31 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Button, Select, Typography, Tag, Input, Radio } from 'antd';
+import { Button, Select, Typography, Tag, Input, Radio, Spin } from 'antd';
 import { TagOutlined } from '@ant-design/icons';
 import ImageGrid from '../components/ImageGrid';
 import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { options, tagRender } from '../utils';
+import { useQuery } from '@apollo/client';
+import { GetPosts } from '../queries';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Search support
+  const { loading } = useQuery(GetPosts, {
+    onCompleted: (data) => {
+      setPosts(data.getPosts);
+    },
+    onError: () => {
+      message.error('There was a problem fetching the post');
+    },
+  });
 
   useEffect(() => {
     if (location.search && location.search.length > 0) {
@@ -158,7 +171,13 @@ export default function Browse() {
           </Radio.Button>
         </Radio.Group>
       </div>
-      <ImageGrid gridSize={gridSize} />
+      {!posts ? (
+        <Empty />
+      ) : loading ? (
+        <Spin />
+      ) : (
+        <ImageGrid gridSize={gridSize} data={posts} />
+      )}
     </div>
   );
 }

@@ -9,6 +9,21 @@ export const GetTags = gql`
   }
 `;
 
+export const GetPosts = gql`
+  query GetPosts($_id: String) {
+    getPosts(_id: $_id) {
+      _id
+      message
+      createdAt
+      updatedAt
+      tags {
+        value
+        label
+      }
+    }
+  }
+`;
+
 export const CreatePost = gql`
   mutation CreatePost($input: PostInput) {
     createPost(input: $input)

@@ -3,26 +3,39 @@ import { ObjectId } from 'mongodb';
 import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
 
-async function getPosts(_, request, __) {
-  let query = [{ $match: {} }];
+function fixOutput(data) {
+  const updatedPosts = data.map(async (post) => {
+    const cleanedTags = post.tags.map((tag) => new ObjectId(tag._id));
 
-  if (request && request._id) {
-    const postData = await postDAO
-      .findPosts([{ $match: { _id: new ObjectId(request._id) } }])
-      .catch((e) => {
-        console.error(e);
-        return [];
-      });
+    const fetchedTags = await tagDAO.findTags([
+      { $match: { _id: { $in: cleanedTags } } },
+    ]);
 
-    return postData;
-  }
+    const fixedTags = fetchedTags.map((tag) => {
+      return { value: tag._id.toString(), label: tag.label };
+    });
 
-  const postData = await postDAO.findPosts(query).catch((e) => {
-    console.error(e);
-    return [];
+    const thing = { ...post, tags: fixedTags };
+
+    return thing;
   });
 
-  return postData;
+  return updatedPosts;
+}
+
+async function getPosts(_, request, __) {
+  const postData = await postDAO
+    .findPosts(
+      request && request._id
+        ? [{ $match: { _id: new ObjectId(request._id) } }]
+        : [{ $match: {} }]
+    )
+    .catch((e) => {
+      console.error(e);
+      return [];
+    });
+
+  return fixOutput(postData);
 }
 
 async function createPost(_, request, __) {
