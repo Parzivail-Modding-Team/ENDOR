@@ -39,6 +39,21 @@ async function getPosts(_, request, __) {
 }
 
 async function createPost(_, request, __) {
+  // Checks to see if there are new tags to concat with
+  function tagChecker(newT, addT) {
+    if (newT && newT.length && newT.length > 0) {
+      return sanitizeArray(newT)
+        .map((tag) => {
+          return {
+            _id: tag._id.toString(),
+          };
+        })
+        .concat(sanitizeArray(addT));
+    } else {
+      return sanitizeArray(addT);
+    }
+  }
+
   const requestParams = JSON.parse(JSON.stringify(request.input));
 
   const time = moment().unix();
@@ -49,31 +64,30 @@ async function createPost(_, request, __) {
     return [...arr];
   }
 
-  const newTags = await tagDAO.createTags(
-    sanitizeArray(requestParams.createTags)
-  );
+  let newTagsInsert;
 
-  if (newTags && newTags >= 0) {
-    const post = {
-      tags: sanitizeArray(requestParams.createTags)
-        .map((tag) => {
-          return {
-            _id: tag._id.toString(),
-          };
-        })
-        .concat(sanitizeArray(requestParams.addTags)),
-      message: requestParams.message,
-      createdAt: time,
-      updatedAt: time,
-    };
-
-    const newPost = await postDAO.createPost(post).catch((e) => {
-      console.error(e);
-      return {};
-    });
-
-    return newPost;
+  if (requestParams.createTags) {
+    newTagsInsert = await tagDAO.createTags(
+      sanitizeArray(requestParams.createTags)
+    );
   }
+
+  const post = {
+    tags: tagChecker(
+      newTagsInsert && newTagsInsert > 0 ? requestParams.createTags : [],
+      requestParams.addTags
+    ),
+    message: requestParams.message,
+    createdAt: time,
+    updatedAt: time,
+  };
+
+  const newPost = await postDAO.createPost(post).catch((e) => {
+    console.error(e);
+    return {};
+  });
+
+  return newPost;
 }
 
 export { getPosts, createPost };

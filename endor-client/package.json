@@ -14,7 +14,6 @@
     "@emotion/react": "^11.10.6",
     "@tabler/icons-react": "^2.9.0",
     "antd": "^5.2.2",
-    "dotenv": "^16.0.3",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "moment": "^2.29.4",

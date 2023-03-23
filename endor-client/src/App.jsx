@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { ThemeProvider } from 'theme-ui';
-import { ConfigProvider, Result, Spin } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import { theme } from './theme';
 import Header from '../components/Header';
 import Home from '../routes/Home';

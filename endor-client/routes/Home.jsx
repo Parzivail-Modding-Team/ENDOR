@@ -6,10 +6,24 @@ import { TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import AnimatedText from '../components/AnimatedText';
 import { options, tagRender } from '../utils';
+import { useQuery } from '@apollo/client';
+import { GetTags } from '../queries';
+import TagSelect from '../components/TagSelect';
 
 export default function Home() {
   const [search, setSearch] = useState([]);
+  const [tags, setTags] = useState([]);
+
   const navigate = useNavigate();
+
+  useQuery(GetTags, {
+    onCompleted: (data) => {
+      setTags(data.getTags);
+    },
+    onError: (error) => {
+      message.error('There was a problem fetching tags');
+    },
+  });
 
   return (
     <div
@@ -59,60 +73,16 @@ export default function Home() {
           justifyContent: 'center',
         }}
       >
-        <Input.Group
-          compact
-          style={{
-            width: '100%',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Select
-            mode="multiple"
-            allowClear
-            style={{ width: '45%' }}
-            placeholder={
-              <div
-                sx={{
-                  height: 'fit-content',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <TagOutlined
-                  className="site-form-item-icon"
-                  style={{ marginRight: '0.5rem' }}
-                />
-                Ex. landspeeder
-              </div>
-            }
-            tagRender={tagRender}
-            onChange={(e) => {
-              setSearch(e);
-            }}
-            options={options}
+        <div sx={{ width: '60%' }}>
+          <TagSelect
             value={search}
-            maxTagCount="responsive"
+            options={tags}
+            onClick={() =>
+              navigate({ pathname: '/browse', search: search.join('+') })
+            }
+            onChange={setSearch}
           />
-          <Button
-            type="primary"
-            style={{
-              width: 'fit-content',
-              height: 'auto',
-              margin: 0,
-              boxShadow: 'none',
-            }}
-            disabled={!search || !search.length}
-            onClick={() => {
-              navigate({ pathname: '/browse', search: search.join('+') });
-            }}
-          >
-            Search
-          </Button>
-        </Input.Group>
+        </div>
       </div>
     </div>
   );

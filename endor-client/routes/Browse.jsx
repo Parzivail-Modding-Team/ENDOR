@@ -1,18 +1,20 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Button, Select, Typography, Tag, Input, Radio, Spin } from 'antd';
+import { Button, Select, Input, Radio, Spin } from 'antd';
 import { TagOutlined } from '@ant-design/icons';
 import ImageGrid from '../components/ImageGrid';
 import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { options, tagRender } from '../utils';
+import { tagRender } from '../utils';
 import { useQuery } from '@apollo/client';
-import { GetPosts } from '../queries';
+import { GetPosts, GetTags } from '../queries';
+import TagSelect from '../components/TagSelect';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [tags, setTags] = useState([]);
   const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,6 +26,15 @@ export default function Browse() {
     },
     onError: () => {
       message.error('There was a problem fetching the post');
+    },
+  });
+
+  useQuery(GetTags, {
+    onCompleted: (data) => {
+      setTags(data.getTags);
+    },
+    onError: (error) => {
+      message.error('There was a problem fetching tags');
     },
   });
 
@@ -76,60 +87,14 @@ export default function Browse() {
             justifyContent: 'center',
           }}
         >
-          <Input.Group
-            compact
-            style={{
-              width: '100%',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Select
-              mode="multiple"
-              allowClear
-              style={{ width: '100%' }}
-              placeholder={
-                <div
-                  sx={{
-                    height: 'fit-content',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <TagOutlined
-                    className="site-form-item-icon"
-                    style={{ marginRight: '0.5rem' }}
-                  />
-                  Ex. landspeeder
-                </div>
-              }
-              tagRender={tagRender}
-              onChange={(e) => {
-                setSearch(e);
-              }}
-              options={options}
-              value={search}
-              maxTagCount="responsive"
-            />
-            <Button
-              type="primary"
-              style={{
-                width: 'fit-content',
-                height: 'auto',
-                margin: 0,
-                boxShadow: 'none',
-              }}
-              disabled={!search || !search.length}
-              onClick={() => {
-                navigate({ pathname: '/browse', search: search.join('+') });
-              }}
-            >
-              Search
-            </Button>
-          </Input.Group>
+          <TagSelect
+            value={search}
+            options={tags}
+            onClick={() =>
+              navigate({ pathname: '/browse', search: search.join('+') })
+            }
+            onChange={setSearch}
+          />
         </div>
         <Radio.Group
           value={gridSize}

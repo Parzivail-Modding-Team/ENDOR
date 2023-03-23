@@ -1,12 +1,48 @@
 /** @jsxImportSource theme-ui */
 
 import { useEffect, useState } from 'react';
-import { Button, Form, Input, message, Select, Spin, Upload } from 'antd';
-import { options, tagRender } from '../utils';
+import {
+  Button,
+  Empty,
+  Form,
+  Input,
+  message,
+  Select,
+  Spin,
+  Upload,
+} from 'antd';
+import { tagRender } from '../utils';
 import { TagOutlined, InboxOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import { CreatePost, GetTags } from '../queries';
+
+function renderChecker() {
+  if (
+    localFileList &&
+    localFileList[0] &&
+    localFileList[0].status &&
+    localFileList[0].status === 'uploading'
+  ) {
+    return <Spin />;
+  } else if (
+    localFileList &&
+    localFileList[0] &&
+    localFileList[0].response &&
+    localFileList[0].response === 'Uploaded'
+  ) {
+    return <Empty />;
+  }
+}
+
+const fileToDataUri = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      resolve(event.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
 
 // TODO: input sanitization and pre-post validation
 // TODO: file uploading
@@ -14,6 +50,19 @@ export function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
   const [localFileList, setLocalFileList] = useState([]);
+
+  const [dataUri, setDataUri] = useState();
+
+  const localFileSaver = (file) => {
+    if (!file) {
+      setDataUri('');
+      return;
+    }
+
+    fileToDataUri(file).then((dataUri) => {
+      setDataUri(dataUri);
+    });
+  };
 
   const navigate = useNavigate();
 
@@ -37,10 +86,6 @@ export function UploadRoute() {
       console.log(error);
     },
   });
-
-  useEffect(() => {
-    console.log(localFileList);
-  }, [localFileList]);
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
@@ -80,6 +125,7 @@ export function UploadRoute() {
             }
             tagRender={tagRender}
             onChange={(e) => {
+              console.log(e);
               setSubmission({ ...submission, tags: e });
             }}
             options={tags}
@@ -87,8 +133,10 @@ export function UploadRoute() {
             labelInValue
           />
         </Form.Item>
+        {/* TODO: move action to .env */}
+
         <Form.Item label="File To Upload" required>
-          <Upload.Dragger
+          {/* <Upload.Dragger
             listType="picture"
             multiple={false}
             maxCount={1}
@@ -96,43 +144,39 @@ export function UploadRoute() {
             name="upload"
             fileList={localFileList}
             onChange={({ fileList }) => {
-              console.log(fileList);
-
+              localFileSaver(fileList[0]);
               setLocalFileList(fileList);
             }}
-            itemRender={() => {
-              if (
-                localFileList &&
-                localFileList[0] &&
-                localFileList[0].status &&
-                localFileList[0].status === 'uploading'
-              ) {
-                <Spin />;
-              } else if (
-                localFileList &&
-                localFileList[0] &&
-                localFileList[0].response &&
-                localFileList[0].response === 'Uploaded'
-              ) {
-                return localFileList.map((file) => {
-                  console.log(file);
-                  return (
-                    <img
-                      style={{ width: '100%' }}
-                      src={import.meta.env.VITE_CDN_URL + '/' + file.name}
-                    />
-                  );
-                });
-              }
-            }}
           >
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">
-              Click or drag image here to upload
-            </p>
-          </Upload.Dragger>
+            {localFileList &&
+              localFileList.length &&
+              localFileList.length === 1 &&
+              localFileList.map((file) => {
+                return (
+                  <img
+                    style={{
+                      maxWidth: 'calc(100% - 2rem)',
+                      borderRadius: '4px',
+                    }}
+                    src={dataUri}
+                  />
+                );
+              })}
+          </Upload.Dragger> */}
+          <div>
+            <input
+              type="file"
+              onChange={(e) => localFileSaver(e.target.files[0] || null)}
+              sx={{ marginBottom: dataUri && '1rem' }}
+            ></input>
+            <img
+              style={{
+                maxWidth: '100%',
+                borderRadius: '4px',
+              }}
+              src={dataUri}
+            />
+          </div>
         </Form.Item>
         <Form.Item style={{ alignSelf: 'flex-end' }}>
           <Button
