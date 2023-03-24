@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Typography } from 'antd';
+import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -60,7 +61,8 @@ export default function Header() {
           onClick={() => {
             location.assign('/upload');
           }}
-          style={{ boxShadow: 'none' }}
+          style={{ boxShadow: 'none', marginRight: '0.5rem' }}
+          icon={<PlusOutlined />}
         >
           Upload
         </Button>
@@ -71,6 +73,7 @@ export default function Header() {
               'https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth&response_type=code&scope=identify';
           }}
           style={{ boxShadow: 'none' }}
+          icon={<UserOutlined />}
         >
           Login
         </Button>

@@ -1,20 +1,17 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Button, Select, Input, Radio, Spin } from 'antd';
-import { TagOutlined } from '@ant-design/icons';
+import { Radio, Spin } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { tagRender } from '../utils';
 import { useQuery } from '@apollo/client';
-import { GetPosts, GetTags } from '../queries';
+import { GetPosts } from '../queries';
 import TagSelect from '../components/TagSelect';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [tags, setTags] = useState([]);
   const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,15 +23,6 @@ export default function Browse() {
     },
     onError: () => {
       message.error('There was a problem fetching the post');
-    },
-  });
-
-  useQuery(GetTags, {
-    onCompleted: (data) => {
-      setTags(data.getTags);
-    },
-    onError: (error) => {
-      message.error('There was a problem fetching tags');
     },
   });
 
@@ -89,7 +77,6 @@ export default function Browse() {
         >
           <TagSelect
             value={search}
-            options={tags}
             onClick={() =>
               navigate({ pathname: '/browse', search: search.join('+') })
             }

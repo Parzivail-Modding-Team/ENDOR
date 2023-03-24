@@ -1,39 +1,12 @@
 /** @jsxImportSource theme-ui */
 
-import { useEffect, useState } from 'react';
-import {
-  Button,
-  Empty,
-  Form,
-  Input,
-  message,
-  Select,
-  Spin,
-  Upload,
-} from 'antd';
+import { useState } from 'react';
+import { Button, Empty, Form, Input, message, Select, Spin } from 'antd';
 import { tagRender } from '../utils';
-import { TagOutlined, InboxOutlined } from '@ant-design/icons';
+import { TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import { CreatePost, GetTags } from '../queries';
-
-function renderChecker() {
-  if (
-    localFileList &&
-    localFileList[0] &&
-    localFileList[0].status &&
-    localFileList[0].status === 'uploading'
-  ) {
-    return <Spin />;
-  } else if (
-    localFileList &&
-    localFileList[0] &&
-    localFileList[0].response &&
-    localFileList[0].response === 'Uploaded'
-  ) {
-    return <Empty />;
-  }
-}
 
 const fileToDataUri = (file) =>
   new Promise((resolve, reject) => {
@@ -49,7 +22,6 @@ const fileToDataUri = (file) =>
 export function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
-  const [localFileList, setLocalFileList] = useState([]);
 
   const [dataUri, setDataUri] = useState();
 
@@ -61,16 +33,17 @@ export function UploadRoute() {
 
     fileToDataUri(file).then((dataUri) => {
       setDataUri(dataUri);
+      setSubmission({ ...submission, file });
     });
   };
 
   const navigate = useNavigate();
 
-  useQuery(GetTags, {
+  const { loading } = useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
-    onError: (error) => {
+    onError: () => {
       message.error('There was a problem fetching tags');
     },
   });
@@ -82,10 +55,42 @@ export function UploadRoute() {
         message.success('Post Created');
       }
     },
-    onError: (error) => {
-      console.log(error);
+    onError: () => {
+      message.error('There was a problem creating the post');
     },
   });
+
+  const submissionChecker = () => {
+    if (!submission.tags || !submission.file) {
+      return true;
+    } else if (
+      submission &&
+      submission.tags &&
+      submission.tags.length &&
+      submission.tags.length > 0 &&
+      submission.file &&
+      submission.file.name
+    ) {
+      return false;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
+  }
+
+  if (!tags) {
+    message.warning('There was a problem fetching tags');
+    return (
+      <div>
+        <Empty />
+      </div>
+    );
+  }
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
@@ -125,7 +130,6 @@ export function UploadRoute() {
             }
             tagRender={tagRender}
             onChange={(e) => {
-              console.log(e);
               setSubmission({ ...submission, tags: e });
             }}
             options={tags}
@@ -136,39 +140,23 @@ export function UploadRoute() {
         {/* TODO: move action to .env */}
 
         <Form.Item label="File To Upload" required>
-          {/* <Upload.Dragger
-            listType="picture"
-            multiple={false}
-            maxCount={1}
-            action="http://localhost:4000/upload"
-            name="upload"
-            fileList={localFileList}
-            onChange={({ fileList }) => {
-              localFileSaver(fileList[0]);
-              setLocalFileList(fileList);
+          <div
+            sx={{
+              width: 'fit-content',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            {localFileList &&
-              localFileList.length &&
-              localFileList.length === 1 &&
-              localFileList.map((file) => {
-                return (
-                  <img
-                    style={{
-                      maxWidth: 'calc(100% - 2rem)',
-                      borderRadius: '4px',
-                    }}
-                    src={dataUri}
-                  />
-                );
-              })}
-          </Upload.Dragger> */}
-          <div>
-            <input
-              type="file"
-              onChange={(e) => localFileSaver(e.target.files[0] || null)}
-              sx={{ marginBottom: dataUri && '1rem' }}
-            ></input>
+            <label for="file" class="file-label">
+              Upload
+              <input
+                type="file"
+                onChange={(e) => localFileSaver(e.target.files[0] || null)}
+                sx={{ marginBottom: dataUri && '1rem' }}
+                id="file"
+                name="file"
+              />
+            </label>
             <img
               style={{
                 maxWidth: '100%',
@@ -182,7 +170,7 @@ export function UploadRoute() {
           <Button
             type="primary"
             style={{ alignSelf: 'flex-end', boxShadow: 'none' }}
-            disabled={!submission.tags || !submission.message}
+            disabled={submissionChecker()}
             onClick={() => {
               const newSubmission = { ...submission };
               // Group together existing tags (i.e. tags that have a key)

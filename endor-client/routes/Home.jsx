@@ -1,29 +1,15 @@
 /** @jsxImportSource theme-ui */
 
-import { Button, Select, Typography, Tag, Input } from 'antd';
+import { Typography } from 'antd';
 import { useState } from 'react';
-import { TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import AnimatedText from '../components/AnimatedText';
-import { options, tagRender } from '../utils';
-import { useQuery } from '@apollo/client';
-import { GetTags } from '../queries';
 import TagSelect from '../components/TagSelect';
 
 export default function Home() {
   const [search, setSearch] = useState([]);
-  const [tags, setTags] = useState([]);
 
   const navigate = useNavigate();
-
-  useQuery(GetTags, {
-    onCompleted: (data) => {
-      setTags(data.getTags);
-    },
-    onError: (error) => {
-      message.error('There was a problem fetching tags');
-    },
-  });
 
   return (
     <div
@@ -76,7 +62,6 @@ export default function Home() {
         <div sx={{ width: '60%' }}>
           <TagSelect
             value={search}
-            options={tags}
             onClick={() =>
               navigate({ pathname: '/browse', search: search.join('+') })
             }

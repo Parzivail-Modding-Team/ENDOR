@@ -1,10 +1,24 @@
 /** @jsxImportSource theme-ui */
 
+import { useState } from 'react';
 import { Button, Select, Input } from 'antd';
 import { TagOutlined } from '@ant-design/icons';
 import { tagRender } from '../utils';
+import { useQuery } from '@apollo/client';
+import { GetTags } from '../queries';
 
-export default function TagSelect({ options, value, onChange, onClick }) {
+export default function TagSelect({ value, onChange, onClick }) {
+  const [tags, setTags] = useState([]);
+
+  useQuery(GetTags, {
+    onCompleted: (data) => {
+      setTags(data.getTags);
+    },
+    onError: () => {
+      message.error('There was a problem fetching tags');
+    },
+  });
+
   return (
     <Input.Group
       compact
@@ -40,7 +54,7 @@ export default function TagSelect({ options, value, onChange, onClick }) {
         onChange={(e) => {
           onChange(e);
         }}
-        options={options}
+        options={tags}
         value={value}
         maxTagCount="responsive"
       />
@@ -52,7 +66,7 @@ export default function TagSelect({ options, value, onChange, onClick }) {
           margin: 0,
           boxShadow: 'none',
         }}
-        disabled={!value || !value.length}
+        disabled={!tags || !tags.length}
         onClick={() => {
           onClick();
         }}

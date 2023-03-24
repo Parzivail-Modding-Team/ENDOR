@@ -44,6 +44,26 @@ body {
   opacity: 0.7;
 }
 
+#file {
+  display: none;
+}
+
+.file-label {
+  cursor: pointer;
+  background-color: #389e0d;
+  padding: 4px 15px;
+  border-radius: 6px;
+  opacity: 1;
+  transition: 0.2s ease all;
+  color: white;
+  width: fit-content;
+  margin-bottom: 1rem;
+}
+
+.file-label:hover {
+  opacity: 0.85;
+}
+
 .content {
   height: 180px;
   overflow: hidden;
