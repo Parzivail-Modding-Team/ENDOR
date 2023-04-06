@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 async function main() {
-  const uri = process.env.MONGO_URL;
+  const uri = process.env.NEW_MONGO_URL;
 
   const client = new MongoClient(uri);
 

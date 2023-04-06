@@ -1,4 +1,5 @@
 /** @jsxImportSource theme-ui */
+
 import { ThemeProvider } from 'theme-ui';
 import { ConfigProvider, Spin } from 'antd';
 import { theme } from './theme';

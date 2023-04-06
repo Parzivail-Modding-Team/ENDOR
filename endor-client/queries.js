@@ -13,6 +13,14 @@ export const GetPosts = gql`
   query GetPosts($_id: String) {
     getPosts(_id: $_id) {
       _id
+    }
+  }
+`;
+
+export const GetPostDetails = gql`
+  query GetPosts($_id: String) {
+    getPosts(_id: $_id) {
+      _id
       message
       createdAt
       updatedAt

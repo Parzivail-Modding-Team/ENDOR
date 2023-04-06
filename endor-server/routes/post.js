@@ -17,6 +17,8 @@ function fixOutput(data) {
 
     const thing = { ...post, tags: fixedTags };
 
+    console.log(thing);
+
     return thing;
   });
 
@@ -38,7 +40,7 @@ async function getPosts(_, request, __) {
   return fixOutput(postData);
 }
 
-async function createPost(_, request, __) {
+async function createPost(request) {
   // Checks to see if there are new tags to concat with
   function tagChecker(newT, addT) {
     if (newT && newT.length && newT.length > 0) {
@@ -54,7 +56,10 @@ async function createPost(_, request, __) {
     }
   }
 
-  const requestParams = JSON.parse(JSON.stringify(request.input));
+  const requestParams = request;
+
+  const addTags = JSON.parse(requestParams.addTags);
+  const createTags = JSON.parse(requestParams.createTags);
 
   const time = moment().unix();
 
@@ -66,16 +71,14 @@ async function createPost(_, request, __) {
 
   let newTagsInsert;
 
-  if (requestParams.createTags) {
-    newTagsInsert = await tagDAO.createTags(
-      sanitizeArray(requestParams.createTags)
-    );
+  if (createTags) {
+    newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
   }
 
   const post = {
     tags: tagChecker(
-      newTagsInsert && newTagsInsert > 0 ? requestParams.createTags : [],
-      requestParams.addTags
+      newTagsInsert && newTagsInsert > 0 ? createTags : [],
+      addTags
     ),
     message: requestParams.message,
     createdAt: time,
@@ -87,7 +90,11 @@ async function createPost(_, request, __) {
     return {};
   });
 
-  return newPost;
+  console.log(newPost);
+
+  const newPostId = newPost.toString();
+
+  return newPostId;
 }
 
 export { getPosts, createPost };

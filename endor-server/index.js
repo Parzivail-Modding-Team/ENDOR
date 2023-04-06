@@ -5,6 +5,8 @@ import cors from 'cors';
 import { typeDefs } from './typedefs.js';
 import { resolvers } from './resolvers.js';
 
+const upload = multer({ dest: 'uploads/' });
+
 // File Uploading via AWS SDK
 import aws from 'aws-sdk';
 import multer from 'multer';
@@ -15,6 +17,8 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import pkg from 'body-parser';
 import { getMongo } from './mongo.js';
+import { createPost } from './routes/post.js';
+import { ObjectId } from 'mongodb';
 const { json } = pkg;
 
 async function init() {
@@ -49,7 +53,8 @@ async function init() {
   });
 
   // Change bucket property to your Space name
-  const upload = multer({
+  // TODO: line 63 - change file name to something dynamic so it doesn't overwrite things with the same name
+  const uploadFunc = multer({
     storage: multerS3({
       s3: s3,
       bucket: 'endor-cdn',
@@ -59,17 +64,18 @@ async function init() {
         cb(null, file.originalname);
       },
     }),
-  }).array('upload', 1);
+  });
 
-  app.post('/upload', function (request, response, next) {
-    upload(request, response, function (error) {
-      if (error) {
-        console.log(error);
-        return response.send('There was a problem uploading an image');
-      }
-      console.log('File uploaded successfully.');
-      return response.send();
-    });
+  app.post('/createPost', uploadFunc.single('file'), function (req, res, next) {
+    const body = JSON.parse(JSON.stringify(req.body));
+
+    const newPost = createPost(body);
+
+    if (newPost !== {}) {
+      console.log('Post created successfully.');
+      console.log(newPost);
+      return res.json({ _id: newPost });
+    }
   });
 
   await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));

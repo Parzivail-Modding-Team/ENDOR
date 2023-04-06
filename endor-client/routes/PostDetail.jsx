@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { useQuery } from '@apollo/client';
-import { GetPosts } from '../queries';
+import { GetPostDetails } from '../queries';
 
 function RowItem({ title, content }) {
   return (
@@ -30,7 +30,7 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const location = useLocation();
 
-  const { loading } = useQuery(GetPosts, {
+  const { loading } = useQuery(GetPostDetails, {
     variables: { _id: location.pathname.substring(1) },
     onCompleted: (data) => {
       setPost(data.getPosts[0]);

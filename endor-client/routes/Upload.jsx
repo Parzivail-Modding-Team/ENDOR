@@ -1,12 +1,13 @@
 /** @jsxImportSource theme-ui */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Empty, Form, Input, message, Select, Spin } from 'antd';
 import { tagRender } from '../utils';
 import { TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import { CreatePost, GetTags } from '../queries';
+import axios from 'axios';
 
 const fileToDataUri = (file) =>
   new Promise((resolve, reject) => {
@@ -33,7 +34,9 @@ export function UploadRoute() {
 
     fileToDataUri(file).then((dataUri) => {
       setDataUri(dataUri);
-      setSubmission({ ...submission, file });
+      const thing = { ...submission };
+      thing.file = file;
+      setSubmission(thing);
     });
   };
 
@@ -61,19 +64,65 @@ export function UploadRoute() {
   });
 
   const submissionChecker = () => {
+    console.log(submission.tags);
     if (!submission.tags || !submission.file) {
       return true;
     } else if (
       submission &&
       submission.tags &&
       submission.tags.length &&
-      submission.tags.length > 0 &&
-      submission.file &&
-      submission.file.name
+      submission.tags.length > 0
     ) {
       return false;
     }
   };
+
+  function onSubmit() {
+    const newSubmission = { ...submission };
+    // Group together existing tags (i.e. tags that have a key)
+    newSubmission.addTags = newSubmission.tags
+      .filter((tag) => !!tag.key)
+      .map((tag2) => {
+        return { _id: tag2.value };
+      });
+    // Group together new tags (i.e. tags that don't have a key)
+    newSubmission.createTags = newSubmission.tags
+      .filter((tag) => !tag.key)
+      .map((tag2) => {
+        return { label: tag2.value };
+      });
+    delete newSubmission.tags;
+
+    console.log(newSubmission);
+
+    let formData = new FormData();
+    formData.append('message', newSubmission.message);
+    formData.append('createTags', JSON.stringify(newSubmission.createTags));
+    formData.append('addTags', JSON.stringify(newSubmission.addTags));
+    formData.append('file', newSubmission.file);
+
+    axios
+      .post('http://localhost:5173/createPost', formData, {
+        headers: {
+          'content-type': 'multipart/form-data',
+          Accept: 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.data && res.data._id) {
+          navigate(`/${res.data._id}`);
+          message.success('Post created successfully');
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
+  useEffect(() => {
+    console.log(submission);
+  }, [submission]);
 
   if (loading) {
     return (
@@ -94,11 +143,8 @@ export function UploadRoute() {
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
-      <Form
-        layout="vertical"
-        style={{ width: '100%', display: 'flex', flexDirection: 'column' }}
-      >
-        <Form.Item label="Description">
+      <Form onFinish={() => onSubmit()}>
+        <Form.Item name="message">
           <Input
             placeholder="Ex. Here is a fun description about this image"
             onChange={(e) => {
@@ -107,7 +153,7 @@ export function UploadRoute() {
             allowClear
           />
         </Form.Item>
-        <Form.Item label="Tags" required>
+        <Form.Item name="tags">
           <Select
             mode="tags"
             allowClear
@@ -132,66 +178,42 @@ export function UploadRoute() {
             onChange={(e) => {
               setSubmission({ ...submission, tags: e });
             }}
-            options={tags}
+            options={tags || []}
             value={submission.tags}
             labelInValue
           />
         </Form.Item>
-        {/* TODO: move action to .env */}
-
-        <Form.Item label="File To Upload" required>
-          <div
-            sx={{
-              width: 'fit-content',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <label for="file" class="file-label">
-              Upload
-              <input
-                type="file"
-                onChange={(e) => localFileSaver(e.target.files[0] || null)}
-                sx={{ marginBottom: dataUri && '1rem' }}
-                id="file"
-                name="file"
-              />
-            </label>
-            <img
-              style={{
-                maxWidth: '100%',
-                borderRadius: '4px',
-              }}
-              src={dataUri}
+        <div
+          sx={{
+            width: 'fit-content',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <label htmlFor="file" className="file-label">
+            Upload File
+            <input
+              type="file"
+              onChange={(e) => localFileSaver(e.target.files[0] || null)}
+              sx={{ marginBottom: dataUri && '1rem' }}
+              id="file"
+              name="file"
             />
-          </div>
-        </Form.Item>
-        <Form.Item style={{ alignSelf: 'flex-end' }}>
-          <Button
-            type="primary"
-            style={{ alignSelf: 'flex-end', boxShadow: 'none' }}
-            disabled={submissionChecker()}
-            onClick={() => {
-              const newSubmission = { ...submission };
-              // Group together existing tags (i.e. tags that have a key)
-              newSubmission.addTags = newSubmission.tags
-                .filter((tag) => !!tag.key)
-                .map((tag2) => {
-                  return { _id: tag2.value };
-                });
-              // Group together new tags (i.e. tags that don't have a key)
-              newSubmission.createTags = newSubmission.tags
-                .filter((tag) => !tag.key)
-                .map((tag2) => {
-                  return { label: tag2.value };
-                });
-              delete newSubmission.tags;
-              createPost({ variables: { input: newSubmission } });
+          </label>
+          <img
+            style={{
+              maxWidth: '100%',
+              borderRadius: '4px',
             }}
-          >
-            Submit
-          </Button>
-        </Form.Item>
+            src={dataUri}
+          />
+        </div>
+        <button
+          type="submit"
+          style={{ alignSelf: 'flex-end', boxShadow: 'none' }}
+        >
+          Submit
+        </button>
       </Form>
     </div>
   );
