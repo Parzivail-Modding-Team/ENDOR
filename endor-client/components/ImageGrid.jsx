@@ -1,12 +1,11 @@
 /** @jsxImportSource theme-ui */
 import { useNavigate } from 'react-router-dom';
-import six from '../assets/6.png';
 
 function GridItem({ item, gridSize }) {
   const navigate = useNavigate();
 
   return (
-    <div
+    <a
       sx={{
         height:
           gridSize === '500px'
@@ -17,12 +16,10 @@ function GridItem({ item, gridSize }) {
         width: '100%',
       }}
       className="grid-item"
-      onClick={() => {
-        navigate(`/${item._id}`);
-      }}
+      href={`/${item._id}`}
     >
       <img
-        src={item.src || six}
+        src={item.imageUrl}
         sx={{
           width: '100%',
           height: '100%',
@@ -32,7 +29,7 @@ function GridItem({ item, gridSize }) {
           cursor: 'pointer',
         }}
       />
-    </div>
+    </a>
   );
 }
 

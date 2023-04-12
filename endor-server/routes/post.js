@@ -17,8 +17,6 @@ function fixOutput(data) {
 
     const thing = { ...post, tags: fixedTags };
 
-    console.log(thing);
-
     return thing;
   });
 
@@ -40,7 +38,7 @@ async function getPosts(_, request, __) {
   return fixOutput(postData);
 }
 
-async function createPost(request) {
+async function createPost(request, imageUrl) {
   // Checks to see if there are new tags to concat with
   function tagChecker(newT, addT) {
     if (newT && newT.length && newT.length > 0) {
@@ -83,18 +81,21 @@ async function createPost(request) {
     message: requestParams.message,
     createdAt: time,
     updatedAt: time,
+    imageUrl,
   };
 
-  const newPost = await postDAO.createPost(post).catch((e) => {
-    console.error(e);
-    return {};
-  });
+  const thing = await postDAO
+    .createPost(post)
+    .catch((e) => {
+      console.error(e);
+    })
+    .then((data) => {
+      if (data && data.acknowledged && data.acknowledged === true) {
+        return data.insertedId.toString();
+      }
+    });
 
-  console.log(newPost);
-
-  const newPostId = newPost.toString();
-
-  return newPostId;
+  return thing;
 }
 
 export { getPosts, createPost };

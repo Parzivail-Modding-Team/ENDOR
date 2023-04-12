@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Radio, Spin } from 'antd';
+import { Radio, Result, Skeleton, Spin } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -17,7 +17,7 @@ export default function Browse() {
   const navigate = useNavigate();
 
   // Search support
-  const { loading } = useQuery(GetPosts, {
+  const { loading, error } = useQuery(GetPosts, {
     onCompleted: (data) => {
       setPosts(data.getPosts);
     },
@@ -124,9 +124,61 @@ export default function Browse() {
         </Radio.Group>
       </div>
       {!posts ? (
-        <Empty />
+        <div
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Result
+            status={404}
+            title="No Posts"
+            subTitle="We could not find any posts, please try again or create a new post."
+          />
+        </div>
       ) : loading ? (
-        <Spin />
+        <div
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: '1fr 1fr',
+            gap: '1rem',
+            width: '100%',
+            height: 'auto',
+          }}
+        >
+          <Skeleton.Image
+            active
+            style={{
+              width: '100%',
+              height: 'auto',
+              padding: '40%',
+            }}
+          />
+          <Skeleton.Image
+            active
+            style={{
+              width: '100%',
+              height: 'auto',
+              padding: '40%',
+            }}
+          />
+          <Skeleton.Image
+            active
+            style={{
+              width: '100%',
+              height: 'auto',
+              padding: '40%',
+            }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+        </div>
       ) : (
         <ImageGrid gridSize={gridSize} data={posts} />
       )}

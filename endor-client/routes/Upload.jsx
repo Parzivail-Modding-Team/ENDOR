@@ -1,9 +1,9 @@
 /** @jsxImportSource theme-ui */
 
 import { useEffect, useState } from 'react';
-import { Button, Empty, Form, Input, message, Select, Spin } from 'antd';
+import { Button, Form, Input, message, Select } from 'antd';
 import { tagRender } from '../utils';
-import { TagOutlined } from '@ant-design/icons';
+import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import { CreatePost, GetTags } from '../queries';
@@ -23,6 +23,7 @@ const fileToDataUri = (file) =>
 export function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const [dataUri, setDataUri] = useState();
 
@@ -42,7 +43,7 @@ export function UploadRoute() {
 
   const navigate = useNavigate();
 
-  const { loading } = useQuery(GetTags, {
+  const { loading, error } = useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
@@ -64,7 +65,6 @@ export function UploadRoute() {
   });
 
   const submissionChecker = () => {
-    console.log(submission.tags);
     if (!submission.tags || !submission.file) {
       return true;
     } else if (
@@ -78,6 +78,8 @@ export function UploadRoute() {
   };
 
   function onSubmit() {
+    setSubmitLoading(true);
+
     const newSubmission = { ...submission };
     // Group together existing tags (i.e. tags that have a key)
     newSubmission.addTags = newSubmission.tags
@@ -93,8 +95,6 @@ export function UploadRoute() {
       });
     delete newSubmission.tags;
 
-    console.log(newSubmission);
-
     let formData = new FormData();
     formData.append('message', newSubmission.message);
     formData.append('createTags', JSON.stringify(newSubmission.createTags));
@@ -109,42 +109,27 @@ export function UploadRoute() {
         },
       })
       .then((res) => {
-        console.log(res);
         if (res.data && res.data._id) {
+          setSubmitLoading(false);
           navigate(`/${res.data._id}`);
           message.success('Post created successfully');
         }
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(() => {
+        message.error('There was a problem fetching posts');
       });
   }
 
   useEffect(() => {
-    console.log(submission);
-  }, [submission]);
-
-  if (loading) {
-    return (
-      <div>
-        <Spin />
-      </div>
-    );
-  }
-
-  if (!tags) {
-    message.warning('There was a problem fetching tags');
-    return (
-      <div>
-        <Empty />
-      </div>
-    );
-  }
+    if (!loading && error) {
+      message.error('There was a problem fetching tags');
+    }
+  }, [loading, error]);
 
   return (
     <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
-      <Form onFinish={() => onSubmit()}>
-        <Form.Item name="message">
+      <Form layout="vertical">
+        <Form.Item name="message" label="Message">
           <Input
             placeholder="Ex. Here is a fun description about this image"
             onChange={(e) => {
@@ -153,7 +138,7 @@ export function UploadRoute() {
             allowClear
           />
         </Form.Item>
-        <Form.Item name="tags">
+        <Form.Item name="tags" label="Tags" required>
           <Select
             mode="tags"
             allowClear
@@ -183,37 +168,65 @@ export function UploadRoute() {
             labelInValue
           />
         </Form.Item>
+        <Form.Item>
+          <div
+            sx={{
+              width: 'fit-content',
+              display: 'flex',
+              width: '100%',
+              flexDirection: 'column',
+              marginBottom: '0.5rem',
+            }}
+          >
+            <label htmlFor="file" className="file-label">
+              <PlusOutlined style={{ marginRight: '0.5rem' }} />
+              Upload File
+              <input
+                type="file"
+                onChange={(e) => localFileSaver(e.target.files[0] || null)}
+                sx={{ marginBottom: dataUri && '1rem' }}
+                id="file"
+                name="file"
+              />
+            </label>
+            <div
+              sx={{
+                display: 'flex',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img
+                style={{
+                  maxWidth: '100%',
+                  borderRadius: '4px',
+                }}
+                src={dataUri}
+              />
+            </div>
+          </div>
+        </Form.Item>
         <div
           sx={{
-            width: 'fit-content',
+            width: '100%',
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'flex-end',
           }}
         >
-          <label htmlFor="file" className="file-label">
-            Upload File
-            <input
-              type="file"
-              onChange={(e) => localFileSaver(e.target.files[0] || null)}
-              sx={{ marginBottom: dataUri && '1rem' }}
-              id="file"
-              name="file"
-            />
-          </label>
-          <img
+          <Button
+            type="primary"
             style={{
-              maxWidth: '100%',
-              borderRadius: '4px',
+              alignSelf: 'flex-end',
+              boxShadow: 'none',
+              width: 'fit-content',
             }}
-            src={dataUri}
-          />
+            onClick={() => onSubmit()}
+            loading={submitLoading}
+          >
+            Submit
+          </Button>
         </div>
-        <button
-          type="submit"
-          style={{ alignSelf: 'flex-end', boxShadow: 'none' }}
-        >
-          Submit
-        </button>
       </Form>
     </div>
   );

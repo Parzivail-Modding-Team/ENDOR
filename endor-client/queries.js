@@ -13,6 +13,7 @@ export const GetPosts = gql`
   query GetPosts($_id: String) {
     getPosts(_id: $_id) {
       _id
+      imageUrl
     }
   }
 `;
@@ -22,6 +23,7 @@ export const GetPostDetails = gql`
     getPosts(_id: $_id) {
       _id
       message
+      imageUrl
       createdAt
       updatedAt
       tags {

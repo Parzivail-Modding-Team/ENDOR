@@ -12,6 +12,8 @@ import aws from 'aws-sdk';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 
+import { v4 as uuidv4 } from 'uuid';
+
 // Using middleware implementation because unsure of auth scheme currently
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -47,7 +49,7 @@ async function init() {
     })
   );
 
-  const spacesEndpoint = new aws.Endpoint(process.env.CDN_URL);
+  const spacesEndpoint = new aws.Endpoint(process.env.ENDPOINT_URL);
   const s3 = new aws.S3({
     endpoint: spacesEndpoint,
   });
@@ -57,26 +59,31 @@ async function init() {
   const uploadFunc = multer({
     storage: multerS3({
       s3: s3,
-      bucket: 'endor-cdn',
+      bucket: process.env.BUCKET,
       acl: 'public-read',
       key: function (request, file, cb) {
-        console.log(file);
-        cb(null, file.originalname);
+        cb(null, uuidv4());
       },
     }),
   });
 
-  app.post('/createPost', uploadFunc.single('file'), function (req, res, next) {
-    const body = JSON.parse(JSON.stringify(req.body));
+  app.post(
+    '/createPost',
+    uploadFunc.single('file'),
 
-    const newPost = createPost(body);
+    async function (req, res) {
+      const body = JSON.parse(JSON.stringify(req.body));
 
-    if (newPost !== {}) {
-      console.log('Post created successfully.');
-      console.log(newPost);
-      return res.json({ _id: newPost });
+      const newPost = await createPost(
+        body,
+        process.env.CDN_URL + req.file.key
+      );
+
+      if (newPost && newPost.length) {
+        return res.json({ _id: newPost });
+      }
     }
-  });
+  );
 
   await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
 

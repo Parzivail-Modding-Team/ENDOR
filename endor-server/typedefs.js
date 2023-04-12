@@ -10,7 +10,7 @@ export const typeDefs = `#graphql
     author: User
     createdAt: String
     updatedAt: String
-    image_id: String
+    imageUrl: String
     message: String
     tags: [Tag]
   }

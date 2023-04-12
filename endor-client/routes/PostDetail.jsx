@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { useQuery } from '@apollo/client';
 import { GetPostDetails } from '../queries';
+import ImageSkeleton from '../components/ImageSkeleton';
 
 function RowItem({ title, content }) {
   return (
@@ -30,7 +31,7 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const location = useLocation();
 
-  const { loading } = useQuery(GetPostDetails, {
+  const { loading, error } = useQuery(GetPostDetails, {
     variables: { _id: location.pathname.substring(1) },
     onCompleted: (data) => {
       setPost(data.getPosts[0]);
@@ -41,17 +42,25 @@ export default function PostDetail() {
   });
 
   if (loading) {
-    return (
-      <div>
-        <Spin />
-      </div>
-    );
+    return <ImageSkeleton />;
   }
 
-  if (!post) {
+  if ((!post && !loading) || error) {
     return (
-      <div>
-        <Empty />
+      <div
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <Result
+          status={404}
+          title="No Posts"
+          subTitle="We could not find the specified post. Please try again."
+        />
       </div>
     );
   }
@@ -77,7 +86,7 @@ export default function PostDetail() {
         }}
       >
         <img
-          src={post.src}
+          src={post.imageUrl}
           sx={{
             maxWidth: '100%',
             height: 'auto',
