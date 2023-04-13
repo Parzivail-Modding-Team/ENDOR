@@ -3,7 +3,7 @@ import { gql } from 'graphql-tag';
 export const GetTags = gql`
   query GetTags {
     getTags {
-      value
+      _id
       label
     }
   }
@@ -27,7 +27,7 @@ export const GetPostDetails = gql`
       createdAt
       updatedAt
       tags {
-        value
+        _id
         label
       }
     }

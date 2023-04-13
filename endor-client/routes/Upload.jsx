@@ -1,12 +1,12 @@
 /** @jsxImportSource theme-ui */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Form, Input, message, Select } from 'antd';
 import { tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
-import { CreatePost, GetTags } from '../queries';
+import { GetTags } from '../queries';
 import axios from 'axios';
 
 const fileToDataUri = (file) =>
@@ -43,24 +43,12 @@ export default function UploadRoute() {
 
   const navigate = useNavigate();
 
-  const { loading, error } = useQuery(GetTags, {
+  useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
     onError: () => {
       message.error('There was a problem fetching tags');
-    },
-  });
-
-  const [createPost] = useMutation(CreatePost, {
-    onCompleted: (data) => {
-      if (data && data.createPost) {
-        navigate(`/${data.createPost}`);
-        message.success('Post Created');
-      }
-    },
-    onError: () => {
-      message.error('There was a problem creating the post');
     },
   });
 
@@ -82,11 +70,7 @@ export default function UploadRoute() {
 
     const newSubmission = { ...submission };
     // Group together existing tags (i.e. tags that have a key)
-    newSubmission.addTags = newSubmission.tags
-      .filter((tag) => !!tag.key)
-      .map((tag2) => {
-        return { _id: tag2.value };
-      });
+    newSubmission.addTags = newSubmission.tags.filter((tag) => !!tag.key);
     // Group together new tags (i.e. tags that don't have a key)
     newSubmission.createTags = newSubmission.tags
       .filter((tag) => !tag.key)
@@ -120,113 +104,132 @@ export default function UploadRoute() {
       });
   }
 
-  useEffect(() => {
-    if (!loading && error) {
-      message.error('There was a problem fetching tags');
-    }
-  }, [loading, error]);
-
   return (
-    <div sx={{ height: '100%', width: '100%', padding: '1rem' }}>
-      <Form layout="vertical">
-        <Form.Item name="message" label="Message">
-          <Input
-            placeholder="Ex. Here is a fun description about this image"
-            onChange={(e) => {
-              setSubmission({ ...submission, message: e.target.value });
-            }}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item name="tags" label="Tags" required>
-          <Select
-            mode="tags"
-            allowClear
-            style={{ width: '100%' }}
-            placeholder={
-              <div
-                sx={{
-                  height: 'fit-content',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <TagOutlined
-                  className="site-form-item-icon"
-                  style={{ marginRight: '0.5rem' }}
-                />
-                Ex. landspeeder
-              </div>
-            }
-            tagRender={tagRender}
-            onChange={(e) => {
-              setSubmission({ ...submission, tags: e });
-            }}
-            options={tags || []}
-            value={submission.tags}
-            labelInValue
-          />
-        </Form.Item>
-        <Form.Item>
-          <div
-            sx={{
-              display: 'flex',
-              width: '100%',
-              flexDirection: 'column',
-              marginBottom: '0.5rem',
-            }}
-          >
-            <label htmlFor="file" className="file-label">
-              <PlusOutlined style={{ marginRight: '0.5rem' }} />
-              Upload File
-              <input
-                type="file"
-                onChange={(e) => localFileSaver(e.target.files[0] || null)}
-                sx={{ marginBottom: dataUri && '1rem' }}
-                id="file"
-                name="file"
-              />
-            </label>
+    <div
+      sx={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        sx={{
+          height: '100%',
+          width: '100%',
+          maxWidth: '800px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Form
+          layout="vertical"
+          style={{ paddingBottom: '1rem', width: '100%' }}
+          title="Create Post"
+        >
+          <Form.Item name="message" label="Message">
+            <Input
+              placeholder="Ex. Here is a fun description about this image"
+              onChange={(e) => {
+                setSubmission({ ...submission, message: e.target.value });
+              }}
+              allowClear
+            />
+          </Form.Item>
+          <Form.Item name="tags" label="Tags" required>
+            <Select
+              mode="tags"
+              allowClear
+              style={{ width: '100%' }}
+              placeholder={
+                <div
+                  sx={{
+                    height: 'fit-content',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <TagOutlined
+                    className="site-form-item-icon"
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  Ex. landspeeder
+                </div>
+              }
+              tagRender={tagRender}
+              onChange={(e) => {
+                setSubmission({ ...submission, tags: e });
+              }}
+              options={tags}
+              value={submission.tags}
+              optionFilterProp="label"
+              fieldNames={{ value: '_id' }}
+              labelInValue
+            />
+          </Form.Item>
+          <Form.Item>
             <div
               sx={{
                 display: 'flex',
                 width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
+                flexDirection: 'column',
+                marginBottom: '0.5rem',
               }}
             >
-              <img
-                style={{
-                  maxWidth: '100%',
-                  borderRadius: '4px',
+              <label htmlFor="file" className="file-label">
+                <PlusOutlined style={{ marginRight: '0.5rem' }} />
+                Upload File
+                <input
+                  type="file"
+                  onChange={(e) => localFileSaver(e.target.files[0] || null)}
+                  sx={{ marginBottom: dataUri && '1rem' }}
+                  id="file"
+                  name="file"
+                />
+              </label>
+              <div
+                sx={{
+                  display: 'flex',
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
-                src={dataUri}
-              />
+              >
+                <img
+                  style={{
+                    maxWidth: '100%',
+                    borderRadius: '4px',
+                  }}
+                  src={dataUri}
+                />
+              </div>
             </div>
-          </div>
-        </Form.Item>
-        <div
-          sx={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button
-            type="primary"
-            style={{
-              alignSelf: 'flex-end',
-              boxShadow: 'none',
-              width: 'fit-content',
+          </Form.Item>
+          <div
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'flex-end',
             }}
-            onClick={() => onSubmit()}
-            loading={submitLoading}
           >
-            Submit
-          </Button>
-        </div>
-      </Form>
+            <Button
+              type="primary"
+              style={{
+                alignSelf: 'flex-end',
+                boxShadow: 'none',
+                width: 'fit-content',
+              }}
+              onClick={() => onSubmit()}
+              loading={submitLoading}
+            >
+              Submit
+            </Button>
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }

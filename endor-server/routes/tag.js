@@ -8,14 +8,10 @@ async function getTags() {
     return [];
   });
 
-  const fixedTags = tagData.map((tag) => {
-    return { value: tag._id.toString(), label: tag.label };
-  });
-
-  return fixedTags;
+  return tagData;
 }
 
-async function createTags() {
+async function createTags(tags) {
   const tagData = await TagDAO.insertMany(tags).catch((e) => {
     console.error(error);
     return [];

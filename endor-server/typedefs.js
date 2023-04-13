@@ -16,14 +16,12 @@ export const typeDefs = `#graphql
   }
 
   type Tag {
-    _id: ID
-    value: String
+    _id: String
     label: String
   }
 
   input TagInput {
-    _id: ID
-    value: String
+    _id: String
     label: String
   }
 

@@ -3,58 +3,45 @@ import { ObjectId } from 'mongodb';
 import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
 
-function fixOutput(data) {
-  const updatedPosts = data.map(async (post) => {
-    const cleanedTags = post.tags.map((tag) => new ObjectId(tag._id));
-
-    const fetchedTags = await tagDAO.findTags([
-      { $match: { _id: { $in: cleanedTags } } },
-    ]);
-
-    const fixedTags = fetchedTags.map((tag) => {
-      return { value: tag._id.toString(), label: tag.label };
-    });
-
-    const thing = { ...post, tags: fixedTags };
-
-    return thing;
-  });
-
-  return updatedPosts;
-}
-
 async function getPosts(_, request, __) {
   const postData = await postDAO
-    .findPosts(
-      request && request._id
-        ? [{ $match: { _id: new ObjectId(request._id) } }]
-        : [{ $match: {} }]
-    )
+    .findPosts([
+      {
+        $match:
+          request && request._id ? { _id: new ObjectId(request._id) } : {},
+      },
+      {
+        $lookup: {
+          from: 'endor-tag',
+          localField: 'tags',
+          foreignField: '_id',
+          as: 'tags',
+        },
+      },
+    ])
     .catch((e) => {
       console.error(e);
       return [];
     });
 
-  return fixOutput(postData);
+  return postData;
 }
 
 async function createPost(request, imageUrl) {
   // Checks to see if there are new tags to concat with
   function tagChecker(newT, addT) {
     if (newT && newT.length && newT.length > 0) {
-      return sanitizeArray(newT)
-        .map((tag) => {
-          return {
-            _id: tag._id.toString(),
-          };
-        })
-        .concat(sanitizeArray(addT));
+      return sanitizeArray(newT.map((tag) => tag._id)).concat(
+        sanitizeArray(addT.map((tag) => new ObjectId(tag._id)))
+      );
     } else {
       return sanitizeArray(addT);
     }
   }
 
   const requestParams = request;
+
+  console.log(requestParams);
 
   const addTags = JSON.parse(requestParams.addTags);
   const createTags = JSON.parse(requestParams.createTags);
@@ -72,6 +59,8 @@ async function createPost(request, imageUrl) {
   if (createTags) {
     newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
   }
+
+  console.log(newTagsInsert);
 
   const post = {
     tags: tagChecker(

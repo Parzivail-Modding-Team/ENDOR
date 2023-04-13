@@ -7,7 +7,7 @@ import { tagRender } from '../utils';
 import { useQuery } from '@apollo/client';
 import { GetTags } from '../queries';
 
-export default function TagSelect({ value, onChange, onClick }) {
+export default function TagSelect({ value, onChange, onClick, style }) {
   const [tags, setTags] = useState([]);
 
   useQuery(GetTags, {
@@ -28,6 +28,7 @@ export default function TagSelect({ value, onChange, onClick }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        ...style,
       }}
     >
       <Select

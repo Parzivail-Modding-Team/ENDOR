@@ -256,3 +256,7 @@ body {
     transform: translate3d(0, -25%, 0);
   }
 }
+
+.ant-statistic-title {
+  margin: 0 !important;
+}

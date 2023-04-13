@@ -29,7 +29,7 @@ function RowItem({ title, content }) {
 }
 
 export default function PostDetail() {
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState({});
   const [editing, setEditing] = useState(false);
 
   const location = useLocation();
