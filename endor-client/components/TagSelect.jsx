@@ -66,7 +66,6 @@ export default function TagSelect({ value, onChange, onClick }) {
           margin: 0,
           boxShadow: 'none',
         }}
-        disabled={!tags || !tags.length}
         onClick={() => {
           onClick();
         }}

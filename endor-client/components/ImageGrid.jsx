@@ -1,9 +1,7 @@
 /** @jsxImportSource theme-ui */
-import { useNavigate } from 'react-router-dom';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 function GridItem({ item, gridSize }) {
-  const navigate = useNavigate();
-
   return (
     <a
       sx={{
@@ -18,7 +16,7 @@ function GridItem({ item, gridSize }) {
       className="grid-item"
       href={`/${item._id}`}
     >
-      <img
+      <LazyLoadImage
         src={item.imageUrl}
         sx={{
           width: '100%',

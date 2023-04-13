@@ -20,7 +20,7 @@ const fileToDataUri = (file) =>
 
 // TODO: input sanitization and pre-post validation
 // TODO: file uploading
-export function UploadRoute() {
+export default function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -171,7 +171,6 @@ export function UploadRoute() {
         <Form.Item>
           <div
             sx={{
-              width: 'fit-content',
               display: 'flex',
               width: '100%',
               flexDirection: 'column',

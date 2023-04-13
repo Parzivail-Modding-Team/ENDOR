@@ -1,11 +1,13 @@
 /** @jsxImportSource theme-ui */
-import { Divider, Empty, Spin, Tag, Typography } from 'antd';
+import { Divider, Tag, Typography } from 'antd';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { useQuery } from '@apollo/client';
 import { GetPostDetails } from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
+import LocalResult from '../components/LocalResult';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 function RowItem({ title, content }) {
   return (
@@ -29,6 +31,8 @@ function RowItem({ title, content }) {
 
 export default function PostDetail() {
   const [post, setPost] = useState(null);
+  const [editing, setEditing] = useState(false);
+
   const location = useLocation();
 
   const { loading, error } = useQuery(GetPostDetails, {
@@ -43,26 +47,6 @@ export default function PostDetail() {
 
   if (loading) {
     return <ImageSkeleton />;
-  }
-
-  if ((!post && !loading) || error) {
-    return (
-      <div
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        <Result
-          status={404}
-          title="No Posts"
-          subTitle="We could not find the specified post. Please try again."
-        />
-      </div>
-    );
   }
 
   // TODO: add media query for flex wrap
@@ -85,7 +69,7 @@ export default function PostDetail() {
           width: 'fit-content',
         }}
       >
-        <img
+        <LazyLoadImage
           src={post.imageUrl}
           sx={{
             maxWidth: '100%',

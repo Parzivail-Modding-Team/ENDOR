@@ -1,13 +1,14 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Radio, Result, Skeleton, Spin } from 'antd';
+import { Radio, Skeleton } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { GetPosts } from '../queries';
 import TagSelect from '../components/TagSelect';
+import LocalResult from '../components/LocalResult';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
@@ -16,7 +17,6 @@ export default function Browse() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Search support
   const { loading, error } = useQuery(GetPosts, {
     onCompleted: (data) => {
       setPosts(data.getPosts);
@@ -123,62 +123,25 @@ export default function Browse() {
           </Radio.Button>
         </Radio.Group>
       </div>
-      {!posts ? (
+      {loading && (
         <div
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
             height: '100%',
-          }}
-        >
-          <Result
-            status={404}
-            title="No Posts"
-            subTitle="We could not find any posts, please try again or create a new post."
-          />
-        </div>
-      ) : loading ? (
-        <div
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gridTemplateRows: '1fr 1fr',
-            gap: '1rem',
             width: '100%',
-            height: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <Skeleton.Image
-            active
-            style={{
-              width: '100%',
-              height: 'auto',
-              padding: '40%',
-            }}
-          />
-          <Skeleton.Image
-            active
-            style={{
-              width: '100%',
-              height: 'auto',
-              padding: '40%',
-            }}
-          />
-          <Skeleton.Image
-            active
-            style={{
-              width: '100%',
-              height: 'auto',
-              padding: '40%',
-            }}
-          />
-          <Skeleton.Image
-            active
-            style={{ width: '100%', height: 'auto', padding: '40%' }}
-          />
+          <Skeleton active />
+          <Skeleton active />
+          <Skeleton active />
         </div>
+      )}
+      {!loading && !posts.length ? (
+        <LocalResult
+          title="No Posts"
+          subTitle="We could not find any posts, please try again or create a new post."
+        />
       ) : (
         <ImageGrid gridSize={gridSize} data={posts} />
       )}
