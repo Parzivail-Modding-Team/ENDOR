@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Typography } from 'antd';
-import { PlusOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,19 +34,18 @@ export default function Header() {
         zIndex: 999,
       }}
     >
-      <Typography.Title
-        level={2}
-        style={{
-          margin: 0,
-          fontFamily: 'Gloock',
-          cursor: 'pointer',
-        }}
-        onClick={() => {
-          location.assign('/');
-        }}
-      >
-        ENDOR
-      </Typography.Title>
+      <a href="/" style={{ textDecoration: 'none' }}>
+        <Typography.Title
+          level={2}
+          style={{
+            margin: 0,
+            fontFamily: 'Gloock',
+            cursor: 'pointer',
+          }}
+        >
+          ENDOR
+        </Typography.Title>
+      </a>
       <div
         sx={{
           display: 'flex',
@@ -58,22 +57,26 @@ export default function Header() {
       >
         <Button
           type="primary"
-          onClick={() => {
-            location.assign('/upload');
-          }}
+          style={{ boxShadow: 'none', marginRight: '0.5rem' }}
+          icon={<TagOutlined />}
+          href="/tags"
+        >
+          Tags
+        </Button>
+        <Button
+          type="primary"
           style={{ boxShadow: 'none', marginRight: '0.5rem' }}
           icon={<PlusOutlined />}
+          href="/upload"
         >
           Upload
         </Button>
         <Button
           type="primary"
-          onClick={() => {
-            location.href =
-              'https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth&response_type=code&scope=identify';
-          }}
+          onClick={() => {}}
           style={{ boxShadow: 'none' }}
           icon={<UserOutlined />}
+          href="https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth&response_type=code&scope=identify"
         >
           Login
         </Button>

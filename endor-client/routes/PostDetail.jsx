@@ -6,7 +6,6 @@ import moment from 'moment';
 import { useQuery } from '@apollo/client';
 import { GetPostDetails } from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
-import LocalResult from '../components/LocalResult';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 function RowItem({ title, content }) {

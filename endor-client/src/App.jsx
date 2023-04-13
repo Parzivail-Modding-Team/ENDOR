@@ -10,7 +10,6 @@ import { getClient } from './apolloSetup';
 import loadable from '@loadable/component';
 
 const Header = loadable(() => import('../components/Header'));
-const Home = loadable(() => import('../routes/Home'));
 const PostDetail = loadable(() => import('../routes/PostDetail'));
 const Browse = loadable(() => import('../routes/Browse'));
 const UploadRoute = loadable(() => import('../routes/Upload'));
@@ -19,19 +18,11 @@ const Tags = loadable(() => import('../routes/Tags'));
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
+    element: <Browse />,
   },
   {
     path: '/:id',
     element: <PostDetail />,
-  },
-  {
-    path: '/browse',
-    element: <Browse />,
-  },
-  {
-    path: '/browse/:id',
-    element: <Browse />,
   },
   {
     path: '/upload',
