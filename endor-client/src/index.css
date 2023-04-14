@@ -264,3 +264,29 @@ body {
 .ant-statistic-title {
   margin: 0 !important;
 }
+
+.dark-input .ant-select-selector {
+  background-color: #44475a !important;
+  border-color: #898989 !important;
+  color: #ffffff;
+}
+
+.dark-input-standard .ant-input {
+  background-color: #44475a !important;
+}
+
+.dark-input-standard .ant-input {
+  color: #ffffff !important;
+}
+
+.dark-input > div > .ant-select-selection-placeholder {
+  color: #ffffff !important;
+}
+
+.ant-select-dropdown.dark-drop .ant-select-item {
+  color: #ffffff !important;
+}
+
+.ant-select-dropdown.dark-drop .ant-select-item-option-selected {
+  background-color: #898989 !important;
+}

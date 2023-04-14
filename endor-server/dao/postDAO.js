@@ -1,8 +1,11 @@
 import { connectToMongo } from './utils.js';
 
 class PostDAO {
-  static async findPosts(query) {
+  static async findPosts(query, limit) {
     const useMongo = await connectToMongo('endor-post');
+    if (limit) {
+      return useMongo.aggregate(query).limit(50).toArray();
+    }
     return useMongo.aggregate(query).toArray();
   }
 

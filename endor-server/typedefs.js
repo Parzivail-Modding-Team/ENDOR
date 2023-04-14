@@ -32,8 +32,9 @@ export const typeDefs = `#graphql
   }
 
   type Query {
-    getPosts(_id: String): [Post]
-    getTags: [Tag]
+    getPosts(tags: [String]): [Post]
+    getPostDetails(_id: String): [Post]
+    getTags(label: String): [Tag]
   }
 
   type Mutation {

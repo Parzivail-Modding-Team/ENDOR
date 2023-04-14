@@ -19,12 +19,11 @@ function sanitizeArray(arr) {
   return [...arr];
 }
 
-async function getPosts(_, request, __) {
+async function getPostDetails(_, request, __) {
   const postData = await postDAO
     .findPosts([
       {
-        $match:
-          request && request._id ? { _id: new ObjectId(request._id) } : {},
+        $match: { _id: new ObjectId(request._id) },
       },
       {
         $lookup: {
@@ -41,6 +40,47 @@ async function getPosts(_, request, __) {
     });
 
   return postData;
+}
+
+async function getPosts(_, request, __) {
+  const { tags } = request;
+
+  if (tags) {
+    const postData = await postDAO
+      .findPosts([
+        {
+          $match: {
+            tags: {
+              $all: tags.map((tag) => new ObjectId(tag)),
+            },
+          },
+        },
+      ])
+      .catch((e) => {
+        console.error(e);
+        return [];
+      });
+
+    return postData;
+  }
+
+  if (!tags) {
+    const postData = await postDAO
+      .findPosts(
+        [
+          {
+            $match: {},
+          },
+        ],
+        'limit'
+      )
+      .catch((e) => {
+        console.error(e);
+        return [];
+      });
+
+    return postData;
+  }
 }
 
 async function createPost(request, imageUrl) {
@@ -82,4 +122,4 @@ async function createPost(request, imageUrl) {
   return thing;
 }
 
-export { getPosts, createPost };
+export { getPosts, getPostDetails, createPost };

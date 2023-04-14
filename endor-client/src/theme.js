@@ -13,6 +13,7 @@ export const theme = {
     background: '#ffffff',
     primary: '#389e0d',
     divider: '#efefef',
+    input: '#44475a',
     modes: {
       dark: {
         text: '#ffffff',
@@ -20,6 +21,7 @@ export const theme = {
         background: '#282a36',
         primary: '#ffb86c',
         divider: '#cdcdcd',
+        input: '#44475a',
       },
     },
   },

@@ -1,7 +1,13 @@
 import TagDAO from '../dao/tagDAO.js';
 
-async function getTags() {
+async function getTags(_, request) {
+  const { label } = request;
+
   let query = [{ $match: {} }];
+
+  if (label) {
+    query[0].$match = { label: { $regex: `^${label}.*` } };
+  }
 
   const tagData = await TagDAO.findTags(query).catch((e) => {
     console.error(e);

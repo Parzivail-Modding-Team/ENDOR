@@ -20,7 +20,6 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import pkg from 'body-parser';
 import { getMongo } from './mongo.js';
 import { createPost } from './routes/post.js';
-import { ObjectId } from 'mongodb';
 const { json } = pkg;
 
 async function init() {
@@ -64,6 +63,7 @@ async function init() {
       key: function (request, file, cb) {
         cb(null, uuidv4());
       },
+      contentType: multerS3.AUTO_CONTENT_TYPE,
     }),
   });
 

@@ -156,6 +156,11 @@ export default function UploadRoute() {
                 setSubmission({ ...submission, message: e.target.value });
               }}
               allowClear
+              className={
+                colorMode === 'light'
+                  ? 'light-input-standard'
+                  : 'dark-input-standard'
+              }
             />
           </Form.Item>
           <Form.Item
@@ -179,7 +184,17 @@ export default function UploadRoute() {
             <Select
               mode="tags"
               allowClear
-              style={{ width: '100%' }}
+              className={colorMode === 'light' ? 'light-input' : 'dark-input'}
+              style={{
+                width: '100%',
+              }}
+              popupClassName={
+                colorMode === 'light' ? 'light-drop' : 'dark-drop'
+              }
+              dropdownStyle={{
+                backgroundColor:
+                  colorMode === 'dark' && theme.colors.modes.dark.input,
+              }}
               placeholder={
                 <div
                   sx={{

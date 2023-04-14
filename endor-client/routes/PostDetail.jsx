@@ -62,7 +62,7 @@ export default function PostDetail() {
   const { loading, error } = useQuery(GetPostDetails, {
     variables: { _id: location.pathname.substring(1) },
     onCompleted: (data) => {
-      setPost(data.getPosts[0]);
+      setPost(data.getPostDetails[0]);
     },
     onError: () => {
       message.error('There was a problem fetching the post');
@@ -152,7 +152,7 @@ export default function PostDetail() {
           {post.tags.map((tag) => (
             <Tag
               color={theme.colors.primary}
-              key={tag.value}
+              key={tag._id}
               style={{
                 width: 'fit-content',
                 marginRight: '0.5rem',

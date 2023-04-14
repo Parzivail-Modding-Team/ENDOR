@@ -1,8 +1,8 @@
 import { gql } from 'graphql-tag';
 
 export const GetTags = gql`
-  query GetTags {
-    getTags {
+  query GetTags($label: String) {
+    getTags(label: $label) {
       _id
       label
     }
@@ -10,8 +10,8 @@ export const GetTags = gql`
 `;
 
 export const GetPosts = gql`
-  query GetPosts($_id: String) {
-    getPosts(_id: $_id) {
+  query GetPosts($tags: [String]) {
+    getPosts(tags: $tags) {
       _id
       imageUrl
     }
@@ -19,8 +19,8 @@ export const GetPosts = gql`
 `;
 
 export const GetPostDetails = gql`
-  query GetPosts($_id: String) {
-    getPosts(_id: $_id) {
+  query GetPostDetails($_id: String) {
+    getPostDetails(_id: $_id) {
       _id
       message
       imageUrl

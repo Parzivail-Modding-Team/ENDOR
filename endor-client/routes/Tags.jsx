@@ -8,21 +8,25 @@ import {
   Skeleton,
   Statistic,
   Typography,
+  message,
+  Space,
 } from 'antd';
-import { useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
 import { GetTags } from '../queries';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, TagOutlined } from '@ant-design/icons';
 import LocalResult from '../components/LocalResult';
-import TagSelect from '../components/TagSelect';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../src/theme';
 
+import { useState, useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import _ from 'lodash';
+
 export default function Tags() {
   const [tags, setTags] = useState([]);
+  const [search, setSearch] = useState('');
   const [colorMode] = useColorMode();
 
-  const { loading, error } = useQuery(GetTags, {
+  const [getTags, { loading }] = useLazyQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
@@ -31,32 +35,11 @@ export default function Tags() {
     },
   });
 
-  if (loading && !tags.length) {
-    return (
-      <div
-        sx={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <Skeleton active />
-        <Skeleton active />
-        <Skeleton active />
-        <Skeleton active />
-      </div>
-    );
-  }
-
-  if (!loading && (!tags.length || error)) {
-    return (
-      <LocalResult
-        title="No Tags"
-        subTitle="We could not find any tags, please try again or create a new tag."
-      />
-    );
-  }
+  useEffect(() => {
+    if (search === '') {
+      setTags([]);
+    }
+  }, [search]);
 
   return (
     <div
@@ -102,7 +85,32 @@ export default function Tags() {
                 display: 'flex',
               }}
             >
-              <TagSelect style={{ marginBottom: '7px' }} />
+              <Space.Compact style={{ width: '100%' }}>
+                <Input
+                  allowClear
+                  className={
+                    colorMode === 'light' ? 'light-input' : 'dark-input'
+                  }
+                  style={{
+                    width: '100%',
+                  }}
+                  placeholder="Ex. landspeeder"
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                />
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    getTags({
+                      variables: { label: search },
+                    })
+                  }
+                  style={{ boxShadow: 'none' }}
+                >
+                  Search
+                </Button>
+              </Space.Compact>
             </div>
             <Statistic
               title={
@@ -135,8 +143,22 @@ export default function Tags() {
             />
           </div>
           <Divider style={{ marginTop: '1rem', marginBottom: '1.5rem' }} />
-          {!loading &&
-            tags.length &&
+          {loading && (
+            <div
+              sx={{
+                height: '100%',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Skeleton active />
+              <Skeleton active />
+              <Skeleton active />
+              <Skeleton active />
+            </div>
+          )}
+          {!loading && tags.length ? (
             tags.map((tag) => (
               <div
                 sx={{
@@ -147,6 +169,7 @@ export default function Tags() {
                   gap: '1rem',
                   marginBottom: '1rem',
                 }}
+                key={tag._id}
               >
                 <Input defaultValue={tag.label} />
                 <div
@@ -180,7 +203,13 @@ export default function Tags() {
                   </Popconfirm>
                 </div>
               </div>
-            ))}
+            ))
+          ) : (
+            <LocalResult
+              title="No Tags"
+              subtitle="There were no tags with the specified label."
+            />
+          )}
         </div>
       </div>
     </div>
