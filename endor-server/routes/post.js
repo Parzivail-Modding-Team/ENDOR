@@ -3,6 +3,22 @@ import { ObjectId } from 'mongodb';
 import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
 
+function tagChecker(newT, addT) {
+  if (newT && newT.length && newT.length > 0) {
+    return sanitizeArray(newT.map((tag) => tag._id)).concat(
+      sanitizeArray(addT.map((tag) => new ObjectId(tag.value)))
+    );
+  } else {
+    return sanitizeArray(addT.map((tag) => new ObjectId(tag.value)));
+  }
+}
+
+function sanitizeArray(arr) {
+  if (!arr || arr.length === 0) return [];
+
+  return [...arr];
+}
+
 async function getPosts(_, request, __) {
   const postData = await postDAO
     .findPosts([
@@ -28,39 +44,18 @@ async function getPosts(_, request, __) {
 }
 
 async function createPost(request, imageUrl) {
-  // Checks to see if there are new tags to concat with
-  function tagChecker(newT, addT) {
-    if (newT && newT.length && newT.length > 0) {
-      return sanitizeArray(newT.map((tag) => tag._id)).concat(
-        sanitizeArray(addT.map((tag) => new ObjectId(tag._id)))
-      );
-    } else {
-      return sanitizeArray(addT);
-    }
-  }
-
   const requestParams = request;
-
-  console.log(requestParams);
 
   const addTags = JSON.parse(requestParams.addTags);
   const createTags = JSON.parse(requestParams.createTags);
 
   const time = moment().unix();
 
-  function sanitizeArray(arr) {
-    if (!arr || arr.length === 0) return [];
-
-    return [...arr];
-  }
-
   let newTagsInsert;
 
-  if (createTags) {
+  if (createTags && createTags.length && createTags.length > 0) {
     newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
   }
-
-  console.log(newTagsInsert);
 
   const post = {
     tags: tagChecker(

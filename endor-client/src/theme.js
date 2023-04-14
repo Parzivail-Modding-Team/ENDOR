@@ -12,12 +12,14 @@ export const theme = {
     textAlt: '#676767',
     background: '#ffffff',
     primary: '#389e0d',
+    divider: '#efefef',
     modes: {
       dark: {
         text: '#ffffff',
         textAlt: '#cdcdcd',
         background: '#282a36',
         primary: '#ffb86c',
+        divider: '#cdcdcd',
       },
     },
   },

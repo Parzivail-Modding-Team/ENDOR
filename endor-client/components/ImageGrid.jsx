@@ -23,7 +23,7 @@ function GridItem({ item, gridSize }) {
           height: '100%',
           display: 'block',
           objectFit: 'cover',
-          borderRadius: '2px',
+          borderRadius: '4px',
           cursor: 'pointer',
         }}
       />

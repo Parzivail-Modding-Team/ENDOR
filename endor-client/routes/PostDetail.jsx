@@ -99,7 +99,7 @@ export default function PostDetail() {
             maxWidth: '100%',
             height: 'auto',
             display: 'block',
-            borderRadius: '2px',
+            borderRadius: '4px',
           }}
         />
       </div>
@@ -132,7 +132,15 @@ export default function PostDetail() {
         >
           {post.message}
         </Typography.Title>
-        <Divider style={{ margin: '0.5rem 0rem 0.9rem 0rem' }} />
+        <Divider
+          style={{
+            margin: '0.5rem 0rem 0.9rem 0rem',
+            backgroundColor:
+              colorMode === 'light'
+                ? theme.colors.divider
+                : theme.colors.modes.dark.divider,
+          }}
+        />
         <div
           sx={{
             display: 'flex',
@@ -155,7 +163,15 @@ export default function PostDetail() {
             </Tag>
           ))}
         </div>
-        <Divider style={{ margin: '0.4rem 0rem 0.5rem 0rem' }} />
+        <Divider
+          style={{
+            margin: '0.4rem 0rem 0.5rem 0rem',
+            backgroundColor:
+              colorMode === 'light'
+                ? theme.colors.divider
+                : theme.colors.modes.dark.divider,
+          }}
+        />
         {/* <RowItem title="Author:" content={post.author.sub} /> */}
         <RowItem
           title="Created:"
