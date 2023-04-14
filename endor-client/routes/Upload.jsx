@@ -1,13 +1,15 @@
 /** @jsxImportSource theme-ui */
 
 import { useState } from 'react';
-import { Button, Form, Input, message, Select } from 'antd';
+import { Button, Form, Input, message, Select, Typography } from 'antd';
 import { tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import { GetTags } from '../queries';
 import axios from 'axios';
+import { useColorMode } from 'theme-ui';
+import { theme } from '../src/theme';
 
 const fileToDataUri = (file) =>
   new Promise((resolve, reject) => {
@@ -26,6 +28,8 @@ export default function UploadRoute() {
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const [dataUri, setDataUri] = useState();
+
+  const [colorMode] = useColorMode();
 
   const localFileSaver = (file) => {
     if (!file) {
@@ -129,7 +133,23 @@ export default function UploadRoute() {
           style={{ paddingBottom: '1rem', width: '100%' }}
           title="Create Post"
         >
-          <Form.Item name="message" label="Message">
+          <Form.Item
+            name="message"
+            label={
+              <Typography.Title
+                level={4}
+                style={{
+                  marginBottom: '0.25rem',
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+              >
+                Message
+              </Typography.Title>
+            }
+          >
             <Input
               placeholder="Ex. Here is a fun description about this image"
               onChange={(e) => {
@@ -138,7 +158,24 @@ export default function UploadRoute() {
               allowClear
             />
           </Form.Item>
-          <Form.Item name="tags" label="Tags" required>
+          <Form.Item
+            name="tags"
+            label={
+              <Typography.Title
+                level={4}
+                style={{
+                  marginBottom: '0.25rem',
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+              >
+                Tags
+              </Typography.Title>
+            }
+            required
+          >
             <Select
               mode="tags"
               allowClear

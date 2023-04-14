@@ -7,8 +7,12 @@ import { useQuery } from '@apollo/client';
 import { GetPostDetails } from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { theme } from '../src/theme';
+import { useColorMode } from 'theme-ui';
 
 function RowItem({ title, content }) {
+  const [colorMode] = useColorMode();
+
   return (
     <div
       sx={{
@@ -18,10 +22,30 @@ function RowItem({ title, content }) {
         alignItems: 'center',
       }}
     >
-      <Typography.Text style={{ margin: 0, marginRight: '0.5rem' }} strong>
+      <Typography.Text
+        style={{
+          margin: 0,
+          marginRight: '0.5rem',
+          color:
+            colorMode === 'light'
+              ? theme.colors.text
+              : theme.colors.modes.dark.text,
+        }}
+        strong
+      >
         {title}
       </Typography.Text>
-      <Typography.Text style={{ margin: 0 }} type="secondary" italic>
+      <Typography.Text
+        style={{
+          margin: 0,
+          color:
+            colorMode === 'light'
+              ? theme.colors.textAlt
+              : theme.colors.modes.dark.textAlt,
+        }}
+        type="secondary"
+        italic
+      >
         {content}
       </Typography.Text>
     </div>
@@ -31,6 +55,7 @@ function RowItem({ title, content }) {
 export default function PostDetail() {
   const [post, setPost] = useState({});
   const [editing, setEditing] = useState(false);
+  const [colorMode] = useColorMode();
 
   const location = useLocation();
 
@@ -95,7 +120,16 @@ export default function PostDetail() {
           flexDirection: 'column',
         }}
       >
-        <Typography.Title level={4} style={{ margin: 0 }}>
+        <Typography.Title
+          level={4}
+          style={{
+            margin: 0,
+            color:
+              colorMode === 'light'
+                ? theme.colors.text
+                : theme.colors.modes.dark.text,
+          }}
+        >
           {post.message}
         </Typography.Title>
         <Divider style={{ margin: '0.5rem 0rem 0.9rem 0rem' }} />
@@ -109,7 +143,7 @@ export default function PostDetail() {
         >
           {post.tags.map((tag) => (
             <Tag
-              color="#389e0d"
+              color={theme.colors.primary}
               key={tag.value}
               style={{
                 width: 'fit-content',

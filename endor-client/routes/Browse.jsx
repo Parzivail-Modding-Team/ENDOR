@@ -14,6 +14,7 @@ export default function Browse() {
   const [search, setSearch] = useState([]);
   const [posts, setPosts] = useState([]);
   const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
+
   const location = useLocation();
   const navigate = useNavigate();
 

@@ -1,15 +1,26 @@
 /** @jsxImportSource theme-ui */
 
-import { Button, Divider, Input, Popconfirm, Skeleton, Statistic } from 'antd';
+import {
+  Button,
+  Divider,
+  Input,
+  Popconfirm,
+  Skeleton,
+  Statistic,
+  Typography,
+} from 'antd';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { GetTags } from '../queries';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import LocalResult from '../components/LocalResult';
 import TagSelect from '../components/TagSelect';
+import { useColorMode } from 'theme-ui';
+import { theme } from '../src/theme';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
+  const [colorMode] = useColorMode();
 
   const { loading, error } = useQuery(GetTags, {
     onCompleted: (data) => {
@@ -79,9 +90,9 @@ export default function Tags() {
             sx={{
               height: 'fit-content',
               width: '100%',
-              display: 'flex',
+              display: 'grid',
+              gridTemplateColumns: '1fr auto',
               alignItems: 'flex-end',
-              justifyContent: 'space-between',
             }}
           >
             <div
@@ -94,9 +105,33 @@ export default function Tags() {
               <TagSelect style={{ marginBottom: '7px' }} />
             </div>
             <Statistic
-              title="Results"
+              title={
+                <Typography.Text
+                  style={{
+                    color:
+                      colorMode === 'light'
+                        ? theme.colors.text
+                        : theme.colors.modes.dark.text,
+                  }}
+                >
+                  Results
+                </Typography.Text>
+              }
               value={tags.length}
-              style={{ marginLeft: '1rem', width: 'fit-content' }}
+              style={{
+                marginLeft: '1rem',
+                width: 'fit-content',
+                color:
+                  colorMode === 'light'
+                    ? theme.colors.text
+                    : theme.colors.modes.dark.text,
+              }}
+              valueStyle={{
+                color:
+                  colorMode === 'light'
+                    ? theme.colors.text
+                    : theme.colors.modes.dark.text,
+              }}
             />
           </div>
           <Divider style={{ marginTop: '1rem', marginBottom: '1.5rem' }} />

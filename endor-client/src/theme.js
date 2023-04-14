@@ -1,7 +1,6 @@
 export const theme = {
   config: {
     initialColorModeName: 'light',
-    useLocalStorage: false,
   },
   fonts: {
     body: 'system-ui, sans-serif',
@@ -9,15 +8,16 @@ export const theme = {
     monospace: 'Menlo, monospace',
   },
   colors: {
-    primary: '#fa8c16',
+    text: '#000000',
+    textAlt: '#676767',
+    background: '#ffffff',
+    primary: '#389e0d',
     modes: {
-      light: {
-        text: '#000000',
-        background: '#ffffff',
-      },
       dark: {
         text: '#ffffff',
-        background: '#000000',
+        textAlt: '#cdcdcd',
+        background: '#282a36',
+        primary: '#ffb86c',
       },
     },
   },

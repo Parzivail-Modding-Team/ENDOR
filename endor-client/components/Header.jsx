@@ -1,11 +1,20 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect } from 'react';
-import { Button, Typography, Menu } from 'antd';
-import { PlusOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
+import { Typography, Menu } from 'antd';
+import {
+  EyeInvisibleTwoTone,
+  EyeTwoTone,
+  PlusOutlined,
+  TagOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { useColorMode } from 'theme-ui';
+import { theme } from '../src/theme';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [colorMode, setColorMode] = useColorMode();
 
   useEffect(() => {
     window.onscroll = function () {
@@ -22,7 +31,7 @@ export default function Header() {
       sx={{
         height: '55px',
         width: '100%',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'background',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -35,7 +44,13 @@ export default function Header() {
     >
       <Menu
         selectedKeys={location.pathname.substring()}
-        style={{ width: '100%' }}
+        style={{
+          width: '100%',
+          backgroundColor:
+            colorMode === 'light'
+              ? theme.colors.background
+              : theme.colors.modes.dark.background,
+        }}
         mode="horizontal"
         items={[
           {
@@ -49,6 +64,10 @@ export default function Header() {
                     paddingBottom: '7px',
                     fontFamily: 'Gloock',
                     cursor: 'pointer',
+                    color:
+                      colorMode === 'light'
+                        ? theme.colors.text
+                        : theme.colors.modes.dark.text,
                   }}
                 >
                   ENDOR
@@ -61,36 +80,113 @@ export default function Header() {
       />
       <Menu
         selectedKeys={location.pathname.substring(1)}
+        style={{
+          backgroundColor:
+            colorMode === 'light'
+              ? theme.colors.background
+              : theme.colors.modes.dark.background,
+        }}
         mode="horizontal"
         items={[
           {
             label: (
-              <a style={{ textDecoration: 'none' }} href="/upload">
+              <a
+                style={{
+                  textDecoration: 'none',
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+                href="/upload"
+              >
                 Upload
               </a>
             ),
             key: 'upload',
-            icon: <PlusOutlined />,
-          },
-          {
-            label: (
-              <a style={{ textDecoration: 'none' }} href="/tags">
-                Tags
-              </a>
+            icon: (
+              <PlusOutlined
+                style={{
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+              />
             ),
-            key: 'tags',
-            icon: <TagOutlined />,
           },
           {
             label: (
               <a
-                style={{ textDecoration: 'none' }}
+                style={{
+                  textDecoration: 'none',
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+                href="/tags"
+              >
+                Tags
+              </a>
+            ),
+            key: 'tags',
+            icon: (
+              <TagOutlined
+                style={{
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+              />
+            ),
+          },
+          {
+            label: (
+              <a
+                style={{
+                  textDecoration: 'none',
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
                 href="https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth&response_type=code&scope=identify"
               >
                 Login
               </a>
             ),
-            icon: <UserOutlined />,
+            icon: (
+              <UserOutlined
+                style={{
+                  color:
+                    colorMode === 'light'
+                      ? theme.colors.text
+                      : theme.colors.modes.dark.text,
+                }}
+              />
+            ),
+          },
+          {
+            label:
+              colorMode === 'light' ? (
+                <EyeTwoTone
+                  twoToneColor={theme.colors.text}
+                  style={{ height: '100%', width: '100%' }}
+                  onClick={() =>
+                    setColorMode(colorMode === 'light' ? 'dark' : 'light')
+                  }
+                />
+              ) : (
+                <EyeInvisibleTwoTone
+                  twoToneColor={theme.colors.modes.dark.text}
+                  style={{ height: '100%', width: '100%' }}
+                  onClick={() =>
+                    setColorMode(colorMode === 'light' ? 'dark' : 'light')
+                  }
+                />
+              ),
           },
         ]}
       />

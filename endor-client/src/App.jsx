@@ -52,7 +52,7 @@ function App() {
         <ConfigProvider
           theme={{
             token: {
-              colorPrimary: '#389e0d',
+              colorPrimary: theme.colors.primary,
             },
           }}
         >
@@ -62,6 +62,7 @@ function App() {
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
+              backgroundColor: 'background',
               paddingBottom: '1rem',
             }}
           >
@@ -70,9 +71,9 @@ function App() {
               sx={{
                 display: 'flex',
                 width: '100%',
-                height: '100%',
+                height: 'fit-content',
                 padding: '1rem',
-                backgroundColor: 'white',
+                backgroundColor: 'background',
                 marginTop: '55px',
               }}
             >
