@@ -52,6 +52,10 @@ export default function Header() {
             colorMode === 'light'
               ? theme.colors.background
               : theme.colors.modes.dark.background,
+          borderBottom:
+            colorMode === 'light'
+              ? '1px solid rgba(5, 5, 5, 0.06)'
+              : '1px solid rgba(220, 220, 220, 0.1)',
         }}
         mode="horizontal"
         items={[
@@ -89,6 +93,10 @@ export default function Header() {
             colorMode === 'light'
               ? theme.colors.background
               : theme.colors.modes.dark.background,
+          borderBottom:
+            colorMode === 'light'
+              ? '1px solid rgba(5, 5, 5, 0.06)'
+              : '1px solid rgba(220, 220, 220, 0.1)',
         }}
         mode="horizontal"
         items={[

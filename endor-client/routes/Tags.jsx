@@ -144,7 +144,16 @@ export default function Tags() {
               }}
             />
           </div>
-          <Divider style={{ marginTop: '1rem', marginBottom: '1.5rem' }} />
+          <Divider
+            style={{
+              marginTop: '1rem',
+              marginBottom: '1.5rem',
+              backgroundColor:
+                colorMode === 'light'
+                  ? theme.colors.divider
+                  : theme.colors.modes.dark.divider,
+            }}
+          />
           {loading && (
             <div
               sx={{
