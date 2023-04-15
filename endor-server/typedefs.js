@@ -39,5 +39,6 @@ export const typeDefs = `#graphql
 
   type Mutation {
     createPost(input: PostInput): String
+    updateTag(input: TagInput): String
   }
 `;

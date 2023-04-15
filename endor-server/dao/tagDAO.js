@@ -14,6 +14,16 @@ class TagDAO {
 
     return thing.insertedCount;
   }
+
+  static async updateTag(query, updateObject) {
+    const useMongo = await connectToMongo('endor-tag');
+
+    const thing = await useMongo.findOneAndUpdate(query, updateObject, {
+      upsert: false,
+    });
+
+    return thing.value;
+  }
 }
 
 export default TagDAO;

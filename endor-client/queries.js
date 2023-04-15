@@ -39,3 +39,9 @@ export const CreatePost = gql`
     createPost(input: $input)
   }
 `;
+
+export const UpdateTag = gql`
+  mutation UpdateTag($input: TagInput) {
+    updateTag(input: $input)
+  }
+`;

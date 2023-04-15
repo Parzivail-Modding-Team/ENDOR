@@ -17,7 +17,6 @@ import { tagRender } from '../utils';
 export default function Browse() {
   const [search, setSearch] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
   const [tags, setTags] = useState([]);
   const [colorMode] = useColorMode();
   const [loading, setLoading] = useState(true);
@@ -53,11 +52,6 @@ export default function Browse() {
   }, [location]);
 
   useEffect(() => {
-    if (!localStorage.getItem('gridSize')) {
-      localStorage.setItem('gridSize', '350px');
-    }
-    setGridSize(localStorage.getItem('gridSize'));
-
     if (localStorage.getItem('search')) {
       const properSearch = JSON.parse(localStorage.getItem('search'));
       setSearch(properSearch);
@@ -66,13 +60,6 @@ export default function Browse() {
       });
     }
   }, []);
-
-  useEffect(() => {
-    if (!gridSize) {
-      return;
-    }
-    localStorage.setItem('gridSize', gridSize);
-  }, [gridSize]);
 
   useEffect(() => {
     getPosts();
@@ -89,14 +76,11 @@ export default function Browse() {
     >
       <div
         sx={{
-          display: 'grid',
+          display: 'flex',
           width: '100%',
           height: 'fit-content',
-          alignItems: 'flex-end',
-          gridTemplateColumns: '1fr auto',
-          gap: '1rem',
+          alignItems: 'center',
           marginBottom: '1rem',
-          flexWrap: 'wrap',
         }}
       >
         <div
@@ -156,48 +140,6 @@ export default function Browse() {
             labelInValue
           />
         </div>
-        <Radio.Group
-          value={gridSize}
-          buttonStyle="solid"
-          onChange={(e) => setGridSize(e.target.value)}
-        >
-          <Radio.Button
-            value="500px"
-            style={{
-              height: 'fit-content',
-              margin: 0,
-              padding: '0.35rem 0.65rem',
-              lineHeight: '10px',
-            }}
-            disabled={posts.length === 1}
-          >
-            <IconColumns1 size={20} />
-          </Radio.Button>
-          <Radio.Button
-            value="350px"
-            style={{
-              height: 'fit-content',
-              margin: 0,
-              padding: '0.35rem 0.65rem',
-              lineHeight: '10px',
-            }}
-            disabled={posts.length === 1}
-          >
-            <IconColumns2 size={20} />
-          </Radio.Button>
-          <Radio.Button
-            value="250px"
-            style={{
-              height: 'fit-content',
-              margin: 0,
-              padding: '0.35rem 0.65rem',
-              lineHeight: '10px',
-            }}
-            disabled={posts.length === 1}
-          >
-            <IconColumns3 size={20} />
-          </Radio.Button>
-        </Radio.Group>
       </div>
       {loading && (
         <div
@@ -242,7 +184,7 @@ export default function Browse() {
           subtitle="We could not find any posts, please try again or create a new post."
         />
       ) : (
-        <ImageGrid gridSize={gridSize} data={posts} />
+        <ImageGrid data={posts} />
       )}
     </div>
   );

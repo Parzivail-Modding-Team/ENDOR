@@ -303,6 +303,13 @@ body {
 
 .dark-input-standard .ant-input {
   background-color: #44475a !important;
+  color: #ffffff !important;
+}
+
+.ant-input.dark-input-standard {
+  background-color: #44475a !important;
+  color: #ffffff !important;
+  border-color: #898989 !important;
 }
 
 .dark-input-standard .ant-input::placeholder {

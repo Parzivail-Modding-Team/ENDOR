@@ -10,21 +10,31 @@ import {
   Typography,
   message,
   Space,
+  Tag,
 } from 'antd';
-import { GetTags } from '../queries';
-import { DeleteOutlined, EditOutlined, TagOutlined } from '@ant-design/icons';
+import { GetTags, UpdateTag } from '../queries';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  TagOutlined,
+} from '@ant-design/icons';
 import LocalResult from '../components/LocalResult';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../src/theme';
 
 import { useState, useEffect } from 'react';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import _ from 'lodash';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState('');
   const [colorMode] = useColorMode();
+  const [editIndex, setEditIndex] = useState(-1);
+
+  const [oldValue, setOldValue] = useState();
 
   const [getTags, { loading }] = useLazyQuery(GetTags, {
     onCompleted: (data) => {
@@ -34,6 +44,26 @@ export default function Tags() {
       message.error('There was a problem fetching tags');
     },
   });
+
+  const [updateTag, { loading: updateTagLoading }] = useMutation(UpdateTag, {
+    onCompleted: (data) => {
+      if (data.updateTag) {
+        setEditIndex(-1);
+        message.success('Tag updated');
+      }
+    },
+    onError: () => {
+      message.error('There was a problem updating the tag');
+    },
+  });
+
+  function submitUpdate(tag) {
+    delete tag.__typename;
+    if (!tag.label || !tag.label.length || tag.label.length == 0) {
+      return;
+    }
+    updateTag({ variables: { input: tag } });
+  }
 
   useEffect(() => {
     if (search === '') {
@@ -85,34 +115,26 @@ export default function Tags() {
                 display: 'flex',
               }}
             >
-              <Space.Compact style={{ width: '100%' }}>
-                <Input
-                  allowClear
-                  className={
-                    colorMode === 'light'
-                      ? 'light-input-standard'
-                      : 'dark-input-standard'
-                  }
-                  style={{
-                    width: '100%',
-                  }}
-                  placeholder="Ex. landspeeder"
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
-                />
-                <Button
-                  type="primary"
-                  onClick={() =>
-                    getTags({
-                      variables: { label: search },
-                    })
-                  }
-                  style={{ boxShadow: 'none' }}
-                >
-                  Search
-                </Button>
-              </Space.Compact>
+              <Input
+                allowClear
+                className={
+                  colorMode === 'light'
+                    ? 'light-input-standard'
+                    : 'dark-input-standard'
+                }
+                style={{
+                  width: '100%',
+                }}
+                placeholder="Ex. landspeeder"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+                onPressEnter={() =>
+                  getTags({
+                    variables: { label: search },
+                  })
+                }
+              />
             </div>
             <Statistic
               title={
@@ -170,19 +192,46 @@ export default function Tags() {
             </div>
           )}
           {!loading && tags.length
-            ? tags.map((tag) => (
+            ? tags.map((tag, index) => (
                 <div
                   sx={{
                     height: 'fit-content',
                     width: '100%',
                     display: 'grid',
+                    alignItems: 'center',
                     gridTemplateColumns: '1fr auto',
                     gap: '1rem',
                     marginBottom: '1rem',
                   }}
                   key={tag._id}
                 >
-                  <Input defaultValue={tag.label} />
+                  {index === editIndex ? (
+                    <Input
+                      defaultValue={tag.label}
+                      className={
+                        colorMode === 'light'
+                          ? 'light-input-standard'
+                          : 'dark-input-standard'
+                      }
+                      onChange={(e) => {
+                        const newTags = [...tags];
+                        newTags.splice(index, 1, {
+                          ...tag,
+                          label: e.target.value,
+                        });
+                        setTags(newTags);
+                      }}
+                      onPressEnter={() => submitUpdate(tag)}
+                    />
+                  ) : (
+                    <Tag
+                      color={theme.colors.primary}
+                      style={{ width: 'fit-content', height: 'fit-content' }}
+                    >
+                      {tag.label}
+                    </Tag>
+                  )}
+
                   <div
                     sx={{
                       height: 'fit-content',
@@ -204,14 +253,36 @@ export default function Tags() {
                         style={{ marginRight: '1rem' }}
                       />
                     </Popconfirm>
-                    <Popconfirm
-                      title="Edit tag"
-                      description="Are you sure you want to edit this tag?"
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button type="primary" icon={<EditOutlined />} />
-                    </Popconfirm>
+                    {index === editIndex ? (
+                      <Button
+                        type="primary"
+                        icon={<CloseOutlined />}
+                        onClick={() => {
+                          setEditIndex(null);
+                          const thing = [...tags];
+                          thing[index].label = oldValue;
+                          setTags(thing);
+                        }}
+                      />
+                    ) : (
+                      <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                          setOldValue(tag.label);
+                          setEditIndex(index);
+                          if (editIndex > -1 && editIndex != index) {
+                            const thing = [...tags];
+                            thing[editIndex].label = oldValue;
+                            setTags(thing);
+                            setEditIndex(index);
+                          } else {
+                            setEditIndex(index);
+                            setOldValue(tag.label);
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               ))

@@ -26,8 +26,6 @@ export default function Header() {
     };
   }, [window.scrollY]);
 
-  console.log(location.pathname);
-
   return (
     <div
       sx={{

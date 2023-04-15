@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { Divider, Tag, Typography } from 'antd';
+import { Divider, Image, Tag, Typography } from 'antd';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
@@ -93,7 +93,7 @@ export default function PostDetail() {
           width: 'fit-content',
         }}
       >
-        <LazyLoadImage
+        <Image
           src={post.imageUrl}
           sx={{
             maxWidth: '100%',
