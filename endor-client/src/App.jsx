@@ -64,6 +64,8 @@ function App() {
               flexDirection: 'column',
               backgroundColor: 'background',
               paddingBottom: '1rem',
+              transition:
+                'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
             }}
           >
             <Header />
@@ -74,6 +76,8 @@ function App() {
                 height: 'fit-content',
                 padding: '1rem',
                 backgroundColor: 'background',
+                transition:
+                  'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
                 marginTop: '55px',
               }}
             >

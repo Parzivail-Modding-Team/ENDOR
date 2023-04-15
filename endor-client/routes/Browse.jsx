@@ -20,13 +20,15 @@ export default function Browse() {
   const [gridSize, setGridSize] = useState(localStorage.getItem('gridSize'));
   const [tags, setTags] = useState([]);
   const [colorMode] = useColorMode();
+  const [loading, setLoading] = useState(true);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [getPosts, { loading }] = useLazyQuery(GetPosts, {
+  const [getPosts] = useLazyQuery(GetPosts, {
     onCompleted: (data) => {
       setPosts(data.getPosts);
+      setLoading(false);
     },
     onError: () => {
       message.error('There was a problem fetching the post');
@@ -167,6 +169,7 @@ export default function Browse() {
               padding: '0.35rem 0.65rem',
               lineHeight: '10px',
             }}
+            disabled={posts.length === 1}
           >
             <IconColumns1 size={20} />
           </Radio.Button>
@@ -178,6 +181,7 @@ export default function Browse() {
               padding: '0.35rem 0.65rem',
               lineHeight: '10px',
             }}
+            disabled={posts.length === 1}
           >
             <IconColumns2 size={20} />
           </Radio.Button>
@@ -189,15 +193,53 @@ export default function Browse() {
               padding: '0.35rem 0.65rem',
               lineHeight: '10px',
             }}
+            disabled={posts.length === 1}
           >
             <IconColumns3 size={20} />
           </Radio.Button>
         </Radio.Group>
       </div>
-      {!loading && !posts.length ? (
+      {loading && (
+        <div
+          sx={{
+            display: 'grid',
+            height: '100%',
+            width: '100%',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateRows: '1fr 1fr 1fr',
+            gap: '1rem',
+          }}
+        >
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+          <Skeleton.Image
+            active
+            style={{ width: '100%', height: 'auto', padding: '40%' }}
+          />
+        </div>
+      )}
+      {!loading && (!posts.length || posts.length === 0) ? (
         <LocalResult
           title="No Posts"
-          subTitle="We could not find any posts, please try again or create a new post."
+          subtitle="We could not find any posts, please try again or create a new post."
         />
       ) : (
         <ImageGrid gridSize={gridSize} data={posts} />

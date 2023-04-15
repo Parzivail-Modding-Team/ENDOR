@@ -26,6 +26,8 @@ export default function Header() {
     };
   }, [window.scrollY]);
 
+  console.log(location.pathname);
+
   return (
     <div
       sx={{
@@ -36,14 +38,14 @@ export default function Header() {
         alignItems: 'center',
         justifyContent: 'space-between',
         position: 'fixed',
-        transition: '0.2s ease all',
+        transition: 'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
         boxShadow: scrolled ? '0 1px 10px 1px rgba(0, 0, 0, 0.12)' : 'none',
         top: 0,
         zIndex: 999,
       }}
     >
       <Menu
-        selectedKeys={location.pathname.substring()}
+        selectedKeys={location.pathname}
         style={{
           width: '100%',
           backgroundColor:
@@ -64,6 +66,8 @@ export default function Header() {
                     paddingBottom: '7px',
                     fontFamily: 'Gloock',
                     cursor: 'pointer',
+                    transition:
+                      'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
                     color:
                       colorMode === 'light'
                         ? theme.colors.text
@@ -79,7 +83,7 @@ export default function Header() {
         ]}
       />
       <Menu
-        selectedKeys={location.pathname.substring(1)}
+        selectedKeys={location.pathname || null}
         style={{
           backgroundColor:
             colorMode === 'light'
@@ -103,7 +107,7 @@ export default function Header() {
                 Upload
               </a>
             ),
-            key: 'upload',
+            key: '/upload',
             icon: (
               <PlusOutlined
                 style={{
@@ -130,7 +134,7 @@ export default function Header() {
                 Tags
               </a>
             ),
-            key: 'tags',
+            key: '/tags',
             icon: (
               <TagOutlined
                 style={{

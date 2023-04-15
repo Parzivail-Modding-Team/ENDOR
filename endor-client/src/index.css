@@ -18,10 +18,6 @@
   margin: 0;
 }
 
-html {
-  transition: 0.2s ease all !important;
-}
-
 body {
   margin: 0;
   display: flex;
@@ -271,15 +267,12 @@ body {
   color: #ffffff;
 }
 
-.dark-input-standard .ant-input {
-  background-color: #44475a !important;
+.ant-input-affix-wrapper.dark-input-standard {
+  background: #44475a !important;
+  border-color: #898989 !important;
 }
 
-.dark-input-standard .ant-input {
-  color: #ffffff !important;
-}
-
-.dark-input > div > .ant-select-selection-placeholder {
+.dark-input .ant-select-selection-placeholder {
   color: #ffffff !important;
 }
 
@@ -289,4 +282,35 @@ body {
 
 .ant-select-dropdown.dark-drop .ant-select-item-option-selected {
   background-color: #898989 !important;
+}
+
+.ant-select-multiple .ant-select-selector {
+  padding: 4px 4px !important;
+  padding-bottom: 0 !important;
+}
+
+.ant-select-selection-overflow-item {
+  margin-bottom: 4px !important;
+}
+
+.dark-input .ant-select-clear {
+  background: #44475a !important;
+}
+
+.dark-input-standard #message.ant-input {
+  background-color: #44475a !important;
+}
+
+.dark-input-standard .ant-input {
+  background-color: #44475a !important;
+}
+
+.dark-input-standard .ant-input::placeholder {
+  color: #ffffff !important;
+}
+
+.ant-btn.dark-btn:disabled {
+  border: none !important;
+  background: #44475a !important;
+  color: #565667 !important;
 }

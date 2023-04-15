@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, Input, message, Select, Typography } from 'antd';
 import { tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
@@ -26,6 +26,7 @@ export default function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [valid, setValid] = useState(false);
 
   const [dataUri, setDataUri] = useState();
 
@@ -56,18 +57,13 @@ export default function UploadRoute() {
     },
   });
 
-  const submissionChecker = () => {
+  useEffect(() => {
     if (!submission.tags || !submission.file) {
-      return true;
-    } else if (
-      submission &&
-      submission.tags &&
-      submission.tags.length &&
-      submission.tags.length > 0
-    ) {
-      return false;
+      return;
+    } else {
+      setValid(true);
     }
-  };
+  }, [submission.tags, submission.file]);
 
   function onSubmit() {
     setSubmitLoading(true);
@@ -84,7 +80,10 @@ export default function UploadRoute() {
     delete newSubmission.tags;
 
     let formData = new FormData();
-    formData.append('message', newSubmission.message);
+    formData.append(
+      'message',
+      newSubmission.message ? newSubmission.message : ''
+    );
     formData.append('createTags', JSON.stringify(newSubmission.createTags));
     formData.append('addTags', JSON.stringify(newSubmission.addTags));
     formData.append('file', newSubmission.file);
@@ -170,6 +169,7 @@ export default function UploadRoute() {
                 level={4}
                 style={{
                   marginBottom: '0.25rem',
+                  marginTop: 0,
                   color:
                     colorMode === 'light'
                       ? theme.colors.text
@@ -220,6 +220,7 @@ export default function UploadRoute() {
               optionFilterProp="label"
               fieldNames={{ value: '_id' }}
               labelInValue
+              notFoundContent={null}
             />
           </Form.Item>
           <Form.Item>
@@ -276,6 +277,8 @@ export default function UploadRoute() {
               }}
               onClick={() => onSubmit()}
               loading={submitLoading}
+              disabled={!valid}
+              className={colorMode === 'light' ? 'light-btn' : 'dark-btn'}
             >
               Submit
             </Button>

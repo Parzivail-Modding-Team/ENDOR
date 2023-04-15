@@ -120,21 +120,23 @@ export default function PostDetail() {
           flexDirection: 'column',
         }}
       >
-        <Typography.Title
-          level={4}
-          style={{
-            margin: 0,
-            color:
-              colorMode === 'light'
-                ? theme.colors.text
-                : theme.colors.modes.dark.text,
-          }}
-        >
-          {post.message}
-        </Typography.Title>
+        {post.message && (
+          <Typography.Title
+            level={4}
+            style={{
+              margin: 0,
+              color:
+                colorMode === 'light'
+                  ? theme.colors.text
+                  : theme.colors.modes.dark.text,
+            }}
+          >
+            {post.message}
+          </Typography.Title>
+        )}
         <Divider
           style={{
-            margin: '0.5rem 0rem 0.9rem 0rem',
+            margin: !post.message ? '0 0 0.9rem 0' : '0.5rem 0rem 0.9rem 0rem',
             backgroundColor:
               colorMode === 'light'
                 ? theme.colors.divider

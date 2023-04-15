@@ -89,7 +89,9 @@ export default function Tags() {
                 <Input
                   allowClear
                   className={
-                    colorMode === 'light' ? 'light-input' : 'dark-input'
+                    colorMode === 'light'
+                      ? 'light-input-standard'
+                      : 'dark-input-standard'
                   }
                   style={{
                     width: '100%',
@@ -158,58 +160,59 @@ export default function Tags() {
               <Skeleton active />
             </div>
           )}
-          {!loading && tags.length ? (
-            tags.map((tag) => (
-              <div
-                sx={{
-                  height: 'fit-content',
-                  width: '100%',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
-                  gap: '1rem',
-                  marginBottom: '1rem',
-                }}
-                key={tag._id}
-              >
-                <Input defaultValue={tag.label} />
+          {!loading && tags.length
+            ? tags.map((tag) => (
                 <div
                   sx={{
                     height: 'fit-content',
                     width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    gap: '1rem',
+                    marginBottom: '1rem',
                   }}
+                  key={tag._id}
                 >
-                  <Popconfirm
-                    title="Delete tag"
-                    description="Are you sure you want to delete this tag?"
-                    okText="Yes"
-                    cancelText="No"
+                  <Input defaultValue={tag.label} />
+                  <div
+                    sx={{
+                      height: 'fit-content',
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
                   >
-                    <Button
-                      type="primary"
-                      danger
-                      icon={<DeleteOutlined />}
-                      style={{ marginRight: '1rem' }}
-                    />
-                  </Popconfirm>
-                  <Popconfirm
-                    title="Edit tag"
-                    description="Are you sure you want to edit this tag?"
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button type="primary" icon={<EditOutlined />} />
-                  </Popconfirm>
+                    <Popconfirm
+                      title="Delete tag"
+                      description="Are you sure you want to delete this tag?"
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button
+                        type="primary"
+                        danger
+                        icon={<DeleteOutlined />}
+                        style={{ marginRight: '1rem' }}
+                      />
+                    </Popconfirm>
+                    <Popconfirm
+                      title="Edit tag"
+                      description="Are you sure you want to edit this tag?"
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary" icon={<EditOutlined />} />
+                    </Popconfirm>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
+              ))
+            : null}
+          {!loading && (!tags.length || tags.length === 0) ? (
             <LocalResult
               title="No Tags"
               subtitle="There were no tags with the specified label."
             />
-          )}
+          ) : null}
         </div>
       </div>
     </div>

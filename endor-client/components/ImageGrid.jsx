@@ -1,12 +1,14 @@
 /** @jsxImportSource theme-ui */
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-function GridItem({ item, gridSize }) {
+function GridItem({ item, gridSize, itemsLength }) {
   return (
     <a
       sx={{
         height:
-          gridSize === '500px'
+          itemsLength === 1
+            ? '100%'
+            : gridSize === '500px'
             ? '350px'
             : gridSize === '350px'
             ? '250px'
@@ -48,7 +50,12 @@ export default function ImageGrid({ gridSize, data }) {
         }}
       >
         {data.map((item) => (
-          <GridItem item={item} key={item._id} gridSize={gridSize} />
+          <GridItem
+            item={item}
+            key={item._id}
+            gridSize={gridSize}
+            itemsLength={data.length}
+          />
         ))}
       </div>
     </div>
