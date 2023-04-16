@@ -1,10 +1,9 @@
 /** @jsxImportSource theme-ui */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Radio, Skeleton, Select, message } from 'antd';
+import { Skeleton, Select, message } from 'antd';
 import ImageGrid from '../components/ImageGrid';
-import { IconColumns1, IconColumns2, IconColumns3 } from '@tabler/icons-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GetPosts, GetTags } from '../queries';
 import LocalResult from '../components/LocalResult';
@@ -22,7 +21,6 @@ export default function Browse() {
   const [loading, setLoading] = useState(true);
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [getPosts] = useLazyQuery(GetPosts, {
     onCompleted: (data) => {

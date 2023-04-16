@@ -1,4 +1,4 @@
-import { getTags, updateTag } from './routes/tag.js';
+import { getTags, updateTag, deleteTag } from './routes/tag.js';
 import { createPost, getPosts, getPostDetails } from './routes/post.js';
 
 export const resolvers = {
@@ -6,5 +6,6 @@ export const resolvers = {
   Mutation: {
     createPost,
     updateTag,
+    deleteTag,
   },
 };

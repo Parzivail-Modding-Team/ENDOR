@@ -11,7 +11,7 @@ import {
   Tag,
   Table,
 } from 'antd';
-import { GetTags, UpdateTag } from '../queries';
+import { DeleteTag, GetTags, UpdateTag } from '../queries';
 import { CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../src/theme';
@@ -25,6 +25,7 @@ export default function Tags() {
   const [search, setSearch] = useState('');
   const [colorMode] = useColorMode();
   const [editIndex, setEditIndex] = useState(-1);
+  const [deleteIndex, setDeleteIndex] = useState(-1);
 
   const [oldValue, setOldValue] = useState('Tag updated');
 
@@ -46,6 +47,21 @@ export default function Tags() {
     },
     onError: () => {
       message.error('There was a problem updating the tag');
+    },
+  });
+
+  const [deleteTag, { loading: deleteTagLoading }] = useMutation(DeleteTag, {
+    onCompleted: (data) => {
+      if (data) {
+        message.success('Tag Deleted');
+        const thing = [...tags];
+        thing.splice(deleteIndex, 1);
+        setTags(thing);
+        setDeleteIndex(-1);
+      }
+    },
+    onError: () => {
+      message.error('There was a problem deleting the tag');
     },
   });
 
@@ -105,12 +121,17 @@ export default function Tags() {
           description="Are you sure you want to delete this tag?"
           okText="Yes"
           cancelText="No"
+          onConfirm={() => {
+            setDeleteIndex(index);
+            deleteTag({ variables: { _id: tag._id } });
+          }}
         >
           <Button
             type="primary"
             danger
             icon={<DeleteOutlined />}
             style={{ marginRight: '1rem' }}
+            loading={deleteTagLoading}
           />
         </Popconfirm>
         {index === editIndex ? (

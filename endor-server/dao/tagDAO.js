@@ -24,6 +24,14 @@ class TagDAO {
 
     return thing.value;
   }
+
+  static async deleteTag(query) {
+    const useMongo = await connectToMongo('endor-tag');
+
+    const thing = await useMongo.deleteOne(query);
+
+    return thing.deletedCount;
+  }
 }
 
 export default TagDAO;

@@ -45,3 +45,9 @@ export const UpdateTag = gql`
     updateTag(input: $input)
   }
 `;
+
+export const DeleteTag = gql`
+  mutation DeleteTag($_id: String) {
+    deleteTag(_id: $_id)
+  }
+`;

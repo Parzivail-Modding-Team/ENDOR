@@ -32,7 +32,7 @@ async function getTags(_, request) {
 
 async function createTags(tags) {
   const tagData = await TagDAO.insertMany(tags).catch((e) => {
-    console.error(error);
+    console.error(e);
     return [];
   });
 
@@ -48,11 +48,28 @@ async function updateTag(__, request) {
   )
     .then((e) => e._id)
     .catch((e) => {
-      console.error(error);
+      console.error(e);
       return [];
     });
 
   return tagData;
 }
 
-export { getTags, createTags, updateTag };
+async function deleteTag(__, request) {
+  const { _id } = request;
+
+  const tagData = await TagDAO.deleteTag({ _id: new ObjectId(_id) })
+    .then((e) => e)
+    .catch((e) => {
+      console.error(e);
+      return [];
+    });
+
+  if (tagData && tagData > 0) {
+    return tagData;
+  }
+
+  // TODO: Find all posts with that tag and delete it from their tag array
+}
+
+export { getTags, createTags, updateTag, deleteTag };
