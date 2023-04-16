@@ -61,7 +61,7 @@ async function getPosts(_, request, __) {
         return [];
       });
 
-    return postData;
+    return postData.reverse();
   }
 
   if (!tags) {
@@ -79,7 +79,7 @@ async function getPosts(_, request, __) {
         return [];
       });
 
-    return postData;
+    return postData.reverse();
   }
 }
 
@@ -108,7 +108,7 @@ async function createPost(request, imageUrl) {
     imageUrl,
   };
 
-  const thing = await postDAO
+  const postData = await postDAO
     .createPost(post)
     .catch((e) => {
       console.error(e);
@@ -119,7 +119,7 @@ async function createPost(request, imageUrl) {
       }
     });
 
-  return thing;
+  return postData;
 }
 
 export { getPosts, getPostDetails, createPost };

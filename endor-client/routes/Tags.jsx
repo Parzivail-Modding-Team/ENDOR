@@ -5,22 +5,14 @@ import {
   Divider,
   Input,
   Popconfirm,
-  Skeleton,
   Statistic,
   Typography,
   message,
-  Space,
   Tag,
+  Table,
 } from 'antd';
 import { GetTags, UpdateTag } from '../queries';
-import {
-  CheckOutlined,
-  CloseOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  TagOutlined,
-} from '@ant-design/icons';
-import LocalResult from '../components/LocalResult';
+import { CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../src/theme';
 
@@ -34,7 +26,7 @@ export default function Tags() {
   const [colorMode] = useColorMode();
   const [editIndex, setEditIndex] = useState(-1);
 
-  const [oldValue, setOldValue] = useState();
+  const [oldValue, setOldValue] = useState('Tag updated');
 
   const [getTags, { loading }] = useLazyQuery(GetTags, {
     onCompleted: (data) => {
@@ -49,7 +41,7 @@ export default function Tags() {
     onCompleted: (data) => {
       if (data.updateTag) {
         setEditIndex(-1);
-        message.success('Tag updated');
+        message.success('Tag Updated');
       }
     },
     onError: () => {
@@ -63,6 +55,97 @@ export default function Tags() {
       return;
     }
     updateTag({ variables: { input: tag } });
+  }
+
+  function changeInput(tag, index) {
+    if (index === editIndex) {
+      return (
+        <Input
+          defaultValue={tag.label}
+          className={
+            colorMode === 'light'
+              ? 'light-input-standard'
+              : 'dark-input-standard'
+          }
+          onChange={(e) => {
+            const newTags = [...tags];
+            newTags.splice(index, 1, {
+              ...tag,
+              label: e.target.value,
+            });
+            setTags(newTags);
+          }}
+          onPressEnter={() => {
+            submitUpdate(tag);
+          }}
+          key={tag._id}
+        />
+      );
+    } else {
+      return (
+        <Tag
+          color={theme.colors.primary}
+          style={{
+            width: 'fit-content',
+            height: 'fit-content',
+          }}
+          key={tag._id}
+        >
+          {tag.label}
+        </Tag>
+      );
+    }
+  }
+
+  function changeActions(tag, index) {
+    return (
+      <div sx={{ display: 'flex', alignItems: 'center' }}>
+        <Popconfirm
+          title="Delete tag"
+          description="Are you sure you want to delete this tag?"
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            style={{ marginRight: '1rem' }}
+          />
+        </Popconfirm>
+        {index === editIndex ? (
+          <Button
+            type="primary"
+            icon={<CloseOutlined />}
+            onClick={() => {
+              setEditIndex(null);
+              const thing = [...tags];
+              thing[index].label = oldValue;
+              setTags(thing);
+            }}
+            loading={updateTagLoading}
+          />
+        ) : (
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setOldValue(tag.label);
+              setEditIndex(index);
+              if (editIndex > -1 && editIndex != index) {
+                const thing = [...tags];
+                thing[editIndex].label = oldValue;
+                setTags(thing);
+                setEditIndex(index);
+              } else {
+                setEditIndex(index);
+                setOldValue(tag.label);
+              }
+            }}
+          />
+        )}
+      </div>
+    );
   }
 
   useEffect(() => {
@@ -169,130 +252,43 @@ export default function Tags() {
           <Divider
             style={{
               marginTop: '1rem',
-              marginBottom: '1.5rem',
+              marginBottom: '1rem',
               backgroundColor:
                 colorMode === 'light'
                   ? theme.colors.divider
                   : theme.colors.modes.dark.divider,
             }}
           />
-          {loading && (
-            <div
-              sx={{
-                height: '100%',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Skeleton active />
-              <Skeleton active />
-              <Skeleton active />
-              <Skeleton active />
-            </div>
-          )}
-          {!loading && tags.length
-            ? tags.map((tag, index) => (
-                <div
-                  sx={{
-                    height: 'fit-content',
-                    width: '100%',
-                    display: 'grid',
-                    alignItems: 'center',
-                    gridTemplateColumns: '1fr auto',
-                    gap: '1rem',
-                    marginBottom: '1rem',
-                  }}
-                  key={tag._id}
-                >
-                  {index === editIndex ? (
-                    <Input
-                      defaultValue={tag.label}
-                      className={
-                        colorMode === 'light'
-                          ? 'light-input-standard'
-                          : 'dark-input-standard'
-                      }
-                      onChange={(e) => {
-                        const newTags = [...tags];
-                        newTags.splice(index, 1, {
-                          ...tag,
-                          label: e.target.value,
-                        });
-                        setTags(newTags);
-                      }}
-                      onPressEnter={() => submitUpdate(tag)}
-                    />
-                  ) : (
-                    <Tag
-                      color={theme.colors.primary}
-                      style={{ width: 'fit-content', height: 'fit-content' }}
-                    >
-                      {tag.label}
-                    </Tag>
-                  )}
 
-                  <div
-                    sx={{
-                      height: 'fit-content',
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Popconfirm
-                      title="Delete tag"
-                      description="Are you sure you want to delete this tag?"
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        style={{ marginRight: '1rem' }}
-                      />
-                    </Popconfirm>
-                    {index === editIndex ? (
-                      <Button
-                        type="primary"
-                        icon={<CloseOutlined />}
-                        onClick={() => {
-                          setEditIndex(null);
-                          const thing = [...tags];
-                          thing[index].label = oldValue;
-                          setTags(thing);
-                        }}
-                      />
-                    ) : (
-                      <Button
-                        type="primary"
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setOldValue(tag.label);
-                          setEditIndex(index);
-                          if (editIndex > -1 && editIndex != index) {
-                            const thing = [...tags];
-                            thing[editIndex].label = oldValue;
-                            setTags(thing);
-                            setEditIndex(index);
-                          } else {
-                            setEditIndex(index);
-                            setOldValue(tag.label);
-                          }
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))
-            : null}
-          {!loading && (!tags.length || tags.length === 0) ? (
-            <LocalResult
-              title="No Tags"
-              subtitle="There were no tags with the specified label."
-            />
-          ) : null}
+          <Table
+            columns={[
+              {
+                title: 'Tag',
+                dataIndex: 'label',
+                key: '_id',
+                render: (_, tag, index) => changeInput(tag, index),
+                defaultSortOrder: 'ascend',
+                sorter: (a, b) => {
+                  if (a.label < b.label) {
+                    return -1;
+                  } else if (a.label > b.label) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                },
+              },
+              {
+                title: 'Actions',
+                key: 'actions',
+                render: (_, tag, index) => changeActions(tag, index),
+              },
+            ]}
+            dataSource={tags}
+            rowKey={tags._id}
+            pagination={false}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
