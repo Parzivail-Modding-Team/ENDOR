@@ -40,6 +40,18 @@ export const CreatePost = gql`
   }
 `;
 
+export const UpdatePost = gql`
+  mutation UpdatePost($input: UpdatePostInput) {
+    updatePost(input: $input)
+  }
+`;
+
+export const DeletePost = gql`
+  mutation DeletePost($_id: String) {
+    deletePost(_id: $_id)
+  }
+`;
+
 export const UpdateTag = gql`
   mutation UpdateTag($input: TagInput) {
     updateTag(input: $input)

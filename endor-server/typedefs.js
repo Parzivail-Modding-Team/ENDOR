@@ -31,6 +31,13 @@ export const typeDefs = `#graphql
     createTags: [TagInput]
   }
 
+  input UpdatePostInput {
+    _id: String
+    message: String
+    addTags: [TagInput]
+    createTags: [TagInput]
+  }
+
   type Query {
     getPosts(tags: [String]): [Post]
     getPostDetails(_id: String): [Post]
@@ -39,6 +46,8 @@ export const typeDefs = `#graphql
 
   type Mutation {
     createPost(input: PostInput): String
+    updatePost(input: UpdatePostInput): String
+    deletePost(_id: String): Boolean
     updateTag(input: TagInput): String
     deleteTag(_id: String): Boolean
   }

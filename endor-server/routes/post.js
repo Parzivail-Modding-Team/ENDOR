@@ -2,6 +2,7 @@ import moment from 'moment/moment.js';
 import { ObjectId } from 'mongodb';
 import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
+import PostDAO from '../dao/postDAO.js';
 
 function tagChecker(newT, addT) {
   if (newT && newT.length && newT.length > 0) {
@@ -10,6 +11,16 @@ function tagChecker(newT, addT) {
     );
   } else {
     return sanitizeArray(addT.map((tag) => new ObjectId(tag.value)));
+  }
+}
+
+function updatePostTagChecker(newT, addT) {
+  if (newT && newT.length && newT.length > 0) {
+    return sanitizeArray(newT.map((tag) => tag._id)).concat(
+      sanitizeArray(addT.map((tag) => new ObjectId(tag._id)))
+    );
+  } else {
+    return sanitizeArray(addT);
   }
 }
 
@@ -122,4 +133,57 @@ async function createPost(request, imageUrl) {
   return postData;
 }
 
-export { getPosts, getPostDetails, createPost };
+async function updatePost(__, request) {
+  const { input } = request;
+
+  const addTags = input.addTags;
+  const createTags = input.createTags;
+
+  console.log(addTags, createTags);
+
+  const time = moment().unix();
+
+  let newTagsInsert;
+
+  if (createTags && createTags.length && createTags.length > 0) {
+    newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
+  }
+
+  const postData = await PostDAO.updatePost(
+    { _id: new ObjectId(input._id) },
+    {
+      $set: {
+        tags: updatePostTagChecker(
+          newTagsInsert && newTagsInsert > 0 ? createTags : [],
+          addTags.map((tag) => new ObjectId(tag._id))
+        ),
+        message: input.message,
+        updatedAt: time,
+      },
+    }
+  )
+    .then((e) => e)
+    .catch((e) => {
+      console.error(e);
+      return [];
+    });
+
+  return postData;
+}
+
+async function deletePost(__, request) {
+  const { _id } = request;
+
+  const postData = await PostDAO.deletePost({ _id: new ObjectId(_id) })
+    .then((e) => e)
+    .catch((e) => {
+      console.error(e);
+      return [];
+    });
+
+  if (postData && postData > 0) {
+    return postData;
+  }
+}
+
+export { getPosts, getPostDetails, createPost, updatePost, deletePost };
