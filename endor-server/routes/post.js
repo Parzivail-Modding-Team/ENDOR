@@ -14,16 +14,6 @@ function tagChecker(newT, addT) {
   }
 }
 
-function updatePostTagChecker(newT, addT) {
-  if (newT && newT.length && newT.length > 0) {
-    return sanitizeArray(newT.map((tag) => tag._id)).concat(
-      sanitizeArray(addT.map((tag) => new ObjectId(tag._id)))
-    );
-  } else {
-    return sanitizeArray(addT);
-  }
-}
-
 function sanitizeArray(arr) {
   if (!arr || arr.length === 0) return [];
 
@@ -139,8 +129,6 @@ async function updatePost(__, request) {
   const addTags = input.addTags;
   const createTags = input.createTags;
 
-  console.log(addTags, createTags);
-
   const time = moment().unix();
 
   let newTagsInsert;
@@ -153,9 +141,9 @@ async function updatePost(__, request) {
     { _id: new ObjectId(input._id) },
     {
       $set: {
-        tags: updatePostTagChecker(
+        tags: tagChecker(
           newTagsInsert && newTagsInsert > 0 ? createTags : [],
-          addTags.map((tag) => new ObjectId(tag._id))
+          addTags
         ),
         message: input.message,
         updatedAt: time,
@@ -171,6 +159,7 @@ async function updatePost(__, request) {
   return postData;
 }
 
+// TODO: delete image associated with post
 async function deletePost(__, request) {
   const { _id } = request;
 

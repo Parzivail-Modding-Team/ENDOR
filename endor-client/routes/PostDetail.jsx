@@ -10,7 +10,7 @@ import {
   Typography,
   message,
 } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
@@ -71,7 +71,6 @@ function RowItem({ title, content }) {
 
 export default function PostDetail() {
   const [post, setPost] = useState({});
-  const [updatedPost, setUpdatedPost] = useState({});
   const [tags, setTags] = useState([]);
   const [editing, setEditing] = useState(false);
 
@@ -102,7 +101,6 @@ export default function PostDetail() {
   const [updatePost, { loading: updatePostLoading }] = useMutation(UpdatePost, {
     onCompleted: (data) => {
       if (data && data.updatePost) {
-        setPost(updatedPost);
         message.success('Post updated');
         setEditing(false);
       }
@@ -125,23 +123,22 @@ export default function PostDetail() {
   });
 
   function submitEdits() {
-    const newSubmission = { ...updatedPost };
-    console.log(newSubmission.tags);
+    const newSubmission = { ...post };
+    console.log(newSubmission.editingTags);
     // Group together existing tags (i.e. tags that have a key)
-    newSubmission.addTags = newSubmission.tags
-      .filter((tag) => !!tag._id)
-      .map((tag2) => {
-        return { _id: tag2._id, label: tag2.label };
-      });
-
+    newSubmission.addTags = newSubmission.editingTags.filter(
+      (tag) => !!tag.key
+    );
     // Group together new tags (i.e. tags that don't have a key)
-    newSubmission.createTags = newSubmission.tags
-      .filter((tag) => !tag._id)
+    newSubmission.createTags = newSubmission.editingTags
+      .filter((tag) => !tag.key)
       .map((tag2) => {
         return { label: tag2.value };
       });
 
-    console.log(newSubmission.addTags, newSubmission.createTags);
+    setPost({ ...post, tags: newSubmission.editingTags });
+
+    delete newSubmission.editingTags;
     delete newSubmission.tags;
     delete newSubmission.__typename;
     delete newSubmission.updatedAt;
@@ -150,6 +147,10 @@ export default function PostDetail() {
 
     updatePost({ variables: { input: newSubmission } });
   }
+
+  useEffect(() => {
+    console.log(post);
+  }, [post]);
 
   if (loading) {
     return <ImageSkeleton />;
@@ -206,7 +207,7 @@ export default function PostDetail() {
           <Input
             placeholder="Ex. Here is a fun description about this image"
             onChange={(e) => {
-              setUpdatedPost({ ...post, message: e.target.value });
+              setPost({ ...post, message: e.target.value });
             }}
             allowClear
             className={
@@ -215,7 +216,7 @@ export default function PostDetail() {
                 : 'dark-input-standard'
             }
             style={{ marginBottom: '0.75rem' }}
-            defaultValue={post.message}
+            value={post.message}
           />
         ) : (
           <div>
@@ -236,19 +237,16 @@ export default function PostDetail() {
           </div>
         )}
 
-        {editing && (
-          <Divider
-            style={{
-              margin: !post.message
-                ? '0 0 0.9rem 0'
-                : '0.5rem 0rem 0.9rem 0rem',
-              backgroundColor:
-                colorMode === 'light'
-                  ? theme.colors.divider
-                  : theme.colors.modes.dark.divider,
-            }}
-          />
-        )}
+        <Divider
+          style={{
+            margin: !post.message ? '0 0 0.9rem 0' : '0.5rem 0rem 0.9rem 0rem',
+            backgroundColor:
+              colorMode === 'light'
+                ? theme.colors.divider
+                : theme.colors.modes.dark.divider,
+          }}
+        />
+
         {editing ? (
           <Select
             mode="tags"
@@ -281,13 +279,11 @@ export default function PostDetail() {
             }
             tagRender={tagRender}
             onChange={(e) => {
-              setUpdatedPost({ ...updatedPost, tags: e });
+              setPost({ ...post, editingTags: e });
             }}
-            options={tags}
-            value={updatedPost.tags}
-            defaultValue={post.tags}
-            optionFilterProp="label"
             fieldNames={{ value: '_id' }}
+            options={tags}
+            defaultValue={post.editingTags}
             labelInValue
             notFoundContent={null}
           />
@@ -347,12 +343,19 @@ export default function PostDetail() {
                 : theme.colors.modes.dark.divider,
           }}
         />
-        <div sx={{ display: 'flex', alignItems: 'center' }}>
+        <div
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <Popconfirm
             title="Delete post"
             description="Are you sure you want to delete this post?"
             okText="Yes"
             cancelText="No"
+            onConfirm={() => deletePost({ variables: { _id: post._id } })}
           >
             <Button
               type="primary"
@@ -362,32 +365,51 @@ export default function PostDetail() {
             />
           </Popconfirm>
 
-          {editing ? (
-            <Popconfirm
-              title="Update post"
-              description="Are you sure you want to update this post?"
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => submitEdits()}
-              onCancel={() => setEditing(false)}
-              loading={updatePostLoading}
-            >
+          <div
+            sx={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+            }}
+          >
+            {editing && (
+              <Button
+                type="default"
+                icon={<CloseOutlined />}
+                onClick={() => {
+                  setEditing(false);
+                }}
+                style={{ marginRight: '1rem' }}
+              />
+            )}
+
+            {editing ? (
               <Button
                 type="primary"
                 icon={<CheckOutlined />}
+                onClick={() => {
+                  submitEdits();
+                }}
                 loading={updatePostLoading}
               />
-            </Popconfirm>
-          ) : (
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => {
-                setEditing(true);
-                getTags();
-              }}
-            />
-          )}
+            ) : (
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setPost({
+                    ...post,
+                    editingTags: post.tags.map((tag) => {
+                      return { key: tag._id, label: tag.label, value: tag._id };
+                    }),
+                  });
+                  setEditing(true);
+                  getTags();
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

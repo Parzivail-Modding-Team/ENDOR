@@ -58,6 +58,7 @@ export default function UploadRoute() {
   });
 
   useEffect(() => {
+    console.log(submission.tags);
     if (!submission.tags || submission.tags.length === 0 || !submission.file) {
       setValid(false);
     } else {

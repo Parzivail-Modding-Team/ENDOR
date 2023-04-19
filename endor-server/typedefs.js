@@ -21,8 +21,20 @@ export const typeDefs = `#graphql
   }
 
   input TagInput {
+    key: String
+    label: String
+    value: String
+  }
+
+  input UpdateTagInput {
     _id: String
     label: String
+  }
+
+  input UpdatePostTagInput {
+    key: String
+    label: String
+    value: String
   }
 
   input PostInput {
@@ -34,8 +46,8 @@ export const typeDefs = `#graphql
   input UpdatePostInput {
     _id: String
     message: String
-    addTags: [TagInput]
-    createTags: [TagInput]
+    addTags: [UpdatePostTagInput]
+    createTags: [UpdatePostTagInput]
   }
 
   type Query {
@@ -48,7 +60,7 @@ export const typeDefs = `#graphql
     createPost(input: PostInput): String
     updatePost(input: UpdatePostInput): String
     deletePost(_id: String): Boolean
-    updateTag(input: TagInput): String
+    updateTag(input: UpdateTagInput): String
     deleteTag(_id: String): Boolean
   }
 `;
