@@ -14,9 +14,9 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { DeletePost, GetPostDetails, GetTags, UpdatePost } from '../queries';
+import { DeletePost, GetPostDetails, GetTags, UpdatePost } from '../../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
-import { theme } from '../src/theme';
+import { theme } from '../../src/theme';
 import { useColorMode } from 'theme-ui';
 import {
   CheckOutlined,
@@ -25,7 +25,7 @@ import {
   EditOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { tagRender } from '../utils';
+import { tagRender } from '../../utils';
 
 function RowItem({ title, content }) {
   const [colorMode] = useColorMode();
@@ -79,7 +79,7 @@ export default function PostDetail() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { loading, error } = useQuery(GetPostDetails, {
+  const { loading: getPostDetailsLoading } = useQuery(GetPostDetails, {
     variables: { _id: location.pathname.substring(1) },
     onCompleted: (data) => {
       setPost(data.getPostDetails[0]);
@@ -100,7 +100,7 @@ export default function PostDetail() {
 
   const [updatePost, { loading: updatePostLoading }] = useMutation(UpdatePost, {
     onCompleted: (data) => {
-      if (data && data.updatePost) {
+      if (data.updatePost) {
         message.success('Post updated');
         setEditing(false);
       }
@@ -124,11 +124,9 @@ export default function PostDetail() {
 
   function submitEdits() {
     const newSubmission = { ...post };
-    // Group together existing tags (i.e. tags that have a key)
     newSubmission.addTags = newSubmission.editingTags.filter(
       (tag) => !!tag.key
     );
-    // Group together new tags (i.e. tags that don't have a key)
     newSubmission.createTags = newSubmission.editingTags
       .filter((tag) => !tag.key)
       .map((tag2) => {
@@ -147,7 +145,7 @@ export default function PostDetail() {
     updatePost({ variables: { input: newSubmission } });
   }
 
-  if (loading) {
+  if (getPostDetailsLoading) {
     return <ImageSkeleton />;
   }
 

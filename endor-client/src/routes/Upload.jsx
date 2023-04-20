@@ -1,18 +1,17 @@
 /** @jsxImportSource theme-ui */
-
 import { useEffect, useState } from 'react';
 import { Button, Form, Input, message, Select, Typography } from 'antd';
-import { tagRender } from '../utils';
+import { tagRender } from '../../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { GetTags } from '../queries';
+import { GetTags } from '../../queries';
 import axios from 'axios';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../src/theme';
+import { theme } from '../../src/theme';
 
 const fileToDataUri = (file) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       resolve(event.target.result);
@@ -20,8 +19,6 @@ const fileToDataUri = (file) =>
     reader.readAsDataURL(file);
   });
 
-// TODO: input sanitization and pre-post validation
-// TODO: file uploading
 export default function UploadRoute() {
   const [submission, setSubmission] = useState({});
   const [tags, setTags] = useState([]);
@@ -40,9 +37,7 @@ export default function UploadRoute() {
 
     fileToDataUri(file).then((dataUri) => {
       setDataUri(dataUri);
-      const thing = { ...submission };
-      thing.file = file;
-      setSubmission(thing);
+      setSubmission({ ...submission, file: file });
     });
   };
 
@@ -69,9 +64,7 @@ export default function UploadRoute() {
     setSubmitLoading(true);
 
     const newSubmission = { ...submission };
-    // Group together existing tags (i.e. tags that have a key)
     newSubmission.addTags = newSubmission.tags.filter((tag) => !!tag.key);
-    // Group together new tags (i.e. tags that don't have a key)
     newSubmission.createTags = newSubmission.tags
       .filter((tag) => !tag.key)
       .map((tag2) => {

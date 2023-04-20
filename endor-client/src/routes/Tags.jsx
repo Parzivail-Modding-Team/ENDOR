@@ -1,5 +1,4 @@
 /** @jsxImportSource theme-ui */
-
 import {
   Button,
   Divider,
@@ -11,10 +10,10 @@ import {
   Tag,
   Table,
 } from 'antd';
-import { DeleteTag, GetTags, UpdateTag } from '../queries';
+import { DeleteTag, GetTags, UpdateTag } from '../../queries';
 import { CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../src/theme';
+import { theme } from '../theme';
 
 import { useState, useEffect } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
@@ -28,7 +27,7 @@ export default function Tags() {
 
   const [oldValue, setOldValue] = useState('Tag updated');
 
-  const [getTags, { loading }] = useLazyQuery(GetTags, {
+  const [getTags, { getTagsLoading }] = useLazyQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
@@ -307,7 +306,7 @@ export default function Tags() {
             dataSource={tags}
             rowKey={tags._id}
             pagination={false}
-            loading={loading}
+            loading={getTagsLoading}
           />
         </div>
       </div>

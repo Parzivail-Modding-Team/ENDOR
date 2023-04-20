@@ -1,8 +1,7 @@
 /** @jsxImportSource theme-ui */
-
 import { Result, Typography } from 'antd';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../src/theme';
+import { theme } from '../../src/theme';
 
 export default function LocalResult({ title, subtitle }) {
   const [colorMode] = useColorMode();

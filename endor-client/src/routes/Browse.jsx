@@ -1,17 +1,16 @@
 /** @jsxImportSource theme-ui */
-
 import { useState, useEffect, useCallback } from 'react';
 import { Skeleton, Select, message } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { useLocation } from 'react-router-dom';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GetPosts, GetTags } from '../queries';
+import { GetPosts, GetTags } from '../../queries';
 import LocalResult from '../components/LocalResult';
 import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
-import { theme } from '../src/theme';
+import { theme } from '../theme';
 import { TagOutlined } from '@ant-design/icons';
-import { tagRender } from '../utils';
+import { tagRender } from '../../utils';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);

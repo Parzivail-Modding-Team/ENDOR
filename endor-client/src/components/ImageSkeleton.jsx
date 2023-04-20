@@ -1,5 +1,4 @@
 /** @jsxImportSource theme-ui */
-
 import { Divider, Skeleton } from 'antd';
 
 export default function ImageSkeleton() {

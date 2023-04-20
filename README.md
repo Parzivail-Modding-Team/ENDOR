@@ -50,10 +50,6 @@ Digital Ocean Spaces
 
 ![ENDOR](./assets/endor_2.png)
 
-### Image previewer
-
-![ENDOR](./assets/endor_3.png)
-
 ### Upload view
 
 ![ENDOR](./assets/endor_4.png)

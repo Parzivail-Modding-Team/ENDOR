@@ -16,7 +16,6 @@ function tagChecker(newT, addT) {
 
 function sanitizeArray(arr) {
   if (!arr || arr.length === 0) return [];
-
   return [...arr];
 }
 
@@ -39,7 +38,6 @@ async function getPostDetails(_, request, __) {
       console.error(e);
       return [];
     });
-
   return postData;
 }
 
@@ -61,7 +59,6 @@ async function getPosts(_, request, __) {
         console.error(e);
         return [];
       });
-
     return postData.reverse();
   }
 
@@ -79,7 +76,6 @@ async function getPosts(_, request, __) {
         console.error(e);
         return [];
       });
-
     return postData.reverse();
   }
 }
@@ -119,7 +115,6 @@ async function createPost(request, imageUrl) {
         return data.insertedId.toString();
       }
     });
-
   return postData;
 }
 
@@ -150,12 +145,11 @@ async function updatePost(__, request) {
       },
     }
   )
-    .then((e) => e)
+    .then((data) => data)
     .catch((e) => {
       console.error(e);
       return [];
     });
-
   return postData;
 }
 

@@ -1,5 +1,4 @@
 /** @jsxImportSource theme-ui */
-
 import { useState, useEffect } from 'react';
 import { Typography, Menu } from 'antd';
 import {
@@ -10,7 +9,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../src/theme';
+import { theme } from '../../src/theme';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);

@@ -26,7 +26,6 @@ async function getTags(_, request) {
     console.error(e);
     return [];
   });
-
   return sortAlphabetically(tagData);
 }
 
@@ -35,7 +34,6 @@ async function createTags(tags) {
     console.error(e);
     return [];
   });
-
   return tagData;
 }
 
@@ -46,12 +44,11 @@ async function updateTag(__, request) {
     { _id: new ObjectId(input._id) },
     { $set: { label: input.label } }
   )
-    .then((e) => e._id)
+    .then((data) => data._id)
     .catch((e) => {
       console.error(e);
       return [];
     });
-
   return tagData;
 }
 
