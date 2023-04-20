@@ -15,7 +15,6 @@
   "dependencies": {
     "@apollo/server": "^4.4.0",
     "@graphql-tools/schema": "^9.0.16",
-    "apollo-datasource-rest": "^3.7.0",
     "aws-sdk": "^2.1341.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

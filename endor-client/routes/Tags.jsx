@@ -18,7 +18,6 @@ import { theme } from '../src/theme';
 
 import { useState, useEffect } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import _ from 'lodash';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);

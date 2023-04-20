@@ -52,7 +52,6 @@ export default function Browse() {
   useEffect(() => {
     if (localStorage.getItem('search')) {
       const properSearch = JSON.parse(localStorage.getItem('search'));
-      console.log(properSearch);
       if (properSearch && properSearch.length) {
         setSearch(properSearch);
         getPosts({

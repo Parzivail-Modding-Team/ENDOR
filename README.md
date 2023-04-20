@@ -22,6 +22,16 @@ MongoDB
 
 Digital Ocean Spaces
 
+## Notes
+
+- Fully mobile friendly
+- Supports a Light and Dark theme via `theme-ui`
+- Tag Editor view for changing tag labels without manually editing the db
+- Supports editing and deleting of posts inline from the Post Detail view
+- Split via `@loadable/component`
+- Image lazy loading in the Home route
+- Debounced searching
+
 ## Future plans
 
 - [ ] Refactor the client from Javascript to Typescript
@@ -30,4 +40,20 @@ Digital Ocean Spaces
 
 - [ ] Make Endor a fully deployable application that can be stood up by others for their own purposes with minimal config.
 
-![ENDOR](https://cdn.discordapp.com/attachments/451560063933612044/1033484876214710302/Image_database.jpg)
+## Images
+
+### Home with search
+
+![ENDOR](./assets/endor_1.png)
+
+### Post detail view
+
+![ENDOR](./assets/endor_2.png)
+
+### Image previewer
+
+![ENDOR](./assets/endor_3.png)
+
+### Upload view
+
+![ENDOR](./assets/endor_4.png)
