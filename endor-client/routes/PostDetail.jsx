@@ -10,7 +10,7 @@ import {
   Typography,
   message,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
@@ -124,7 +124,6 @@ export default function PostDetail() {
 
   function submitEdits() {
     const newSubmission = { ...post };
-    console.log(newSubmission.editingTags);
     // Group together existing tags (i.e. tags that have a key)
     newSubmission.addTags = newSubmission.editingTags.filter(
       (tag) => !!tag.key
@@ -147,10 +146,6 @@ export default function PostDetail() {
 
     updatePost({ variables: { input: newSubmission } });
   }
-
-  useEffect(() => {
-    console.log(post);
-  }, [post]);
 
   if (loading) {
     return <ImageSkeleton />;
