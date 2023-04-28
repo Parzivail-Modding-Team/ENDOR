@@ -8,11 +8,11 @@ import { useEffect, useState } from 'react';
 import { getClient } from './apolloSetup';
 import loadable from '@loadable/component';
 
-const Header = loadable(() => import('../src/components/Header'));
-const PostDetail = loadable(() => import('../src/routes/PostDetail'));
-const Browse = loadable(() => import('../src/routes/Browse'));
-const UploadRoute = loadable(() => import('../src/routes/Upload'));
-const Tags = loadable(() => import('../src/routes/Tags'));
+const Header = loadable(() => import('./components/Header'));
+const PostDetail = loadable(() => import('./routes/PostDetail'));
+const Browse = loadable(() => import('./routes/Browse'));
+const UploadRoute = loadable(() => import('./routes/Upload'));
+const Tags = loadable(() => import('./routes/Tags'));
 
 const router = createBrowserRouter([
   {

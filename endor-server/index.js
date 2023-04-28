@@ -61,7 +61,7 @@ async function init() {
 
   app.post('/createPost', uploadFunc.single('file'), async function (req, res) {
     const body = JSON.parse(JSON.stringify(req.body));
-    const newPost = await createPost(body, process.env.CDN_URL + req.file.key);
+    const newPost = await createPost(body, req.file.key);
     if (newPost && newPost.length) {
       return res.json({ _id: newPost });
     }

@@ -9,7 +9,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../../src/theme';
+import { theme } from '../theme';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,7 +42,7 @@ export default function Header() {
       }}
     >
       <Menu
-        selectedKeys={location.pathname}
+        selectedKeys={[location.pathname]}
         style={{
           width: '100%',
           backgroundColor:

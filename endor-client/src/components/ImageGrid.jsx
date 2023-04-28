@@ -5,9 +5,8 @@ function GridItem({ item, itemsLength }) {
   return (
     <a
       sx={{
-        height:
-          itemsLength === 1 ? '600px' : itemsLength === 2 ? '450px' : '250px',
-        width: itemsLength === 1 ? '50%' : '100%',
+        height: itemsLength === 1 || itemsLength === 2 ? '100%' : '250px',
+        width: '100%',
       }}
       className="grid-item"
       href={`/${item._id}`}

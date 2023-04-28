@@ -43,12 +43,6 @@ export default function Browse() {
   const postDebouncer = useCallback(_.debounce(getPosts, 200), []);
 
   useEffect(() => {
-    if (location.search && location.search.length > 0) {
-      setSearch(location.search.substring(1).split('+'));
-    }
-  }, [location]);
-
-  useEffect(() => {
     if (localStorage.getItem('search')) {
       const properSearch = JSON.parse(localStorage.getItem('search'));
       if (properSearch && properSearch.length) {

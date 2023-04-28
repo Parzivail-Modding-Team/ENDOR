@@ -101,6 +101,7 @@ export default function PostDetail() {
   const [updatePost, { loading: updatePostLoading }] = useMutation(UpdatePost, {
     onCompleted: (data) => {
       if (data.updatePost) {
+        window.location.reload();
         message.success('Post updated');
         setEditing(false);
       }
@@ -124,18 +125,13 @@ export default function PostDetail() {
 
   function submitEdits() {
     const newSubmission = { ...post };
-    newSubmission.addTags = newSubmission.editingTags.filter(
-      (tag) => !!tag.key
-    );
-    newSubmission.createTags = newSubmission.editingTags
+    newSubmission.addTags = newSubmission.tags.filter((tag) => !!tag.key);
+    newSubmission.createTags = newSubmission.tags
       .filter((tag) => !tag.key)
       .map((tag2) => {
         return { label: tag2.value };
       });
 
-    setPost({ ...post, tags: newSubmission.editingTags });
-
-    delete newSubmission.editingTags;
     delete newSubmission.tags;
     delete newSubmission.__typename;
     delete newSubmission.updatedAt;
@@ -272,11 +268,12 @@ export default function PostDetail() {
             }
             tagRender={tagRender}
             onChange={(e) => {
-              setPost({ ...post, editingTags: e });
+              setPost({ ...post, tags: e });
             }}
             fieldNames={{ value: '_id' }}
             options={tags}
-            defaultValue={post.editingTags}
+            value={post.tags}
+            optionFilterProp="label"
             labelInValue
             notFoundContent={null}
           />
@@ -314,7 +311,6 @@ export default function PostDetail() {
                 : theme.colors.modes.dark.divider,
           }}
         />
-        {/* <RowItem title="Author:" content={post.author.sub} /> */}
         <RowItem
           title="Created:"
           content={moment
@@ -393,7 +389,7 @@ export default function PostDetail() {
                 onClick={() => {
                   setPost({
                     ...post,
-                    editingTags: post.tags.map((tag) => {
+                    tags: post.tags.map((tag) => {
                       return { key: tag._id, label: tag.label, value: tag._id };
                     }),
                   });

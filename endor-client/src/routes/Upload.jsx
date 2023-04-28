@@ -92,7 +92,7 @@ export default function UploadRoute() {
         if (res.data && res.data._id) {
           setSubmitLoading(false);
           navigate(`/${res.data._id}`);
-          message.success('Post created successfully');
+          message.success('Post created');
         }
       })
       .catch(() => {
@@ -208,10 +208,9 @@ export default function UploadRoute() {
               onChange={(e) => {
                 setSubmission({ ...submission, tags: e });
               }}
+              fieldNames={{ value: '_id' }}
               options={tags}
               value={submission.tags}
-              optionFilterProp="label"
-              fieldNames={{ value: '_id' }}
               labelInValue
               notFoundContent={null}
             />

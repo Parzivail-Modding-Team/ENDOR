@@ -25,8 +25,8 @@ class PostDAO {
 
   static async deletePost(query) {
     const useMongo = await connectToMongo('endor-post');
-    const thing = await useMongo.deleteOne(query);
-    return thing.deletedCount;
+    const thing = await useMongo.findOneAndDelete(query);
+    return thing;
   }
 }
 

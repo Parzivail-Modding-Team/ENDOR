@@ -4,6 +4,12 @@ import postDAO from '../dao/postDAO.js';
 import tagDAO from '../dao/tagDAO.js';
 import PostDAO from '../dao/postDAO.js';
 
+import aws from 'aws-sdk';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+
+import { v4 as uuidv4 } from 'uuid';
+
 function tagChecker(newT, addT) {
   if (newT && newT.length && newT.length > 0) {
     return sanitizeArray(newT.map((tag) => tag._id)).concat(
@@ -80,7 +86,7 @@ async function getPosts(_, request, __) {
   }
 }
 
-async function createPost(request, imageUrl) {
+async function createPost(request, imageId) {
   const requestParams = request;
 
   const addTags = JSON.parse(requestParams.addTags);
@@ -102,7 +108,8 @@ async function createPost(request, imageUrl) {
     message: requestParams.message,
     createdAt: time,
     updatedAt: time,
-    imageUrl,
+    imageUrl: process.env.CDN_URL + imageId,
+    imageId,
   };
 
   const postData = await postDAO
@@ -164,8 +171,22 @@ async function deletePost(__, request) {
       return [];
     });
 
-  if (postData && postData > 0) {
-    return postData;
+  if (postData && postData.value && postData.value) {
+    const spacesEndpoint = new aws.Endpoint(process.env.ENDPOINT_URL);
+    const s3 = new aws.S3({
+      endpoint: spacesEndpoint,
+    });
+
+    // TODO: figure out how to make this safer, currently it allows any key and doesn't fail
+    s3.deleteObject(
+      { Bucket: process.env.BUCKET, Key: postData.value.imageId },
+      (err, data) => {
+        console.log(err, data);
+        if (!err) {
+          return postData;
+        }
+      }
+    );
   }
 }
 
