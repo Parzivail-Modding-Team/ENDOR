@@ -41,8 +41,8 @@ export const CreatePost = gql`
 `;
 
 export const UpdatePost = gql`
-  mutation UpdatePost($input: UpdatePostInput) {
-    updatePost(input: $input)
+  mutation UpdatePost($_id: String, $input: PostInput) {
+    updatePost(_id: $_id, input: $input)
   }
 `;
 

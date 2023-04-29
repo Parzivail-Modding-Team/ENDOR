@@ -8,22 +8,22 @@ class TagDAO {
 
   static async createTags(tags) {
     const useMongo = await connectToMongo('endor-tag');
-    const thing = await useMongo.insertMany(tags, { ordered: true });
-    return thing.insertedCount;
+    const response = await useMongo.insertMany(tags, { ordered: true });
+    return response.insertedCount;
   }
 
   static async updateTag(query, updateObject) {
     const useMongo = await connectToMongo('endor-tag');
-    const thing = await useMongo.findOneAndUpdate(query, updateObject, {
+    const response = await useMongo.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
-    return thing.value;
+    return response.value;
   }
 
   static async deleteTag(query) {
     const useMongo = await connectToMongo('endor-tag');
-    const thing = await useMongo.deleteOne(query);
-    return thing.deletedCount;
+    const response = await useMongo.deleteOne(query);
+    return response.deletedCount;
   }
 }
 

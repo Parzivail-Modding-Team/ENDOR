@@ -99,12 +99,8 @@ export default function PostDetail() {
   });
 
   const [updatePost, { loading: updatePostLoading }] = useMutation(UpdatePost, {
-    onCompleted: (data) => {
-      if (data.updatePost) {
-        window.location.reload();
-        message.success('Post updated');
-        setEditing(false);
-      }
+    onCompleted: () => {
+      window.location.reload();
     },
     onError: () => {
       message.error('There was a problem updating the post');
@@ -112,40 +108,19 @@ export default function PostDetail() {
   });
 
   const [deletePost] = useMutation(DeletePost, {
-    onCompleted: (data) => {
-      if (data) {
-        navigate('/');
-        message.success('Post deleted');
-      }
+    onCompleted: () => {
+      navigate('/');
+      message.success('Post deleted');
     },
     onError: () => {
       message.error('There was a problem deleting the post');
     },
   });
 
-  function submitEdits() {
-    const newSubmission = { ...post };
-    newSubmission.addTags = newSubmission.tags.filter((tag) => !!tag.key);
-    newSubmission.createTags = newSubmission.tags
-      .filter((tag) => !tag.key)
-      .map((tag2) => {
-        return { label: tag2.value };
-      });
-
-    delete newSubmission.tags;
-    delete newSubmission.__typename;
-    delete newSubmission.updatedAt;
-    delete newSubmission.createdAt;
-    delete newSubmission.imageUrl;
-
-    updatePost({ variables: { input: newSubmission } });
-  }
-
   if (getPostDetailsLoading) {
     return <ImageSkeleton />;
   }
 
-  // TODO: add media query for flex wrap
   return (
     <div
       sx={{
@@ -175,8 +150,6 @@ export default function PostDetail() {
           }}
         />
       </div>
-
-      {/* Tags */}
       <div
         sx={{
           display: 'flex',
@@ -225,7 +198,6 @@ export default function PostDetail() {
             ) : null}
           </div>
         )}
-
         <Divider
           style={{
             margin: !post.message ? '0 0 0.9rem 0' : '0.5rem 0rem 0.9rem 0rem',
@@ -235,7 +207,6 @@ export default function PostDetail() {
                 : theme.colors.modes.dark.divider,
           }}
         />
-
         {editing ? (
           <Select
             mode="tags"
@@ -378,7 +349,20 @@ export default function PostDetail() {
                 type="primary"
                 icon={<CheckOutlined />}
                 onClick={() => {
-                  submitEdits();
+                  updatePost({
+                    variables: {
+                      _id: post._id,
+                      input: {
+                        message: post.message,
+                        addTags: post.tags.filter((tag) => !!tag.key),
+                        createTags: post.tags
+                          .filter((tag) => !tag.key)
+                          .map((tag2) => {
+                            return { label: tag2.value };
+                          }),
+                      },
+                    },
+                  });
                 }}
                 loading={updatePostLoading}
               />

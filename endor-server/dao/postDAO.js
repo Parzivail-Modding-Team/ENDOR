@@ -11,22 +11,22 @@ class PostDAO {
 
   static async createPost(post) {
     const useMongo = await connectToMongo('endor-post');
-    const thing = await useMongo.insertOne(post);
-    return thing;
+    const response = await useMongo.insertOne(post);
+    return response;
   }
 
   static async updatePost(query, updateObject) {
     const useMongo = await connectToMongo('endor-post');
-    const thing = await useMongo.findOneAndUpdate(query, updateObject, {
+    const response = await useMongo.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
-    return thing.value._id;
+    return response.value._id;
   }
 
   static async deletePost(query) {
     const useMongo = await connectToMongo('endor-post');
-    const thing = await useMongo.findOneAndDelete(query);
-    return thing;
+    const response = await useMongo.findOneAndDelete(query);
+    return response;
   }
 }
 

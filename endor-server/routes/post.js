@@ -5,10 +5,7 @@ import tagDAO from '../dao/tagDAO.js';
 import PostDAO from '../dao/postDAO.js';
 
 import aws from 'aws-sdk';
-import multer from 'multer';
-import multerS3 from 'multer-s3';
-
-import { v4 as uuidv4 } from 'uuid';
+import { error } from 'console';
 
 function tagChecker(newT, addT) {
   if (newT && newT.length && newT.length > 0) {
@@ -126,7 +123,7 @@ async function createPost(request, imageId) {
 }
 
 async function updatePost(__, request) {
-  const { input } = request;
+  const { _id, input } = request;
 
   const addTags = input.addTags;
   const createTags = input.createTags;
@@ -140,7 +137,7 @@ async function updatePost(__, request) {
   }
 
   const postData = await PostDAO.updatePost(
-    { _id: new ObjectId(input._id) },
+    { _id: new ObjectId(_id) },
     {
       $set: {
         tags: tagChecker(
@@ -154,8 +151,7 @@ async function updatePost(__, request) {
   )
     .then((data) => data)
     .catch((e) => {
-      console.error(e);
-      return [];
+      throw new error("There was a problem updating the post")
     });
   return postData;
 }
@@ -177,11 +173,9 @@ async function deletePost(__, request) {
       endpoint: spacesEndpoint,
     });
 
-    // TODO: figure out how to make this safer, currently it allows any key and doesn't fail
     s3.deleteObject(
       { Bucket: process.env.BUCKET, Key: postData.value.imageId },
-      (err, data) => {
-        console.log(err, data);
+      (err) => {
         if (!err) {
           return postData;
         }
