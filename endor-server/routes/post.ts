@@ -1,35 +1,23 @@
 import moment from 'moment/moment.js';
 import { ObjectId, Document } from 'mongodb';
+import aws from 'aws-sdk';
+
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
+import { getTime, sanitizeArray, tagChecker } from './utils';
 
-import aws from 'aws-sdk';
-import { Post, Tag } from '../types';
-
-type InsertResponseType = {
-  acknowledged: boolean;
-  insertedId: ObjectId;
-};
-
-function tagChecker(newT: any, addT: any): any {
-  // TODO: tags are all kinds of weird, clean it up
-  if (newT && newT.length && newT.length > 0) {
-    return sanitizeArray(newT.map((tag: Tag) => tag._id)).concat(
-      sanitizeArray(addT.map((tag: Tag) => new ObjectId(tag.value)))
-    );
-  } else {
-    return sanitizeArray(addT.map((tag: Tag) => new ObjectId(tag.value)));
-  }
-}
-
-function sanitizeArray(arr: (ObjectId | string)[]) {
-  if (!arr || arr.length === 0) return [];
-  return [...arr];
-}
+import {
+  Post,
+  InsertResponseType,
+  PostIdArgs,
+  GetPostsArgs,
+  InputPostArgs,
+  UpdatePostArgs,
+} from '../types';
 
 async function getPostDetails(
   _: any,
-  args: Record<string, any>
+  args: PostIdArgs
 ): Promise<Document[] | void> {
   const { _id } = args;
 
@@ -56,9 +44,10 @@ async function getPostDetails(
 }
 
 // TODO: Delete unfound tags from post on fetch of post
+// Edit: it actually just passes over any tags it can't find without failing
 async function getPosts(
   _: any,
-  args: Record<string, any>
+  args: GetPostsArgs
 ): Promise<Document[] | void> {
   const { tags } = args;
 
@@ -105,7 +94,7 @@ async function getPosts(
 }
 
 async function createPost(
-  args: Record<string, any>,
+  args: InputPostArgs,
   imageId: string
 ): Promise<string | void> {
   const { addTags, createTags, message } = args;
@@ -113,7 +102,7 @@ async function createPost(
   const parsedAddTags: any = JSON.parse(addTags);
   const parsedCreateTags: any = JSON.parse(createTags);
 
-  const time: number = moment().unix();
+  const time: number = getTime();
 
   let newTagsInsert: number = 0;
 
@@ -150,17 +139,17 @@ async function createPost(
         console.error(e);
       }
     });
-  return postData;
+  if (typeof postData === 'string') {
+    return postData;
+  }
 }
 
 async function updatePost(
   _: any,
-  args: Record<string, any>
+  args: UpdatePostArgs
 ): Promise<string | void> {
   const { _id } = args;
   const { addTags, createTags, message } = args.input;
-
-  const time = moment().unix();
 
   let newTagsInsert: number = 0;
 
@@ -177,7 +166,7 @@ async function updatePost(
           addTags
         ),
         message,
-        updatedAt: time,
+        updatedAt: getTime(),
       },
     }
   )
@@ -194,10 +183,7 @@ async function updatePost(
   return postData;
 }
 
-async function deletePost(
-  _: any,
-  args: Record<string, any>
-): Promise<boolean | void> {
+async function deletePost(_: any, args: PostIdArgs): Promise<boolean | void> {
   const { _id } = args;
 
   const postData: Document | void = await PostDAO.deletePost({

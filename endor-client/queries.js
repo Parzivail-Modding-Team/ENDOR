@@ -53,8 +53,8 @@ export const DeletePost = gql`
 `;
 
 export const UpdateTag = gql`
-  mutation UpdateTag($input: UpdateTagInput) {
-    updateTag(input: $input)
+  mutation UpdateTag($_id: String, $input: UpdateTagInput) {
+    updateTag(_id: $_id, input: $input)
   }
 `;
 

@@ -8,7 +8,6 @@ import { resolvers } from './resolvers';
 import aws from 'aws-sdk';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-
 import { v4 as uuidv4 } from 'uuid';
 
 import { expressMiddleware } from '@apollo/server/express4';

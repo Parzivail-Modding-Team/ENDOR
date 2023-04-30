@@ -14,10 +14,10 @@ class TagDAO {
 
   static async updateTag(query: any, updateObject: any) {
     const useMongo = await connectToMongo('endor-tag');
-    const response = await useMongo.findOneAndUpdate(query, updateObject, {
+    const response: any = await useMongo.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
-    return response.value;
+    return response.value._id;
   }
 
   static async deleteTag(query: any) {

@@ -68,7 +68,7 @@ export default function Tags() {
     if (!tag.label || !tag.label.length || tag.label.length == 0) {
       return;
     }
-    updateTag({ variables: { input: tag } });
+    updateTag({ variables: { _id: tag._id, input: { label: tag.label } } });
   }
 
   function changeInput(tag, index) {
@@ -113,7 +113,7 @@ export default function Tags() {
 
   function changeActions(tag, index) {
     return (
-      <div sx={{ display: 'flex', alignItems: 'center' }}>
+      <div sx={{ display: 'flex', alignItems: 'center' }} key={index}>
         <Popconfirm
           title="Delete tag"
           description="Are you sure you want to delete this tag?"

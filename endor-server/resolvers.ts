@@ -7,7 +7,7 @@ import {
   deletePost,
 } from './routes/post';
 
-export const resolvers: any = {
+export const resolvers = {
   Query: { getTags, getPosts, getPostDetails },
   Mutation: {
     createPost,
