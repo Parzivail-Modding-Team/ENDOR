@@ -1,4 +1,4 @@
-export const typeDefs = `#graphql
+export const typeDefs: any = `#graphql
   type User {
     _id: String
     sub: String
@@ -32,7 +32,7 @@ export const typeDefs = `#graphql
     label: String
     value: String
   }
-  
+
   input UpdateTagInput {
     _id: String
     label: String

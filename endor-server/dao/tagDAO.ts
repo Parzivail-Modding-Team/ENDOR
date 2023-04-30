@@ -1,18 +1,18 @@
-import { connectToMongo } from './utils.js';
+import { connectToMongo } from './utils';
 
 class TagDAO {
-  static async findTags(query) {
+  static async findTags(query: any) {
     const useMongo = await connectToMongo('endor-tag');
     return useMongo.aggregate(query).toArray();
   }
 
-  static async createTags(tags) {
+  static async createTags(tags: any) {
     const useMongo = await connectToMongo('endor-tag');
     const response = await useMongo.insertMany(tags, { ordered: true });
     return response.insertedCount;
   }
 
-  static async updateTag(query, updateObject) {
+  static async updateTag(query: any, updateObject: any) {
     const useMongo = await connectToMongo('endor-tag');
     const response = await useMongo.findOneAndUpdate(query, updateObject, {
       upsert: false,
@@ -20,7 +20,7 @@ class TagDAO {
     return response.value;
   }
 
-  static async deleteTag(query) {
+  static async deleteTag(query: any) {
     const useMongo = await connectToMongo('endor-tag');
     const response = await useMongo.deleteOne(query);
     return response.deletedCount;

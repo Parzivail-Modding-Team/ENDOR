@@ -1,13 +1,13 @@
-import { getTags, updateTag, deleteTag } from './routes/tag.js';
+import { getTags, updateTag, deleteTag } from './routes/tag';
 import {
   createPost,
   getPosts,
   getPostDetails,
   updatePost,
   deletePost,
-} from './routes/post.js';
+} from './routes/post';
 
-export const resolvers = {
+export const resolvers: any = {
   Query: { getTags, getPosts, getPostDetails },
   Mutation: {
     createPost,

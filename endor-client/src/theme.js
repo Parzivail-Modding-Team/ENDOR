@@ -1,6 +1,4 @@
-import { Theme } from 'theme-ui';
-
-export const theme: Theme = {
+export const theme = {
   config: {
     initialColorModeName: 'light',
   },
