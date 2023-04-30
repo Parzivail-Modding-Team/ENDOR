@@ -1,14 +1,18 @@
 import moment from 'moment/moment.js';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Document } from 'mongodb';
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
 
 import aws from 'aws-sdk';
 import { Post, Tag } from '../types';
 
-function tagChecker(newT: Tag[], addT: Tag[]): (ObjectId | string)[] {
-  // TODO: maybe do something about the tags here since they are passing in value and key which are both just the _id
-  console.log(newT, addT);
+type InsertResponseType = {
+  acknowledged: boolean;
+  insertedId: ObjectId;
+};
+
+function tagChecker(newT: any, addT: any): any {
+  // TODO: tags are all kinds of weird, clean it up
   if (newT && newT.length && newT.length > 0) {
     return sanitizeArray(newT.map((tag: Tag) => tag._id)).concat(
       sanitizeArray(addT.map((tag: Tag) => new ObjectId(tag.value)))
@@ -23,10 +27,13 @@ function sanitizeArray(arr: (ObjectId | string)[]) {
   return [...arr];
 }
 
-async function getPostDetails(_: any, request: any) {
-  const { _id } = request;
+async function getPostDetails(
+  _: any,
+  args: Record<string, any>
+): Promise<Document[] | void> {
+  const { _id } = args;
 
-  const postData: any = await PostDAO.findPosts([
+  const postData: Document[] | void = await PostDAO.findPosts([
     {
       $match: { _id: new ObjectId(_id) },
     },
@@ -38,18 +45,25 @@ async function getPostDetails(_: any, request: any) {
         as: 'tags',
       },
     },
-  ]).catch((error: Error) => {
-    throw new Error(error.message);
+  ]).catch((e: unknown) => {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    } else {
+      console.error(e);
+    }
   });
   return postData;
 }
 
 // TODO: Delete unfound tags from post on fetch of post
-async function getPosts(_: any, request: any) {
-  const { tags } = request;
+async function getPosts(
+  _: any,
+  args: Record<string, any>
+): Promise<Document[] | void> {
+  const { tags } = args;
 
   if (tags) {
-    const postData: any = await PostDAO.findPosts([
+    const postData: Document[] | void = await PostDAO.findPosts([
       {
         $match: {
           tags: {
@@ -57,36 +71,51 @@ async function getPosts(_: any, request: any) {
           },
         },
       },
-    ]).catch((error: Error) => {
-      throw new Error(error.message);
+    ]).catch((e: unknown) => {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        console.error(e);
+      }
     });
-    return postData.reverse();
+    if (typeof postData === 'object') {
+      return postData.reverse();
+    }
   }
 
   if (!tags) {
-    const postData: any = await PostDAO.findPosts(
+    const postData: Document[] | void = await PostDAO.findPosts(
       [
         {
           $match: {},
         },
       ],
       true
-    ).catch((error: Error) => {
-      throw new Error(error.message);
+    ).catch((e: unknown) => {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        console.error(e);
+      }
     });
-    return postData.reverse();
+    if (typeof postData === 'object') {
+      return postData.reverse();
+    }
   }
 }
 
-async function createPost(request: any, imageId: any) {
-  const { addTags, createTags, message } = request;
+async function createPost(
+  args: Record<string, any>,
+  imageId: string
+): Promise<string | void> {
+  const { addTags, createTags, message } = args;
 
   const parsedAddTags: any = JSON.parse(addTags);
   const parsedCreateTags: any = JSON.parse(createTags);
 
   const time: number = moment().unix();
 
-  let newTagsInsert;
+  let newTagsInsert: number = 0;
 
   if (
     parsedCreateTags &&
@@ -108,31 +137,38 @@ async function createPost(request: any, imageId: any) {
     imageId,
   };
 
-  const postData: any = await PostDAO.createPost(post)
-    .then((data: any) => {
-      if (data && data.acknowledged && data.acknowledged === true) {
+  const postData: string | void = await PostDAO.createPost(post)
+    .then((data: InsertResponseType) => {
+      if (data.acknowledged === true) {
         return data.insertedId.toString();
       }
     })
-    .catch((error: Error) => {
-      throw new Error(error.message);
+    .catch((e: unknown) => {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        console.error(e);
+      }
     });
   return postData;
 }
 
-async function updatePost(_: any, request: any) {
-  const { _id } = request;
-  const { addTags, createTags, message } = request.input;
+async function updatePost(
+  _: any,
+  args: Record<string, any>
+): Promise<string | void> {
+  const { _id } = args;
+  const { addTags, createTags, message } = args.input;
 
   const time = moment().unix();
 
-  let newTagsInsert;
+  let newTagsInsert: number = 0;
 
   if (createTags && createTags.length && createTags.length > 0) {
     newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
   }
 
-  const postData: any = await PostDAO.updatePost(
+  const postData: string | void = await PostDAO.updatePost(
     { _id: new ObjectId(_id) },
     {
       $set: {
@@ -145,23 +181,38 @@ async function updatePost(_: any, request: any) {
       },
     }
   )
-    .then((data: any) => data)
-    .catch((error: Error) => {
-      throw new Error(error.message);
+    .then((data: ObjectId) => {
+      return data.toString();
+    })
+    .catch((e: unknown) => {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        console.error(e);
+      }
     });
   return postData;
 }
 
-async function deletePost(_: any, request: any) {
-  const { _id } = request;
+async function deletePost(
+  _: any,
+  args: Record<string, any>
+): Promise<boolean | void> {
+  const { _id } = args;
 
-  const postData: any = await PostDAO.deletePost({ _id: new ObjectId(_id) })
-    .then((e) => e)
-    .catch((error: Error) => {
-      throw new Error(error.message);
+  const postData: Document | void = await PostDAO.deletePost({
+    _id: new ObjectId(_id),
+  })
+    .then((e: Document) => e)
+    .catch((e: unknown) => {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        console.error(e);
+      }
     });
 
-  if (postData && postData.value && postData.value) {
+  if (postData && postData.value && postData.value._id) {
     const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
       String(process.env.ENDPOINT_URL)
     );
@@ -171,11 +222,13 @@ async function deletePost(_: any, request: any) {
 
     s3.deleteObject(
       { Bucket: String(process.env.BUCKET), Key: postData.value.imageId },
-      (error: Error) => {
-        if (!error) {
-          return postData;
+      (e: unknown) => {
+        if (!e) {
+          return true;
+        } else if (e instanceof Error) {
+          throw new Error(e.message);
         } else {
-          throw new Error(error.message);
+          console.error(e);
         }
       }
     );
