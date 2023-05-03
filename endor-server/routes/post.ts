@@ -1,22 +1,22 @@
-import moment from 'moment/moment.js';
 import { ObjectId, Document } from 'mongodb';
 import aws from 'aws-sdk';
 
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
-import { getTime, sanitizeArray, tagChecker } from './utils';
+import { getTime, tagChecker } from './utils';
 
 import {
   Post,
   InsertResponseType,
   PostIdArgs,
   GetPostsArgs,
-  InputPostArgs,
   UpdatePostArgs,
+  CreatePostArgs,
+  Tag,
 } from '../types';
 
 async function getPostDetails(
-  _: any,
+  _: unknown,
   args: PostIdArgs
 ): Promise<Document[] | void> {
   const { _id } = args;
@@ -33,6 +33,11 @@ async function getPostDetails(
         as: 'tags',
       },
     },
+    {
+      $addFields: {
+        tags: { $sortArray: { input: '$tags', sortBy: { label: 1 } } },
+      },
+    },
   ]).catch((e: unknown) => {
     if (e instanceof Error) {
       throw new Error(e.message);
@@ -46,7 +51,7 @@ async function getPostDetails(
 // TODO: Delete unfound tags from post on fetch of post
 // Edit: it actually just passes over any tags it can't find without failing
 async function getPosts(
-  _: any,
+  _: unknown,
   args: GetPostsArgs
 ): Promise<Document[] | void> {
   const { tags } = args;
@@ -56,8 +61,13 @@ async function getPosts(
       {
         $match: {
           tags: {
-            $all: tags.map((tag: any) => new ObjectId(tag)),
+            $all: tags.map((tag: string) => new ObjectId(tag)),
           },
+        },
+      },
+      {
+        $sort: {
+          createdAt: 1,
         },
       },
     ]).catch((e: unknown) => {
@@ -67,9 +77,7 @@ async function getPosts(
         console.error(e);
       }
     });
-    if (typeof postData === 'object') {
-      return postData.reverse();
-    }
+    return postData;
   }
 
   if (!tags) {
@@ -77,6 +85,11 @@ async function getPosts(
       [
         {
           $match: {},
+        },
+        {
+          $sort: {
+            createdAt: 1,
+          },
         },
       ],
       true
@@ -87,20 +100,18 @@ async function getPosts(
         console.error(e);
       }
     });
-    if (typeof postData === 'object') {
-      return postData.reverse();
-    }
+    return postData;
   }
 }
 
 async function createPost(
-  args: InputPostArgs,
+  args: CreatePostArgs,
   imageId: string
 ): Promise<string | void> {
   const { addTags, createTags, message } = args;
 
-  const parsedAddTags: any = JSON.parse(addTags);
-  const parsedCreateTags: any = JSON.parse(createTags);
+  const parsedAddTags: Tag[] = JSON.parse(addTags);
+  const parsedCreateTags: Tag[] = JSON.parse(createTags);
 
   const time: number = getTime();
 
@@ -111,7 +122,7 @@ async function createPost(
     parsedCreateTags.length &&
     parsedCreateTags.length > 0
   ) {
-    newTagsInsert = await tagDAO.createTags(sanitizeArray(parsedCreateTags));
+    newTagsInsert = await tagDAO.createTags(parsedCreateTags);
   }
 
   const post: Post = {
@@ -145,7 +156,7 @@ async function createPost(
 }
 
 async function updatePost(
-  _: any,
+  _: unknown,
   args: UpdatePostArgs
 ): Promise<string | void> {
   const { _id } = args;
@@ -154,7 +165,7 @@ async function updatePost(
   let newTagsInsert: number = 0;
 
   if (createTags && createTags.length && createTags.length > 0) {
-    newTagsInsert = await tagDAO.createTags(sanitizeArray(createTags));
+    newTagsInsert = await tagDAO.createTags(createTags);
   }
 
   const postData: string | void = await PostDAO.updatePost(
@@ -183,7 +194,10 @@ async function updatePost(
   return postData;
 }
 
-async function deletePost(_: any, args: PostIdArgs): Promise<boolean | void> {
+async function deletePost(
+  _: unknown,
+  args: PostIdArgs
+): Promise<boolean | void> {
   const { _id } = args;
 
   const postData: Document | void = await PostDAO.deletePost({

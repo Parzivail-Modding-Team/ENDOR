@@ -45,6 +45,7 @@ export default function UploadRoute() {
 
   useQuery(GetTags, {
     onCompleted: (data) => {
+      console.log(data.getTags);
       setTags(data.getTags);
     },
     onError: () => {
@@ -64,12 +65,18 @@ export default function UploadRoute() {
     setSubmitLoading(true);
 
     const newSubmission = { ...submission };
-    newSubmission.addTags = newSubmission.tags.filter((tag) => !!tag.key);
+    console.log(newSubmission);
+    newSubmission.addTags = newSubmission.tags
+      .filter((tag) => !!tag.key)
+      .map((tag2) => {
+        return { label: tag2.label, value: tag2.value };
+      });
     newSubmission.createTags = newSubmission.tags
       .filter((tag) => !tag.key)
       .map((tag2) => {
         return { label: tag2.value };
       });
+    console.log(newSubmission.addTags, newSubmission.createTags);
     delete newSubmission.tags;
 
     let formData = new FormData();
@@ -206,9 +213,13 @@ export default function UploadRoute() {
               }
               tagRender={tagRender}
               onChange={(e) => {
-                setSubmission({ ...submission, tags: e });
+                console.log(e);
+                setSubmission({
+                  ...submission,
+                  tags: e,
+                });
               }}
-              fieldNames={{ value: '_id' }}
+              fieldNames={{ value: '_id', label: 'label' }}
               options={tags}
               value={submission.tags}
               labelInValue

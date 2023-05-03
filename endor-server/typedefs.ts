@@ -28,7 +28,7 @@ export const typeDefs = `#graphql
   }
 
   input TagInput {
-    key: String
+    _id: String
     label: String
     value: String
   }

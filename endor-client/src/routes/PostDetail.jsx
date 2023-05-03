@@ -354,7 +354,11 @@ export default function PostDetail() {
                       _id: post._id,
                       input: {
                         message: post.message,
-                        addTags: post.tags.filter((tag) => !!tag.key),
+                        addTags: post.tags
+                          .filter((tag) => !!tag.key)
+                          .map((tag2) => {
+                            return { label: tag2.label, value: tag2.value };
+                          }),
                         createTags: post.tags
                           .filter((tag) => !tag.key)
                           .map((tag2) => {

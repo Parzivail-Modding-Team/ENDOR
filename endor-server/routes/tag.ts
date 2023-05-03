@@ -1,12 +1,21 @@
 import { ObjectId, Document } from 'mongodb';
 import TagDAO from '../dao/tagDAO';
 import { DeleteTagArgs, GetTagsArgs, Tag, UpdateTagArgs } from '../types';
-import { sortAlphabetically } from './utils';
 
-async function getTags(_: any, args: GetTagsArgs): Promise<Document[] | void> {
+async function getTags(
+  _: unknown,
+  args: GetTagsArgs
+): Promise<Document[] | void> {
   const { label } = args;
 
-  const query = [{ $match: {} }];
+  const query = [
+    { $match: {} },
+    {
+      $sort: {
+        label: 1,
+      },
+    },
+  ];
 
   if (label) {
     query[0].$match = { label: { $regex: `^${label}.*` } };
@@ -22,12 +31,10 @@ async function getTags(_: any, args: GetTagsArgs): Promise<Document[] | void> {
       }
     }
   );
-  if (typeof tagData === 'object') {
-    return sortAlphabetically(tagData);
-  }
+  return tagData;
 }
 
-async function createTags(_: any, tags: any): Promise<number | void> {
+async function createTags(_: unknown, tags: Tag[]): Promise<number | void> {
   await TagDAO.createTags(tags)
     .then((e: number) => e)
     .catch((e: unknown) => {
@@ -39,7 +46,10 @@ async function createTags(_: any, tags: any): Promise<number | void> {
     });
 }
 
-async function updateTag(_: any, args: UpdateTagArgs): Promise<string | void> {
+async function updateTag(
+  _: unknown,
+  args: UpdateTagArgs
+): Promise<string | void> {
   const { _id } = args;
   const { label } = args.input;
 
@@ -47,7 +57,7 @@ async function updateTag(_: any, args: UpdateTagArgs): Promise<string | void> {
     { _id: new ObjectId(_id) },
     { $set: { label } }
   )
-    .then((data: any) => String(data))
+    .then((data) => data)
     .catch((e: unknown) => {
       if (e instanceof Error) {
         throw new Error(e.message);
@@ -55,12 +65,13 @@ async function updateTag(_: any, args: UpdateTagArgs): Promise<string | void> {
         console.error(e);
       }
     });
-  if (typeof tagData === 'string') {
-    return tagData;
-  }
+  return tagData;
 }
 
-async function deleteTag(_: any, args: DeleteTagArgs): Promise<boolean | void> {
+async function deleteTag(
+  _: unknown,
+  args: DeleteTagArgs
+): Promise<boolean | void> {
   const { _id } = args;
 
   await TagDAO.deleteTag({
@@ -68,7 +79,7 @@ async function deleteTag(_: any, args: DeleteTagArgs): Promise<boolean | void> {
   })
     .then((e: number) => {
       if (e && e > 0) {
-        true;
+        return true;
       }
     })
     .catch((error: Error) => {

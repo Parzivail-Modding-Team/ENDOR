@@ -10,8 +10,7 @@ type User = {
  * Tag and related request and response types
  */
 type Tag = {
-  _id?: string;
-  key?: string;
+  _id?: string | ObjectId;
   label: string;
   value?: string;
 };
@@ -40,7 +39,7 @@ type Post = {
   imageUrl: string;
   imageId: string;
   message: string;
-  tags: (Tag | ObjectId | string)[];
+  tags: Tag[];
 };
 
 type InsertResponseType = {
@@ -56,15 +55,21 @@ type GetPostsArgs = {
   tags: string[];
 };
 
-type InputPostArgs = {
+type CreatePostArgs = {
   message: string;
-  addTags: any;
-  createTags: any;
+  addTags: string;
+  createTags: string;
 };
 
 type UpdatePostArgs = {
   _id: string;
-  input: InputPostArgs;
+  input: UpdatePostInput;
+};
+
+type UpdatePostInput = {
+  message: string;
+  addTags: Tag[];
+  createTags: Tag[];
 };
 
 export {
@@ -74,7 +79,7 @@ export {
   InsertResponseType,
   PostIdArgs,
   GetPostsArgs,
-  InputPostArgs,
+  CreatePostArgs,
   UpdatePostArgs,
   GetTagsArgs,
   UpdateTagArgs,

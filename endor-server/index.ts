@@ -6,7 +6,7 @@ import { typeDefs } from './typedefs';
 import { resolvers } from './resolvers';
 
 import aws from 'aws-sdk';
-import multer from 'multer';
+import multer, { Options } from 'multer';
 import multerS3 from 'multer-s3';
 import { v4 as uuidv4 } from 'uuid';
 
