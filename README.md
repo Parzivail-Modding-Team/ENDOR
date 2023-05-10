@@ -36,10 +36,6 @@ Digital Ocean Spaces
 
 ## Future plans
 
-- [ ] Refactor the client from Javascript to Typescript
-
-- [ ] Refactor the server from Javascript to Typescript (Almost done!)
-
 - [ ] Make Endor a fully deployable application that can be stood up by others for their own purposes with minimal config.
 
 ## Images
