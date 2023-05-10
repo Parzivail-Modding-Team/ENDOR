@@ -161,7 +161,7 @@ export default function Header() {
                       ? theme.colors.text
                       : theme.colors.modes.dark.text,
                 }}
-                href="https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fauth&response_type=code&scope=identify"
+                href="https://discord.com/api/oauth2/authorize?client_id=1084227425220698262&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&response_type=code&scope=identify"
               >
                 Login
               </a>

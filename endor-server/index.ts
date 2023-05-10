@@ -10,18 +10,40 @@ import multer, { Options } from 'multer';
 import multerS3 from 'multer-s3';
 import { v4 as uuidv4 } from 'uuid';
 
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+
+import passport from 'passport';
+import { Strategy as DiscordStrategy } from 'passport-discord';
+
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import pkg from 'body-parser';
 import { getMongo } from './mongo';
 import { createPost } from './routes/post';
+import { connectToMongo } from './dao/utils';
 const { json } = pkg;
 
 async function init() {
   const app = express();
   const httpServer = http.createServer(app);
 
-  getMongo();
+  const mongo: any = getMongo();
+
+  const thing = new DiscordStrategy(
+    {
+      clientID: String(process.env.DISCORD_CLIENT_ID),
+      clientSecret: String(process.env.DISCORD_SECRET),
+      callbackURL: String(process.env.DISCORD_REDIRECT_URL),
+      scope: ['identify', 'email'],
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      cb();
+      console.log('$$$$$$$', accessToken, '#######', profile);
+    }
+  );
+
+  passport.use(thing);
 
   const server = new ApolloServer({
     typeDefs,
@@ -31,6 +53,17 @@ async function init() {
   await server.start();
 
   app.use('/api/gql', cors(), json(), expressMiddleware(server));
+
+  // app.use(
+  //   session({
+  //     secret: String(process.env.SESSION_SECRET),
+  //     store: MongoStore.create({
+  //       clientPromise: mongo,
+  //       collectionName: String(process.env.MONGO_USER_TABLE),
+  //     }),
+  //   })
+  // );
+  // app.use(passport.authenticate('session'));
 
   const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
     String(process.env.ENDPOINT_URL)
@@ -60,6 +93,16 @@ async function init() {
       if (newPost && newPost.length) {
         return res.json({ _id: newPost });
       }
+    }
+  );
+
+  app.get(
+    '/auth',
+    passport.authenticate(thing, {
+      failureRedirect: '/',
+    }),
+    function (req, res) {
+      console.log('butt');
     }
   );
 
