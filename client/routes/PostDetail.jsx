@@ -26,6 +26,7 @@ import {
   TagOutlined,
 } from '@ant-design/icons';
 import { tagRender } from '../utils';
+import { useAuthContext } from '../contexts/AuthContext';
 
 function RowItem({ title, content }) {
   const [colorMode] = useColorMode();
@@ -120,6 +121,8 @@ export default function PostDetail() {
       message.error('There was a problem deleting the post');
     },
   });
+
+  const { role } = useAuthContext();
 
   if (getPostDetailsLoading) {
     return <ImageSkeleton />;
@@ -307,91 +310,97 @@ export default function PostDetail() {
                 : theme.colors.modes.dark.divider,
           }}
         />
-        <div
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Popconfirm
-            title="Delete post"
-            description="Are you sure you want to delete this post?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => deletePost({ variables: { _id: post._id } })}
-          >
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              style={{ marginRight: '1rem' }}
-            />
-          </Popconfirm>
-
+        {role < 2 ? null : (
           <div
             sx={{
-              width: '100%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
             }}
           >
-            {editing && (
+            <Popconfirm
+              title="Delete post"
+              description="Are you sure you want to delete this post?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => deletePost({ variables: { _id: post._id } })}
+            >
               <Button
-                type="default"
-                icon={<CloseOutlined />}
-                onClick={() => {
-                  setEditing(false);
-                }}
+                type="primary"
+                danger
+                icon={<DeleteOutlined />}
                 style={{ marginRight: '1rem' }}
               />
-            )}
+            </Popconfirm>
 
-            {editing ? (
-              <Button
-                type="primary"
-                icon={<CheckOutlined />}
-                onClick={() => {
-                  updatePost({
-                    variables: {
-                      _id: post._id,
-                      input: {
-                        message: post.message,
-                        addTags: post.tags
-                          .filter((tag) => !!tag.key)
-                          .map((tag2) => {
-                            return { label: tag2.label, value: tag2.value };
-                          }),
-                        createTags: post.tags
-                          .filter((tag) => !tag.key)
-                          .map((tag2) => {
-                            return { label: tag2.value };
-                          }),
+            <div
+              sx={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+              }}
+            >
+              {editing && (
+                <Button
+                  type="default"
+                  icon={<CloseOutlined />}
+                  onClick={() => {
+                    setEditing(false);
+                  }}
+                  style={{ marginRight: '1rem' }}
+                />
+              )}
+
+              {editing ? (
+                <Button
+                  type="primary"
+                  icon={<CheckOutlined />}
+                  onClick={() => {
+                    updatePost({
+                      variables: {
+                        _id: post._id,
+                        input: {
+                          message: post.message,
+                          addTags: post.tags
+                            .filter((tag) => !!tag.key)
+                            .map((tag2) => {
+                              return { label: tag2.label, value: tag2.value };
+                            }),
+                          createTags: post.tags
+                            .filter((tag) => !tag.key)
+                            .map((tag2) => {
+                              return { label: tag2.value };
+                            }),
+                        },
                       },
-                    },
-                  });
-                }}
-                loading={updatePostLoading}
-              />
-            ) : (
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setPost({
-                    ...post,
-                    tags: post.tags.map((tag) => {
-                      return { key: tag._id, label: tag.label, value: tag._id };
-                    }),
-                  });
-                  setEditing(true);
-                  getTags();
-                }}
-              />
-            )}
+                    });
+                  }}
+                  loading={updatePostLoading}
+                />
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    setPost({
+                      ...post,
+                      tags: post.tags.map((tag) => {
+                        return {
+                          key: tag._id,
+                          label: tag.label,
+                          value: tag._id,
+                        };
+                      }),
+                    });
+                    setEditing(true);
+                    getTags();
+                  }}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

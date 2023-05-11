@@ -7,6 +7,7 @@ import { ApolloProvider } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { getClient } from './apolloSetup';
 import loadable from '@loadable/component';
+import { AuthContextProvider } from './contexts/AuthContext';
 
 const Header = loadable(() => import('./components/Header'));
 const PostDetail = loadable(() => import('./routes/PostDetail'));
@@ -48,42 +49,44 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
-        <ConfigProvider
-          theme={{
-            token: {
-              colorPrimary: theme.colors.primary,
-            },
-          }}
-        >
-          <div
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              backgroundColor: 'background',
-              paddingBottom: '1rem',
-              transition:
-                'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
+        <AuthContextProvider>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: theme.colors.primary,
+              },
             }}
           >
-            <Header />
             <div
               sx={{
-                display: 'flex',
+                height: '100%',
                 width: '100%',
-                height: 'fit-content',
-                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
                 backgroundColor: 'background',
+                paddingBottom: '1rem',
                 transition:
                   'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
-                marginTop: '55px',
               }}
             >
-              <RouterProvider router={router} />
+              <Header />
+              <div
+                sx={{
+                  display: 'flex',
+                  width: '100%',
+                  height: 'fit-content',
+                  padding: '1rem',
+                  backgroundColor: 'background',
+                  transition:
+                    'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
+                  marginTop: '55px',
+                }}
+              >
+                <RouterProvider router={router} />
+              </div>
             </div>
-          </div>
-        </ConfigProvider>
+          </ConfigProvider>
+        </AuthContextProvider>
       </ThemeProvider>
     </ApolloProvider>
   );

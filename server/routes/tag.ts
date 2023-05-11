@@ -1,12 +1,23 @@
 import { ObjectId, Document } from 'mongodb';
 import TagDAO from '../dao/tagDAO';
-import { DeleteTagArgs, GetTagsArgs, Tag, UpdateTagArgs } from '../types';
+import {
+  DeleteTagArgs,
+  GetTagsArgs,
+  IdentityContext,
+  Role,
+  Tag,
+  UpdateTagArgs,
+} from '../types';
+import { requireRole } from './utils';
 
 async function getTags(
   _: unknown,
-  args: GetTagsArgs
+  args: GetTagsArgs,
+  { identity }: IdentityContext
 ): Promise<Document[] | void> {
   const { label } = args;
+
+  requireRole(identity, Role.ReadOnly);
 
   const query = [
     { $match: {} },
@@ -34,7 +45,13 @@ async function getTags(
   return tagData;
 }
 
-async function createTags(_: unknown, tags: Tag[]): Promise<number | void> {
+async function createTags(
+  _: unknown,
+  tags: Tag[],
+  { identity }: IdentityContext
+): Promise<number | void> {
+  requireRole(identity, Role.ReadWrite);
+
   await TagDAO.createTags(tags)
     .then((e: number) => e)
     .catch((e: unknown) => {
@@ -48,10 +65,13 @@ async function createTags(_: unknown, tags: Tag[]): Promise<number | void> {
 
 async function updateTag(
   _: unknown,
-  args: UpdateTagArgs
+  args: UpdateTagArgs,
+  { identity }: IdentityContext
 ): Promise<string | void> {
   const { _id } = args;
   const { label } = args.input;
+
+  requireRole(identity, Role.ReadWrite);
 
   const tagData: string | void = await TagDAO.updateTag(
     { _id: new ObjectId(_id) },
@@ -70,9 +90,12 @@ async function updateTag(
 
 async function deleteTag(
   _: unknown,
-  args: DeleteTagArgs
+  args: DeleteTagArgs,
+  { identity }: IdentityContext
 ): Promise<boolean | void> {
   const { _id } = args;
+
+  requireRole(identity, Role.ReadWrite);
 
   await TagDAO.deleteTag({
     _id: new ObjectId(_id),

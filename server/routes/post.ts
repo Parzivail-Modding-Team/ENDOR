@@ -22,9 +22,12 @@ import {
 
 async function getPostDetails(
   _: unknown,
-  args: PostIdArgs
+  args: PostIdArgs,
+  { identity }: IdentityContext
 ): Promise<Document[] | void> {
   const { _id } = args;
+
+  requireRole(identity, Role.ReadOnly);
 
   const postData: Document[] | void = await PostDAO.findPosts([
     {
@@ -165,10 +168,13 @@ async function createPost(
 
 async function updatePost(
   _: unknown,
-  args: UpdatePostArgs
+  args: UpdatePostArgs,
+  { identity }: IdentityContext
 ): Promise<string | void> {
   const { _id } = args;
   const { addTags, createTags, message } = args.input;
+
+  requireRole(identity, Role.ReadWrite);
 
   let newTagsInsert: number = 0;
 
@@ -204,9 +210,12 @@ async function updatePost(
 
 async function deletePost(
   _: unknown,
-  args: PostIdArgs
+  args: PostIdArgs,
+  { identity }: IdentityContext
 ): Promise<boolean | void> {
   const { _id } = args;
+
+  requireRole(identity, Role.ReadWrite);
 
   const postData: Document | void = await PostDAO.deletePost({
     _id: new ObjectId(_id),

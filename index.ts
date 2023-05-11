@@ -192,6 +192,9 @@ async function init() {
     isAuthenticated,
     uploadFunc.single('file'),
     async (req: any, res: any) => {
+      if (req.user.role < Role.ReadWrite) {
+        return res.status(403);
+      }
       const body = JSON.parse(JSON.stringify(req.body));
       const newPost = await createPost(body, req.file.key);
       if (newPost && newPost.length) {

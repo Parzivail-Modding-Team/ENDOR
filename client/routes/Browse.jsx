@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Skeleton, Select, message } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GetPosts, GetTags } from '../queries';
+import { GetPosts, GetTags, GetUser } from '../queries';
 import LocalResult from '../components/LocalResult';
 import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
@@ -37,7 +37,7 @@ export default function Browse() {
       setTags(data.getTags);
     },
     onError: () => {
-      message.error('There was a problem fetching tags');
+      if (!error) message.error('There was a problem fetching tags');
     },
   });
 

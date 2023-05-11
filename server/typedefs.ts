@@ -1,8 +1,10 @@
 export const typeDefs = `#graphql
   type User {
     _id: String
-    sub: String
-    email: String
+    id: String
+    role: Int
+    updatedAt: Float
+    username: String
   }
 
   type Post {
@@ -42,6 +44,7 @@ export const typeDefs = `#graphql
     getPosts(tags: [String]): [Post]
     getPostDetails(_id: String): [Post]
     getTags(label: String): [Tag]
+    getUser: User
   }
 
   type Mutation {

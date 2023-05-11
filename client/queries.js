@@ -1,5 +1,13 @@
 import { gql } from 'graphql-tag';
 
+export const GetUser = gql`
+  query GetUser {
+    getUser {
+      role
+    }
+  }
+`;
+
 export const GetTags = gql`
   query GetTags($label: String) {
     getTags(label: $label) {
