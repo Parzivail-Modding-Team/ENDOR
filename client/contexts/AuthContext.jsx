@@ -9,12 +9,15 @@ function AuthContextProvider({ children }) {
   const state = {};
 
   let setRole;
+  let setAvatarUrl;
 
   [state.role, setRole] = useState();
+  [state.avatarUrl, setAvatarUrl] = useState();
 
   useQuery(GetUser, {
     onCompleted: (data) => {
       setRole(data.getUser.role);
+      setAvatarUrl(data.getUser.avatarUrl);
     },
     onError: ({ graphQLErrors }) => {
       if (graphQLErrors) {

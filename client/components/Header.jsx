@@ -10,14 +10,14 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
-import { useQuery } from '@apollo/client';
-import { GetUser } from '../queries';
 import { theme } from '../theme';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export default function Header() {
-  const [avatarUrl, setAvatarUrl] = useState([]);
   const [scrolled, setScrolled] = useState(false);
   const [colorMode, setColorMode] = useColorMode();
+
+  const { avatarUrl } = useAuthContext();
 
   useEffect(() => {
     window.onscroll = function () {
@@ -28,15 +28,6 @@ export default function Header() {
       }
     };
   }, [window.scrollY]);
-  
-  useQuery(GetUser, {
-    onCompleted: (data) => {
-      setAvatarUrl(data.getUser.avatarUrl);
-    },
-    onError: () => {
-      // Ignore
-    },
-  });
 
   return (
     <div
@@ -166,31 +157,37 @@ export default function Header() {
           },
           {
             label: (
-              <a
+              <div
                 style={{
-                  textDecoration: 'none',
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
-                onClick={() =>
-                  axios.post('/logout').then(window.location.assign('/login'))
-                }
               >
-                Logout
-              </a>
-            ),
-            icon: (
-              <img 
-                style={{
-                  width: '19px',
-                  height: '19px',
-                  borderRadius: '50%',
-                  verticalAlign: '-4px'
-                }}
-                src={avatarUrl} 
-              />
+                <img
+                  style={{
+                    width: '19px',
+                    height: '19px',
+                    borderRadius: '50%',
+                    marginRight: '0.5rem',
+                  }}
+                  src={avatarUrl}
+                />
+                <a
+                  style={{
+                    textDecoration: 'none',
+                    color:
+                      colorMode === 'light'
+                        ? theme.colors.text
+                        : theme.colors.modes.dark.text,
+                  }}
+                  onClick={() =>
+                    axios.post('/logout').then(window.location.assign('/login'))
+                  }
+                >
+                  Logout
+                </a>
+              </div>
             ),
           },
           {
