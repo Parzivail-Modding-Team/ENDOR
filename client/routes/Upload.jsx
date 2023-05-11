@@ -1,14 +1,14 @@
 /** @jsxImportSource theme-ui */
 import { useEffect, useState } from 'react';
 import { Button, Form, Input, message, Select, Typography } from 'antd';
-import { tagRender } from '../../utils';
+import { tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { GetTags } from '../../queries';
+import { GetTags } from '../queries';
 import axios from 'axios';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../../src/theme';
+import { theme } from '../theme';
 
 const fileToDataUri = (file) =>
   new Promise((resolve) => {

@@ -1,6 +1,7 @@
-import moment from 'moment/moment.js';
+import moment from 'moment';
 import { ObjectId } from 'mongodb';
-import { Tag } from '../types';
+import { Role, Tag, User } from '../types';
+import { GraphQLError } from 'graphql';
 
 export function tagChecker(newT: Tag[], addT: Tag[]): any {
   // TODO: tags are all kinds of weird, clean it up
@@ -15,4 +16,10 @@ export function tagChecker(newT: Tag[], addT: Tag[]): any {
 
 export function getTime(): number {
   return moment().unix();
+}
+
+export function requireRole(user: User, role: Role) {
+  if (user.role < role) {
+    throw new GraphQLError('Unauthorized');
+  }
 }

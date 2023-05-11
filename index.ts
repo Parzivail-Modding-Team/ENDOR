@@ -3,8 +3,8 @@ import http from 'http';
 import moment from 'moment';
 import { ApolloServer } from '@apollo/server';
 import cors from 'cors';
-import { typeDefs } from './typedefs';
-import { resolvers } from './resolvers';
+import { typeDefs } from './server/typedefs';
+import { resolvers } from './server/resolvers';
 import ViteExpress from 'vite-express';
 
 import aws from 'aws-sdk';
@@ -26,9 +26,18 @@ import passport from 'passport';
 import { expressMiddleware as apolloMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { json as jsonBodyParser } from 'body-parser';
-import { getMongo } from './mongo';
-import { createPost } from './routes/post';
-import { getEndorTable } from './dao/utils';
+import { getMongo } from './server/mongo';
+import { createPost } from './server/routes/post';
+import { getEndorTable } from './server/dao/utils';
+import { Role, User } from './server/types';
+
+function isAuthenticated(req: any, res: any, next: any) {
+  if (req.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+}
 
 async function init() {
   const app = express();
@@ -37,7 +46,9 @@ async function init() {
   const mongoPromise = getMongo();
   const mongo = await mongoPromise;
 
-  ViteExpress.bind(app, httpServer);
+  app.get('/login', function (req, res) {
+    res.sendFile(__dirname + '/client/login.html');
+  });
 
   // Apply a middleware that manages translating session
   // information into client-safe session cookies which somehow
@@ -49,6 +60,7 @@ async function init() {
         clientPromise: mongoPromise,
         collectionName: String(process.env.MONGO_SESSION_TABLE),
       }),
+      cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
       resave: false,
       saveUninitialized: false,
     })
@@ -76,7 +88,7 @@ async function init() {
           id,
         })
         .then((document) => {
-          return done(null, document);
+          return done(null, document as User);
         });
     });
   });
@@ -99,29 +111,32 @@ async function init() {
         // Once Discord has auth'd, insert the user's ID and username into
         // the database and always succeed, and the user object is passed
         // back to the server to keep as the session object
-        const user = {
-          id: profile.id,
-          username: profile.username,
-          updatedAt: moment().unix(),
-        };
         const useMongo = await getEndorTable(
           mongo,
           String(process.env.MONGO_USER_TABLE)
         );
         await useMongo
           .updateOne(
-            user,
+            { id: profile.id },
             {
               $set: {
-                // Set nothing
+                username: profile.username,
+                updatedAt: moment().unix(),
+              },
+              $setOnInsert: {
+                role: Role.Unauthorized,
               },
             },
             {
               upsert: true,
             }
           )
-          .then((result) => {
-            cb(null, user);
+          .then(() => {
+            cb(null, {
+              id: profile.id,
+              username: profile.username,
+              updatedAt: moment().unix(),
+            });
           });
       }
     )
@@ -136,7 +151,17 @@ async function init() {
 
   // Wire up the Apollo GQL middleware under the endpoint
   // known to the clients (does not need a proxy)
-  app.use('/api', cors(), jsonBodyParser(), apolloMiddleware(server));
+  app.use(
+    '/api',
+    isAuthenticated,
+    cors(),
+    jsonBodyParser(),
+    apolloMiddleware(server, {
+      context: async ({ req }: any) => {
+        return { identity: req.user as User };
+      },
+    })
+  );
 
   const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
     String(process.env.ENDPOINT_URL)
@@ -164,6 +189,7 @@ async function init() {
 
   app.post(
     '/createPost',
+    isAuthenticated,
     uploadFunc.single('file'),
     async (req: any, res: any) => {
       const body = JSON.parse(JSON.stringify(req.body));
@@ -201,23 +227,16 @@ async function init() {
     });
   });
 
-  app.get('/whoami', (req, res, next) => {
-    if (req.user)
-      res.json({
-        authenticated: true,
-        user: req.user,
-      });
-    else
-      res.json({
-        authenticated: false,
-      });
+  app.get('/*', isAuthenticated, async (req, res, next) => {
+    next();
   });
 
-  const httpParams = {
-    port: 8080,
-  };
-  await new Promise((resolve: any) => httpServer.listen(httpParams, resolve));
-  console.log(`Server running at port ${httpParams.port}`);
+  ViteExpress.bind(app, httpServer);
+
+  await new Promise((resolve: any) =>
+    httpServer.listen({ port: process.env.PORT }, resolve)
+  );
+  console.log(`Server running at port ${process.env.PORT}`);
 }
 
 init();

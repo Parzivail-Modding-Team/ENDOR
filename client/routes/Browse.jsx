@@ -2,15 +2,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Skeleton, Select, message } from 'antd';
 import ImageGrid from '../components/ImageGrid';
-import { useLocation } from 'react-router-dom';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GetPosts, GetTags } from '../../queries';
+import { GetPosts, GetTags } from '../queries';
 import LocalResult from '../components/LocalResult';
 import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
 import { theme } from '../theme';
 import { TagOutlined } from '@ant-design/icons';
-import { tagRender } from '../../utils';
+import { tagRender } from '../utils';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
@@ -18,16 +17,18 @@ export default function Browse() {
   const [tags, setTags] = useState([]);
   const [colorMode] = useColorMode();
   const [loading, setLoading] = useState(true);
-
-  const location = useLocation();
+  const [error, setError] = useState(false);
 
   const [getPosts] = useLazyQuery(GetPosts, {
     onCompleted: (data) => {
       setPosts(data.getPosts);
       setLoading(false);
     },
-    onError: () => {
-      message.error('There was a problem fetching the post');
+    onError: ({ graphQLErrors }) => {
+      if (graphQLErrors) {
+        setLoading(false);
+        setError(graphQLErrors[0].message);
+      }
     },
   });
 
@@ -171,14 +172,16 @@ export default function Browse() {
           />
         </div>
       )}
-      {!loading && (!posts.length || posts.length === 0) ? (
+      {!loading && (!posts.length || posts.length === 0) && !error ? (
         <LocalResult
           title="No Posts"
           subtitle="We could not find any posts, please try again or create a new post."
+          status={404}
         />
       ) : (
         <ImageGrid data={posts} />
       )}
+      {error && <LocalResult title={error} status={403} />}
     </div>
   );
 }

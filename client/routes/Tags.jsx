@@ -10,7 +10,7 @@ import {
   Tag,
   Table,
 } from 'antd';
-import { DeleteTag, GetTags, UpdateTag } from '../../queries';
+import { DeleteTag, GetTags, UpdateTag } from '../queries';
 import { CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../theme';

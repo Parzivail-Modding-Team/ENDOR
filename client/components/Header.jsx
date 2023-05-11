@@ -1,6 +1,7 @@
 /** @jsxImportSource theme-ui */
 import { useState, useEffect } from 'react';
 import { Typography, Menu } from 'antd';
+import axios from 'axios';
 import {
   EyeInvisibleTwoTone,
   EyeTwoTone,
@@ -161,9 +162,11 @@ export default function Header() {
                       ? theme.colors.text
                       : theme.colors.modes.dark.text,
                 }}
-                href="/auth/discord"
+                onClick={() =>
+                  axios.post('/logout').then(window.location.assign('/login'))
+                }
               >
-                Login
+                Logout
               </a>
             ),
             icon: (

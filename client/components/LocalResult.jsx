@@ -1,9 +1,9 @@
 /** @jsxImportSource theme-ui */
 import { Result, Typography } from 'antd';
 import { useColorMode } from 'theme-ui';
-import { theme } from '../../src/theme';
+import { theme } from '../theme';
 
-export default function LocalResult({ title, subtitle }) {
+export default function LocalResult({ title, subtitle, status }) {
   const [colorMode] = useColorMode();
 
   return (
@@ -17,7 +17,7 @@ export default function LocalResult({ title, subtitle }) {
       }}
     >
       <Result
-        status={404}
+        status={status}
         title={
           <Typography.Title
             level={3}

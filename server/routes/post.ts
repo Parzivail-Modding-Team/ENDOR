@@ -3,7 +3,9 @@ import aws from 'aws-sdk';
 
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
-import { getTime, tagChecker } from './utils';
+import { getTime, requireRole, tagChecker } from './utils';
+
+import { GraphQLError } from 'graphql';
 
 import {
   Post,
@@ -13,6 +15,9 @@ import {
   UpdatePostArgs,
   CreatePostArgs,
   Tag,
+  User,
+  Role,
+  IdentityContext,
 } from '../types';
 
 async function getPostDetails(
@@ -52,9 +57,12 @@ async function getPostDetails(
 // Edit: it actually just passes over any tags it can't find without failing
 async function getPosts(
   _: unknown,
-  args: GetPostsArgs
+  args: GetPostsArgs,
+  { identity }: IdentityContext
 ): Promise<Document[] | void> {
   const { tags } = args;
+
+  requireRole(identity, Role.ReadOnly);
 
   if (tags) {
     const postData: Document[] | void = await PostDAO.findPosts([
@@ -216,7 +224,12 @@ async function deletePost(
     const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
       String(process.env.ENDPOINT_URL)
     );
-    const s3: aws.S3 = new aws.S3({
+    const creds = new aws.Credentials({
+      accessKeyId: String(process.env.BUCKET_KEY_ID),
+      secretAccessKey: String(process.env.BUCKET_ACCESS_KEY),
+    });
+    const s3: any = new aws.S3({
+      credentials: creds,
       endpoint: spacesEndpoint,
     });
 
@@ -225,10 +238,9 @@ async function deletePost(
       (e: unknown) => {
         if (!e) {
           return true;
-        } else if (e instanceof Error) {
-          throw new Error(e.message);
         } else {
           console.error(e);
+          return false;
         }
       }
     );

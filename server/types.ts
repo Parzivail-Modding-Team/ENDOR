@@ -1,9 +1,22 @@
 import { ObjectId } from 'mongodb';
 
+enum Role {
+  Unauthorized = 0,
+  ReadOnly = 1,
+  ReadWrite = 2,
+  Admin = 3,
+}
+
 type User = {
-  _id: string;
-  sub: string;
-  email: string;
+  _id: string | ObjectId;
+  id: string;
+  role: Role;
+  updatedAt: number;
+  username: string;
+};
+
+type IdentityContext = {
+  identity: User;
 };
 
 /**
@@ -74,6 +87,8 @@ type UpdatePostInput = {
 
 export {
   User,
+  Role,
+  IdentityContext,
   Tag,
   Post,
   InsertResponseType,

@@ -14,9 +14,9 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { DeletePost, GetPostDetails, GetTags, UpdatePost } from '../../queries';
+import { DeletePost, GetPostDetails, GetTags, UpdatePost } from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
-import { theme } from '../../src/theme';
+import { theme } from '../theme';
 import { useColorMode } from 'theme-ui';
 import {
   CheckOutlined,
@@ -25,7 +25,7 @@ import {
   EditOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { tagRender } from '../../utils';
+import { tagRender } from '../utils';
 
 function RowItem({ title, content }) {
   const [colorMode] = useColorMode();
@@ -108,9 +108,13 @@ export default function PostDetail() {
   });
 
   const [deletePost] = useMutation(DeletePost, {
-    onCompleted: () => {
-      navigate('/');
-      message.success('Post deleted');
+    onCompleted: (data) => {
+      if (data && data.deletePost) {
+        navigate('/');
+        message.success('Post deleted');
+      } else {
+        message.error('There was a problem deleting the post');
+      }
     },
     onError: () => {
       message.error('There was a problem deleting the post');
