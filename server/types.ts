@@ -12,6 +12,7 @@ type User = {
   id: string;
   role: Role;
   updatedAt: number;
+  avatarUrl: string;
   username: string;
 };
 

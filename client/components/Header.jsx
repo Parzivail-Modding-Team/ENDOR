@@ -10,9 +10,12 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useColorMode } from 'theme-ui';
+import { useQuery } from '@apollo/client';
+import { GetUser } from '../queries';
 import { theme } from '../theme';
 
 export default function Header() {
+  const [avatarUrl, setAvatarUrl] = useState([]);
   const [scrolled, setScrolled] = useState(false);
   const [colorMode, setColorMode] = useColorMode();
 
@@ -25,6 +28,15 @@ export default function Header() {
       }
     };
   }, [window.scrollY]);
+  
+  useQuery(GetUser, {
+    onCompleted: (data) => {
+      setAvatarUrl(data.getUser.avatarUrl);
+    },
+    onError: () => {
+      // Ignore
+    },
+  });
 
   return (
     <div
@@ -170,13 +182,14 @@ export default function Header() {
               </a>
             ),
             icon: (
-              <UserOutlined
+              <img 
                 style={{
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
+                  width: '19px',
+                  height: '19px',
+                  borderRadius: '50%',
+                  verticalAlign: '-4px'
                 }}
+                src={avatarUrl} 
               />
             ),
           },

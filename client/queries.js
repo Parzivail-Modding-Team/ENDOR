@@ -4,6 +4,7 @@ export const GetUser = gql`
   query GetUser {
     getUser {
       role
+      avatarUrl
     }
   }
 `;

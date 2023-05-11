@@ -39,6 +39,18 @@ function isAuthenticated(req: any, res: any, next: any) {
   }
 }
 
+function getAvatar(profile: Profile): string {
+  if (profile.photos)
+  {
+    for (const { primary, type, value } of profile.photos)
+    {
+      if (primary && type == 'avatar')
+        return value;
+    }
+  }
+  return "/unknown_avatar.png";
+}
+
 async function init() {
   const app = express();
   const httpServer = http.createServer(app);
@@ -115,12 +127,14 @@ async function init() {
           mongo,
           String(process.env.MONGO_USER_TABLE)
         );
+
         await useMongo
           .updateOne(
             { id: profile.id },
             {
               $set: {
                 username: profile.username,
+                avatarUrl: getAvatar(profile),
                 updatedAt: moment().unix(),
               },
               $setOnInsert: {

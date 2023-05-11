@@ -4,6 +4,7 @@ export const typeDefs = `#graphql
     id: String
     role: Int
     updatedAt: Float
+    avatarUrl: String
     username: String
   }
 
