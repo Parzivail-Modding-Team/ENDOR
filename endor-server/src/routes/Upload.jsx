@@ -89,7 +89,7 @@ export default function UploadRoute() {
     formData.append('file', newSubmission.file);
 
     axios
-      .post('http://localhost:5173/createPost', formData, {
+      .post('/createPost', formData, {
         headers: {
           'content-type': 'multipart/form-data',
           Accept: 'multipart/form-data',
@@ -103,7 +103,7 @@ export default function UploadRoute() {
         }
       })
       .catch(() => {
-        message.error('There was a problem fetching posts');
+        message.error('There was a problem creating the post');
       });
   }
 
