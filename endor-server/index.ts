@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import moment from 'moment';
 import { ApolloServer } from '@apollo/server';
 import cors from 'cors';
 import { typeDefs } from './typedefs';
@@ -7,7 +8,7 @@ import { resolvers } from './resolvers';
 import ViteExpress from 'vite-express';
 
 import aws from 'aws-sdk';
-import multer, { Options } from 'multer';
+import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,17 +37,11 @@ async function init() {
   const mongoPromise = getMongo();
   const mongo = await mongoPromise;
 
-  // Wire Vite into the Express server, which does not
-  // require proxies in the vite.config.js
   ViteExpress.bind(app, httpServer);
 
   // Apply a middleware that manages translating session
   // information into client-safe session cookies which somehow
   // uses the master session secret and mongo user table
-  // Note: this user table (currently `endor-user`) IS NOT and
-  // CANNOT be the user table used for serializing and
-  // deserializing the user (currently `endor-users`)
-  // TODO: consider renaming `endor-user` to `endor-session` or something
   app.use(
     session({
       secret: String(process.env.SESSION_SECRET),
@@ -93,8 +88,7 @@ async function init() {
         clientID: String(process.env.DISCORD_CLIENT_ID),
         clientSecret: String(process.env.DISCORD_SECRET),
         callbackURL: String(process.env.DISCORD_REDIRECT_URL),
-        // TODO: do we even need EMAIL?
-        scope: [Scope.IDENTIFY, Scope.EMAIL],
+        scope: [Scope.IDENTIFY],
       },
       async (
         accessToken: string,
@@ -108,6 +102,7 @@ async function init() {
         const user = {
           id: profile.id,
           username: profile.username,
+          updatedAt: moment().unix(),
         };
         const useMongo = await getEndorTable(
           mongo,
@@ -197,20 +192,15 @@ async function init() {
     })
   );
 
-  // The client can POST to this endpoint to log out
   app.post('/logout', (req, res, next) => {
     req.logout((err) => {
       if (err) {
         return next(err);
       }
-
-      // Redirect to the homepage after logout
       res.redirect('/');
     });
   });
 
-  // Sanity check endpoint to get all known info on
-  // the currently logged in user (if any)
   app.get('/whoami', (req, res, next) => {
     if (req.user)
       res.json({
