@@ -9,7 +9,7 @@ export async function connectToMongo(name: string) {
 
 export async function getEndorTable(client: MongoClient, name: string) {
   if (!client) throw new Error('No Mongo client');
-  const database = client.db('endor');
+  const database = client.db(process.env.MONGO_DB);
   const table = database.collection(name);
   return table;
 }

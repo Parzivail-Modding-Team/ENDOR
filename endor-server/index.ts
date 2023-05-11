@@ -4,14 +4,19 @@ import { ApolloServer } from '@apollo/server';
 import cors from 'cors';
 import { typeDefs } from './typedefs';
 import { resolvers } from './resolvers';
-import ViteExpress from "vite-express";
+import ViteExpress from 'vite-express';
 
 import aws from 'aws-sdk';
 import multer, { Options } from 'multer';
 import multerS3 from 'multer-s3';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Strategy, Profile, VerifyCallback, Scope } from '@oauth-everything/passport-discord';
+import {
+  Strategy,
+  Profile,
+  VerifyCallback,
+  Scope,
+} from '@oauth-everything/passport-discord';
 import MongoStore from 'connect-mongo';
 
 import session from 'express-session';
@@ -23,7 +28,6 @@ import { json as jsonBodyParser } from 'body-parser';
 import { getMongo } from './mongo';
 import { createPost } from './routes/post';
 import { getEndorTable } from './dao/utils';
-import { MongoClient } from 'mongodb';
 
 async function init() {
   const app = express();
@@ -48,10 +52,10 @@ async function init() {
       secret: String(process.env.SESSION_SECRET),
       store: MongoStore.create({
         clientPromise: mongoPromise,
-        collectionName: String(process.env.MONGO_USER_TABLE)
+        collectionName: String(process.env.MONGO_SESSION_TABLE),
       }),
       resave: false,
-      saveUninitialized: false
+      saveUninitialized: false,
     })
   );
   app.use(passport.authenticate('session'));
@@ -63,55 +67,70 @@ async function init() {
     process.nextTick(() => {
       done(null, user.id);
     });
-  })
+  });
 
   // The incoming HTTP request needs to turn the client's ID into a user object for the server to reference
   passport.deserializeUser((id: string, done) => {
     process.nextTick(async () => {
-      const useMongo = await getEndorTable(mongo, 'endor-users');
-      await useMongo.findOne(
-        {
+      const useMongo = await getEndorTable(
+        mongo,
+        String(process.env.MONGO_USER_TABLE)
+      );
+      await useMongo
+        .findOne({
           id,
-        },
-      ).then(document => {
-        return done(null, document);
-      })
+        })
+        .then((document) => {
+          return done(null, document);
+        });
     });
   });
 
   // Wire up the Discord authentication strategy
-  passport.use(new Strategy(
-    {
-      clientID: String(process.env.DISCORD_CLIENT_ID),
-      clientSecret: String(process.env.DISCORD_SECRET),
-      callbackURL: String(process.env.DISCORD_REDIRECT_URL),
-      // TODO: do we even need EMAIL?
-      scope: [Scope.IDENTIFY, Scope.EMAIL]
-    },
-    async (accessToken: string, refreshToken: string, profile: Profile, cb: VerifyCallback<Express.User>) => {
-      // Once Discord has auth'd, insert the user's ID and username into
-      // the database and always succeed, and the user object is passed
-      // back to the server to keep as the sessoion object
-      const user = {
-        id: profile.id,
-        username: profile.username
-      };
-      const useMongo = await getEndorTable(mongo, 'endor-users');
-      await useMongo.updateOne(
-        user,
-        {
-          "$set": {
-            // Set nothing
-          }
-        },
-        {
-          upsert: true
-        }
-      ).then(result => {
-        cb(null, user)
-      })
-    }
-  ));
+  passport.use(
+    new Strategy(
+      {
+        clientID: String(process.env.DISCORD_CLIENT_ID),
+        clientSecret: String(process.env.DISCORD_SECRET),
+        callbackURL: String(process.env.DISCORD_REDIRECT_URL),
+        // TODO: do we even need EMAIL?
+        scope: [Scope.IDENTIFY, Scope.EMAIL],
+      },
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: Profile,
+        cb: VerifyCallback<Express.User>
+      ) => {
+        // Once Discord has auth'd, insert the user's ID and username into
+        // the database and always succeed, and the user object is passed
+        // back to the server to keep as the session object
+        const user = {
+          id: profile.id,
+          username: profile.username,
+        };
+        const useMongo = await getEndorTable(
+          mongo,
+          String(process.env.MONGO_USER_TABLE)
+        );
+        await useMongo
+          .updateOne(
+            user,
+            {
+              $set: {
+                // Set nothing
+              },
+            },
+            {
+              upsert: true,
+            }
+          )
+          .then((result) => {
+            cb(null, user);
+          });
+      }
+    )
+  );
 
   const server = new ApolloServer({
     typeDefs,
@@ -129,7 +148,7 @@ async function init() {
   );
   const creds = new aws.Credentials({
     accessKeyId: String(process.env.BUCKET_KEY_ID),
-    secretAccessKey: String(process.env.BUCKET_ACCESS_KEY)
+    secretAccessKey: String(process.env.BUCKET_ACCESS_KEY),
   });
   const s3: any = new aws.S3({
     credentials: creds,
@@ -165,20 +184,25 @@ async function init() {
   // this endpoint internally generates and redirects to the long Discord
   // OAuth login URL using the callback URL and scopes defined in the
   // auth strategy above
-  app.get("/auth/discord", passport.authenticate("discord"));
+  app.get('/auth/discord', passport.authenticate('discord'));
 
   // The Discord OAuth login page in turn redirects back to this page,
   // which subsequently picks one of these redirects depending on the
   // status of the login
-  app.get("/auth/discord/callback", passport.authenticate("discord", {
-      failureRedirect: "/login",
-      successRedirect: "/"
-  }));
+  app.get(
+    '/auth/discord/callback',
+    passport.authenticate('discord', {
+      failureRedirect: '/login',
+      successRedirect: '/',
+    })
+  );
 
   // The client can POST to this endpoint to log out
   app.post('/logout', (req, res, next) => {
     req.logout((err) => {
-      if (err) { return next(err); }
+      if (err) {
+        return next(err);
+      }
 
       // Redirect to the homepage after logout
       res.redirect('/');
@@ -191,20 +215,18 @@ async function init() {
     if (req.user)
       res.json({
         authenticated: true,
-        user: req.user
+        user: req.user,
       });
     else
       res.json({
-        authenticated: false
+        authenticated: false,
       });
   });
 
   const httpParams = {
-    port: 8080
+    port: 8080,
   };
-  await new Promise((resolve: any) =>
-    httpServer.listen(httpParams, resolve)
-  );
+  await new Promise((resolve: any) => httpServer.listen(httpParams, resolve));
   console.log(`Server running at port ${httpParams.port}`);
 }
 
