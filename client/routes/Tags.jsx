@@ -16,7 +16,7 @@ import { useColorMode } from 'theme-ui';
 import { theme } from '../theme';
 
 import { useState, useEffect } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
@@ -27,7 +27,7 @@ export default function Tags() {
 
   const [oldValue, setOldValue] = useState('Tag updated');
 
-  const [getTags, { getTagsLoading }] = useLazyQuery(GetTags, {
+  const { getTagsLoading } = useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
@@ -167,12 +167,6 @@ export default function Tags() {
     );
   }
 
-  useEffect(() => {
-    if (search === '') {
-      setTags([]);
-    }
-  }, [search]);
-
   return (
     <div
       sx={{
@@ -229,13 +223,11 @@ export default function Tags() {
                 }}
                 placeholder="Ex. landspeeder"
                 onChange={(e) => {
+                  if (e.target.value.length === 0) {
+                    setSearch(null);
+                  }
                   setSearch(e.target.value);
                 }}
-                onPressEnter={() =>
-                  getTags({
-                    variables: { label: search },
-                  })
-                }
               />
             </div>
             <Statistic
@@ -303,7 +295,12 @@ export default function Tags() {
                 render: (_, tag, index) => changeActions(tag, index),
               },
             ]}
-            dataSource={tags}
+            dataSource={tags.filter(
+              (tag) =>
+                !search ||
+                search.length == 0 ||
+                tag.label.toLowerCase().includes(search.toLowerCase())
+            )}
             rowKey="_id"
             pagination={false}
             loading={getTagsLoading}
