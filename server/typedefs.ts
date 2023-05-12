@@ -46,6 +46,7 @@ export const typeDefs = `#graphql
     getPostDetails(_id: String): [Post]
     getTags(label: String): [Tag]
     getUser: User
+    getUsers: [User]
   }
 
   type Mutation {
@@ -54,5 +55,6 @@ export const typeDefs = `#graphql
     deletePost(_id: String): Boolean
     updateTag(_id: String, input: UpdateTagInput): String
     deleteTag(_id: String): Boolean
+    updateUser(id: String, role: Int): String
   }
 `;

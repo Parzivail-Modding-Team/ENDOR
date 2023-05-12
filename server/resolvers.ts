@@ -6,15 +6,16 @@ import {
   updatePost,
   deletePost,
 } from './routes/post';
-import { getUser } from './routes/user';
+import { getUser, getUsers, updateUser } from './routes/user';
 
 export const resolvers = {
-  Query: { getTags, getPosts, getPostDetails, getUser },
+  Query: { getTags, getPosts, getPostDetails, getUser, getUsers },
   Mutation: {
     createPost,
     updatePost,
     deletePost,
     updateTag,
     deleteTag,
+    updateUser,
   },
 };

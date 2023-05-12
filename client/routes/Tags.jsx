@@ -17,7 +17,6 @@ import { theme } from '../theme';
 
 import { useState, useEffect } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useAuthContext } from '../contexts/AuthContext';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
@@ -63,8 +62,6 @@ export default function Tags() {
       message.error('There was a problem deleting the tag');
     },
   });
-
-  const { role } = useAuthContext();
 
   function submitUpdate(tag) {
     delete tag.__typename;
@@ -132,7 +129,7 @@ export default function Tags() {
             danger
             icon={<DeleteOutlined />}
             style={{ marginRight: '1rem' }}
-            loading={deleteTagLoading}
+            loading={index === deleteIndex && deleteTagLoading}
           />
         </Popconfirm>
         {index === editIndex ? (
@@ -186,135 +183,133 @@ export default function Tags() {
         alignItems: 'center',
       }}
     >
-      {role < 2 ? null : (
+      <div
+        sx={{
+          height: '100%',
+          width: '100%',
+          maxWidth: '800px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <div
           sx={{
             height: '100%',
             width: '100%',
-            maxWidth: '800px',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
           }}
         >
           <div
             sx={{
-              height: '100%',
+              height: 'fit-content',
               width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
+              display: 'grid',
+              gridTemplateColumns: '1fr auto',
+              alignItems: 'flex-end',
             }}
           >
             <div
               sx={{
                 height: 'fit-content',
                 width: '100%',
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                alignItems: 'flex-end',
+                display: 'flex',
               }}
             >
-              <div
-                sx={{
-                  height: 'fit-content',
-                  width: '100%',
-                  display: 'flex',
-                }}
-              >
-                <Input
-                  allowClear
-                  className={
-                    colorMode === 'light'
-                      ? 'light-input-standard'
-                      : 'dark-input-standard'
-                  }
-                  style={{
-                    width: '100%',
-                  }}
-                  placeholder="Ex. landspeeder"
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
-                  onPressEnter={() =>
-                    getTags({
-                      variables: { label: search },
-                    })
-                  }
-                />
-              </div>
-              <Statistic
-                title={
-                  <Typography.Text
-                    style={{
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
-                    }}
-                  >
-                    Results
-                  </Typography.Text>
+              <Input
+                allowClear
+                className={
+                  colorMode === 'light'
+                    ? 'light-input-standard'
+                    : 'dark-input-standard'
                 }
-                value={tags.length}
                 style={{
-                  marginLeft: '1rem',
-                  width: 'fit-content',
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
+                  width: '100%',
                 }}
-                valueStyle={{
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
+                placeholder="Ex. landspeeder"
+                onChange={(e) => {
+                  setSearch(e.target.value);
                 }}
+                onPressEnter={() =>
+                  getTags({
+                    variables: { label: search },
+                  })
+                }
               />
             </div>
-            <Divider
+            <Statistic
+              title={
+                <Typography.Text
+                  style={{
+                    color:
+                      colorMode === 'light'
+                        ? theme.colors.text
+                        : theme.colors.modes.dark.text,
+                  }}
+                >
+                  Results
+                </Typography.Text>
+              }
+              value={tags.length}
               style={{
-                marginTop: '1rem',
-                marginBottom: '1rem',
-                backgroundColor:
+                marginLeft: '1rem',
+                width: 'fit-content',
+                color:
                   colorMode === 'light'
-                    ? theme.colors.divider
-                    : theme.colors.modes.dark.divider,
+                    ? theme.colors.text
+                    : theme.colors.modes.dark.text,
+              }}
+              valueStyle={{
+                color:
+                  colorMode === 'light'
+                    ? theme.colors.text
+                    : theme.colors.modes.dark.text,
               }}
             />
-
-            <Table
-              columns={[
-                {
-                  title: 'Tag',
-                  dataIndex: 'label',
-                  key: '_id',
-                  render: (_, tag, index) => changeInput(tag, index),
-                  defaultSortOrder: 'ascend',
-                  sorter: (a, b) => {
-                    if (a.label < b.label) {
-                      return -1;
-                    } else if (a.label > b.label) {
-                      return 1;
-                    } else {
-                      return 0;
-                    }
-                  },
-                },
-                {
-                  title: 'Actions',
-                  key: 'actions',
-                  render: (_, tag, index) => changeActions(tag, index),
-                },
-              ]}
-              dataSource={tags}
-              rowKey={tags._id}
-              pagination={false}
-              loading={getTagsLoading}
-            />
           </div>
+          <Divider
+            style={{
+              marginTop: '1rem',
+              marginBottom: '1rem',
+              backgroundColor:
+                colorMode === 'light'
+                  ? theme.colors.divider
+                  : theme.colors.modes.dark.divider,
+            }}
+          />
+
+          <Table
+            columns={[
+              {
+                title: 'Tag',
+                dataIndex: 'label',
+                key: '_id',
+                render: (_, tag, index) => changeInput(tag, index),
+                defaultSortOrder: 'ascend',
+                sorter: (a, b) => {
+                  if (a.label < b.label) {
+                    return -1;
+                  } else if (a.label > b.label) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                },
+              },
+              {
+                title: 'Actions',
+                key: 'actions',
+                render: (_, tag, index) => changeActions(tag, index),
+              },
+            ]}
+            dataSource={tags}
+            rowKey="_id"
+            pagination={false}
+            loading={getTagsLoading}
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }

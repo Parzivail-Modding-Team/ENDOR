@@ -143,6 +143,35 @@ export default function Header() {
                           ? theme.colors.text
                           : theme.colors.modes.dark.text,
                     }}
+                    href="/users"
+                  >
+                    Users
+                  </a>
+                ),
+                key: '/users',
+                icon: (
+                  <UserOutlined
+                    style={{
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
+                  />
+                ),
+              },
+          role < Role.ReadWrite
+            ? null
+            : {
+                label: (
+                  <a
+                    style={{
+                      textDecoration: 'none',
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
                     href="/tags"
                   >
                     Tags

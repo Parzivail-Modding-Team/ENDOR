@@ -3,9 +3,27 @@ import { gql } from 'graphql-tag';
 export const GetUser = gql`
   query GetUser {
     getUser {
+      id
       role
       avatarUrl
     }
+  }
+`;
+
+export const GetUsers = gql`
+  query GetUsers {
+    getUsers {
+      id
+      role
+      username
+      avatarUrl
+    }
+  }
+`;
+
+export const UpdateUser = gql`
+  mutation UpdateUser($id: String, $role: Int) {
+    updateUser(id: $id, role: $role)
   }
 `;
 

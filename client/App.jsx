@@ -16,6 +16,7 @@ const PostDetail = loadable(() => import('./routes/PostDetail'));
 const Browse = loadable(() => import('./routes/Browse'));
 const UploadRoute = loadable(() => import('./routes/Upload'));
 const Tags = loadable(() => import('./routes/Tags'));
+const Users = loadable(() => import('./routes/Users'));
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute role={Role.ReadWrite}>
         <Tags />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/users',
+    element: (
+      <ProtectedRoute role={Role.Admin}>
+        <Users />
       </ProtectedRoute>
     ),
   },

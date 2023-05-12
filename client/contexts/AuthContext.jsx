@@ -8,14 +8,17 @@ const AuthContext = createContext({});
 function AuthContextProvider({ children }) {
   const state = {};
 
+  let setId;
   let setRole;
   let setAvatarUrl;
 
+  [state.id, setId] = useState();
   [state.role, setRole] = useState();
   [state.avatarUrl, setAvatarUrl] = useState();
 
   useQuery(GetUser, {
     onCompleted: (data) => {
+      setId(data.getUser.id);
       setRole(data.getUser.role);
       setAvatarUrl(data.getUser.avatarUrl);
       localStorage.setItem('userRole', data.getUser.role);
