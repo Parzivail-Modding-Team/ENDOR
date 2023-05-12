@@ -211,7 +211,7 @@ export default function UploadRoute() {
                   Ex. landspeeder
                 </div>
               }
-              tagRender={tagRender}
+              tagRender={(e) => tagRender(e, true)}
               onChange={(e) => {
                 console.log(e);
                 setSubmission({

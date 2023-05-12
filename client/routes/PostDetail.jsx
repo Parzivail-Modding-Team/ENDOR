@@ -74,6 +74,7 @@ export default function PostDetail() {
   const [post, setPost] = useState({});
   const [tags, setTags] = useState([]);
   const [editing, setEditing] = useState(false);
+  const [editedPost, setEditedPost] = useState();
 
   const [colorMode] = useColorMode();
 
@@ -176,7 +177,7 @@ export default function PostDetail() {
           <Input
             placeholder="Ex. Here is a fun description about this image"
             onChange={(e) => {
-              setPost({ ...post, message: e.target.value });
+              setEditedPost({ ...editedPost, message: e.target.value });
             }}
             allowClear
             className={
@@ -185,7 +186,7 @@ export default function PostDetail() {
                 : 'dark-input-standard'
             }
             style={{ marginBottom: '0.75rem' }}
-            value={post.message}
+            value={editedPost.message}
           />
         ) : (
           <div>
@@ -244,13 +245,13 @@ export default function PostDetail() {
                 Ex. landspeeder
               </div>
             }
-            tagRender={tagRender}
+            tagRender={(e) => tagRender(e, true)}
             onChange={(e) => {
-              setPost({ ...post, tags: e });
+              setEditedPost({ ...editedPost, tags: e });
             }}
             fieldNames={{ value: '_id' }}
             options={tags}
-            value={post.tags}
+            value={editedPost.tags}
             optionFilterProp="label"
             labelInValue
             notFoundContent={null}
@@ -347,6 +348,7 @@ export default function PostDetail() {
                   icon={<CloseOutlined />}
                   onClick={() => {
                     setEditing(false);
+                    setEditedPost(post);
                   }}
                   style={{ marginRight: '1rem' }}
                 />
@@ -361,13 +363,13 @@ export default function PostDetail() {
                       variables: {
                         _id: post._id,
                         input: {
-                          message: post.message,
-                          addTags: post.tags
+                          message: editedPost.message,
+                          addTags: editedPost.tags
                             .filter((tag) => !!tag.key)
                             .map((tag2) => {
                               return { label: tag2.label, value: tag2.value };
                             }),
-                          createTags: post.tags
+                          createTags: editedPost.tags
                             .filter((tag) => !tag.key)
                             .map((tag2) => {
                               return { label: tag2.value };
@@ -383,7 +385,7 @@ export default function PostDetail() {
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => {
-                    setPost({
+                    setEditedPost({
                       ...post,
                       tags: post.tags.map((tag) => {
                         return {

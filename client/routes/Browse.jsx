@@ -113,8 +113,12 @@ export default function Browse() {
                 Ex. landspeeder
               </div>
             }
-            tagRender={tagRender}
+            tagRender={(e) => tagRender(e, false)}
             onChange={(e) => {
+              if (e.length == 0) {
+                getPosts();
+                localStorage.removeItem('search');
+              }
               if (localStorage.getItem('search')) {
                 postDebouncer({
                   variables: { tags: e.map((item) => item.value) },
@@ -125,10 +129,6 @@ export default function Browse() {
                 'search',
                 JSON.stringify(e.map((item) => item.value))
               );
-            }}
-            onClear={() => {
-              getPosts();
-              localStorage.removeItem('search');
             }}
             notFoundContent={null}
             options={tags}

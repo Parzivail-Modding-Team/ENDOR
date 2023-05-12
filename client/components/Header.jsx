@@ -131,7 +131,7 @@ export default function Header() {
                   />
                 ),
               },
-          role < Role.ReadWrite
+          role < Role.Admin
             ? null
             : {
                 label: (

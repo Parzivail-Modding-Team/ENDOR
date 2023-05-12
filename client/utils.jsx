@@ -11,18 +11,20 @@ export function capitalizeString(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const tagRender = (props) => {
+export const tagRender = (props, allowSparseTags) => {
   const { label, value, closable, onClose } = props;
   const onPreventMouseDown = (event) => {
     event.preventDefault();
     event.stopPropagation();
   };
 
-  if (label === value) {
+  if (!allowSparseTags && label === value) {
     return;
   }
+
   return (
     <Tag
+      key={value}
       color="#389e0d"
       onMouseDown={onPreventMouseDown}
       closable={closable}
