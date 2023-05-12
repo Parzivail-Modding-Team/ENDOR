@@ -237,13 +237,14 @@ export default function UploadRoute() {
             >
               <label htmlFor="file" className="file-label">
                 <PlusOutlined style={{ marginRight: '0.5rem' }} />
-                Upload File
+                Upload Image
                 <input
                   type="file"
                   onChange={(e) => localFileSaver(e.target.files[0] || null)}
                   sx={{ marginBottom: dataUri && '1rem' }}
                   id="file"
                   name="file"
+                  accept=".png,.jpg,.jpeg,.gif,.apng,.webp"
                 />
               </label>
               <div

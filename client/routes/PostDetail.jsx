@@ -25,7 +25,7 @@ import {
   EditOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { tagRender } from '../utils';
+import { Role, tagRender } from '../utils';
 import { useAuthContext } from '../contexts/AuthContext';
 
 function RowItem({ title, content }) {
@@ -310,7 +310,7 @@ export default function PostDetail() {
                 : theme.colors.modes.dark.divider,
           }}
         />
-        {role < 2 ? null : (
+        {role < Role.ReadWrite ? null : (
           <div
             sx={{
               display: 'flex',

@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { getClient } from './apolloSetup';
 import loadable from '@loadable/component';
 import { AuthContextProvider } from './contexts/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
+import { Role } from './utils';
 
 const Header = loadable(() => import('./components/Header'));
 const PostDetail = loadable(() => import('./routes/PostDetail'));
@@ -18,19 +20,35 @@ const Tags = loadable(() => import('./routes/Tags'));
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Browse />,
+    element: (
+      <ProtectedRoute role={Role.ReadOnly}>
+        <Browse />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/:id',
-    element: <PostDetail />,
+    element: (
+      <ProtectedRoute role={Role.ReadOnly}>
+        <PostDetail />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/upload',
-    element: <UploadRoute />,
+    element: (
+      <ProtectedRoute role={Role.ReadWrite}>
+        <UploadRoute />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/tags',
-    element: <Tags />,
+    element: (
+      <ProtectedRoute role={Role.ReadWrite}>
+        <Tags />
+      </ProtectedRoute>
+    ),
   },
 ]);
 

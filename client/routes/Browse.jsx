@@ -17,7 +17,6 @@ export default function Browse() {
   const [tags, setTags] = useState([]);
   const [colorMode] = useColorMode();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   const [getPosts] = useLazyQuery(GetPosts, {
     onCompleted: (data) => {
@@ -27,7 +26,7 @@ export default function Browse() {
     onError: ({ graphQLErrors }) => {
       if (graphQLErrors) {
         setLoading(false);
-        setError(graphQLErrors[0].message);
+        message.error(graphQLErrors[0].message);
       }
     },
   });
@@ -37,7 +36,7 @@ export default function Browse() {
       setTags(data.getTags);
     },
     onError: () => {
-      if (!error) message.error('There was a problem fetching tags');
+      message.error('There was a problem fetching tags');
     },
   });
 
@@ -116,14 +115,20 @@ export default function Browse() {
             }
             tagRender={tagRender}
             onChange={(e) => {
-              postDebouncer({
-                variables: { tags: e.map((item) => item.value) },
-              });
+              if (localStorage.getItem('search')) {
+                postDebouncer({
+                  variables: { tags: e.map((item) => item.value) },
+                });
+              }
               setSearch(e);
               localStorage.setItem(
                 'search',
                 JSON.stringify(e.map((item) => item.value))
               );
+            }}
+            onClear={() => {
+              getPosts();
+              localStorage.removeItem('search');
             }}
             notFoundContent={null}
             options={tags}
@@ -172,7 +177,7 @@ export default function Browse() {
           />
         </div>
       )}
-      {!loading && (!posts.length || posts.length === 0) && !error ? (
+      {!loading && (!posts.length || posts.length === 0) ? (
         <LocalResult
           title="No Posts"
           subtitle="We could not find any posts, please try again or create a new post."
@@ -181,7 +186,6 @@ export default function Browse() {
       ) : (
         <ImageGrid data={posts} />
       )}
-      {error && <LocalResult title={error} status={403} />}
     </div>
   );
 }

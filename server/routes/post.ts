@@ -245,15 +245,12 @@ async function deletePost(
     s3.deleteObject(
       { Bucket: String(process.env.BUCKET), Key: postData.value.imageId },
       (e: unknown) => {
-        if (!e) {
-          return true;
-        } else {
-          console.error(e);
-          return false;
-        }
+        return true;
       }
     );
+    return true;
   }
+  return false;
 }
 
 export { getPosts, getPostDetails, createPost, updatePost, deletePost };

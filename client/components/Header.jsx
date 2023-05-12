@@ -12,12 +12,13 @@ import {
 import { useColorMode } from 'theme-ui';
 import { theme } from '../theme';
 import { useAuthContext } from '../contexts/AuthContext';
+import { Role } from '../utils';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [colorMode, setColorMode] = useColorMode();
 
-  const { avatarUrl } = useAuthContext();
+  const { avatarUrl, role } = useAuthContext();
 
   useEffect(() => {
     window.onscroll = function () {
@@ -101,60 +102,64 @@ export default function Header() {
         }}
         mode="horizontal"
         items={[
-          {
-            label: (
-              <a
-                style={{
-                  textDecoration: 'none',
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
-                }}
-                href="/upload"
-              >
-                Upload
-              </a>
-            ),
-            key: '/upload',
-            icon: (
-              <PlusOutlined
-                style={{
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
-                }}
-              />
-            ),
-          },
-          {
-            label: (
-              <a
-                style={{
-                  textDecoration: 'none',
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
-                }}
-                href="/tags"
-              >
-                Tags
-              </a>
-            ),
-            key: '/tags',
-            icon: (
-              <TagOutlined
-                style={{
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
-                }}
-              />
-            ),
-          },
+          role < Role.ReadWrite
+            ? null
+            : {
+                label: (
+                  <a
+                    style={{
+                      textDecoration: 'none',
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
+                    href="/upload"
+                  >
+                    Upload
+                  </a>
+                ),
+                key: '/upload',
+                icon: (
+                  <PlusOutlined
+                    style={{
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
+                  />
+                ),
+              },
+          role < Role.ReadWrite
+            ? null
+            : {
+                label: (
+                  <a
+                    style={{
+                      textDecoration: 'none',
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
+                    href="/tags"
+                  >
+                    Tags
+                  </a>
+                ),
+                key: '/tags',
+                icon: (
+                  <TagOutlined
+                    style={{
+                      color:
+                        colorMode === 'light'
+                          ? theme.colors.text
+                          : theme.colors.modes.dark.text,
+                    }}
+                  />
+                ),
+              },
           {
             label: (
               <div

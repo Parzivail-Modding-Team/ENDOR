@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { GetUser } from '../queries';
 import { message } from 'antd';
 
@@ -18,6 +18,7 @@ function AuthContextProvider({ children }) {
     onCompleted: (data) => {
       setRole(data.getUser.role);
       setAvatarUrl(data.getUser.avatarUrl);
+      localStorage.setItem('userRole', data.getUser.role);
     },
     onError: ({ graphQLErrors }) => {
       if (graphQLErrors) {
@@ -25,6 +26,15 @@ function AuthContextProvider({ children }) {
       }
     },
   });
+
+  useEffect(() => {
+    const fetchedRole = localStorage.getItem('userRole');
+    if (typeof fetchedRole === 'undefined' || fetchedRole === null) {
+      return;
+    } else {
+      setRole(fetchedRole);
+    }
+  }, []);
 
   return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 }

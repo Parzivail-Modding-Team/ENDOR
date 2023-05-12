@@ -35,15 +35,6 @@ body {
   padding-bottom: 1rem;
 }
 
-.grid-item {
-  transition: 0.15s ease all;
-  opacity: 1;
-}
-
-.grid-item:hover {
-  opacity: 0.7;
-}
-
 #file {
   display: none;
 }
