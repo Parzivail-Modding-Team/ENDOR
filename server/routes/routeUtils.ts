@@ -4,6 +4,15 @@ import { Role, Tag, User } from '../types';
 import { GraphQLError } from 'graphql';
 import { Profile } from '@oauth-everything/passport-discord';
 
+export function rethrowAsGqlError(e: any) {
+  // TODO: make this better
+  if (e instanceof Error) {
+    throw new GraphQLError(e.message);
+  } else {
+    throw new GraphQLError(JSON.stringify(e));
+  }
+}
+
 export function tagChecker(newT: Tag[], addT: Tag[]): any {
   // TODO: tags are all kinds of weird, clean it up
   if (newT && newT.length && newT.length > 0) {

@@ -11,7 +11,7 @@ export async function getMongo(): Promise<MongoClient> {
     if (e instanceof Error) {
       throw new Error(e.message);
     } else {
-      throw new Error("No Mongo client: " + e);
+      throw new Error('Unable to connect to database: ' + e);
     }
   }
 }
@@ -23,7 +23,7 @@ export async function getEndorTable(client: MongoClient, name: string) {
   return table;
 }
 
-export async function connectToMongo(name: string) {
+export async function getTable(name: string) {
   const client: void | MongoClient = await getMongo();
   if (!client) throw new Error('No Mongo client');
   return getEndorTable(client, name);

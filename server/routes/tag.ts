@@ -14,7 +14,7 @@ async function getTags(
   _: unknown,
   args: GetTagsArgs,
   { identity }: IdentityContext
-): Promise<Document[] | void> {
+): Promise<Document[]> {
   const { label } = args;
 
   requireRole(identity, Role.ReadOnly);
@@ -32,60 +32,34 @@ async function getTags(
     query[0].$match = { label: { $regex: `^${label}.*` } };
   }
 
-  // TODO: unify to the .then() return style, some type mismatch or something makes getTags return null when I try
-  const tagData: Document[] | void = await TagDAO.findTags(query).catch(
-    (e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    }
-  );
-  return tagData;
+  return await TagDAO.findTags(query);
 }
 
 async function createTags(
   _: unknown,
   tags: Tag[],
   { identity }: IdentityContext
-): Promise<number | void> {
+): Promise<number> {
   requireRole(identity, Role.ReadWrite);
 
-  await TagDAO.createTags(tags)
-    .then((e: number) => e)
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+  return await TagDAO.createTags(tags);
 }
 
 async function updateTag(
   _: unknown,
   args: UpdateTagArgs,
   { identity }: IdentityContext
-): Promise<string | void> {
+): Promise<string> {
   const { _id } = args;
   const { label } = args.input;
 
   requireRole(identity, Role.ReadWrite);
 
-  const tagData: string | void = await TagDAO.updateTag(
+  const tagData = await TagDAO.updateTag(
     { _id: new ObjectId(_id) },
     { $set: { label } }
   )
-    .then((data) => data)
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
-  return tagData;
+  return tagData.toString();
 }
 
 async function deleteTag(
@@ -97,17 +71,9 @@ async function deleteTag(
 
   requireRole(identity, Role.ReadWrite);
 
-  await TagDAO.deleteTag({
+  return await TagDAO.deleteTag({
     _id: new ObjectId(_id),
-  })
-    .then((e: number) => {
-      if (e && e > 0) {
-        return true;
-      }
-    })
-    .catch((error: Error) => {
-      throw new Error(error.message);
-    });
+  }) > 0;
 }
 
 export { getTags, createTags, updateTag, deleteTag };

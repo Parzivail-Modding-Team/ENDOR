@@ -5,21 +5,13 @@ import { requireRole } from './routeUtils';
 import { GraphQLError } from 'graphql';
 
 async function getUser(_: unknown, __: unknown, { identity }: IdentityContext) {
-  const userData: any = await UserDAO.findUser([
+  const userData = await UserDAO.findUser([
     {
       $match: {
         _id: new ObjectId(identity._id),
       },
     },
-  ])
-    .then((e) => e[0])
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+  ]).then((e) => e[0])
   return userData;
 }
 
@@ -30,19 +22,11 @@ async function getUsers(
 ) {
   requireRole(identity, Role.Admin);
 
-  const userData: any = await UserDAO.findUser([
+  const userData = await UserDAO.findUser([
     {
       $match: {},
-    },
-  ])
-    .then((e) => e)
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+    }
+  ]);
   return userData;
 }
 
@@ -57,18 +41,10 @@ async function updateUser(
     throw new GraphQLError('You may not edit your own role');
   }
 
-  const userData: string | void = await UserDAO.updateUser(
+  const userData = await UserDAO.updateUser(
     { id },
     { $set: { role } }
-  )
-    .then((data) => data)
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+  );
   return userData;
 }
 

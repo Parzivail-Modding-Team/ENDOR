@@ -3,7 +3,7 @@ import aws from 'aws-sdk';
 
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
-import { getTime, requireRole, tagChecker } from './routeUtils';
+import { getTime, requireRole, rethrowAsGqlError, tagChecker } from './routeUtils';
 
 import { GraphQLError } from 'graphql';
 
@@ -64,13 +64,13 @@ async function getPosts(
   _: unknown,
   args: GetPostsArgs,
   { identity }: IdentityContext
-): Promise<Document[] | void> {
+): Promise<Document[]> {
   const { tags } = args;
 
   requireRole(identity, Role.ReadOnly);
 
   if (tags) {
-    const postData: Document[] | void = await PostDAO.findPosts([
+    const postData = await PostDAO.findPosts([
       {
         $match: {
           tags: {
@@ -83,44 +83,30 @@ async function getPosts(
           createdAt: 1,
         },
       },
-    ]).catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+    ]);
     return postData;
   }
 
-  if (!tags) {
-    const postData: Document[] | void = await PostDAO.findPosts(
-      [
-        {
-          $match: {},
+  const postData = await PostDAO.findPosts(
+    [
+      {
+        $match: {},
+      },
+      {
+        $sort: {
+          createdAt: 1,
         },
-        {
-          $sort: {
-            createdAt: 1,
-          },
-        },
-      ],
-      true
-    ).catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
-    return postData;
-  }
+      },
+    ],
+    true
+  );
+  return postData;
 }
 
 async function createPost(
   args: CreatePostArgs,
   imageId: string
-): Promise<string | void> {
+): Promise<string> {
   const { addTags, createTags, message } = args;
 
   const parsedAddTags: Tag[] = JSON.parse(addTags);
@@ -150,29 +136,15 @@ async function createPost(
     imageId,
   };
 
-  const postData: string | void = await PostDAO.createPost(post)
-    .then((data: InsertResponseType) => {
-      if (data.acknowledged === true) {
-        return data.insertedId.toString();
-      }
-    })
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
-  if (typeof postData === 'string') {
-    return postData;
-  }
+  const createdPostId = await PostDAO.createPost(post);
+  return createdPostId.toString();
 }
 
 async function updatePost(
   _: unknown,
   args: UpdatePostArgs,
   { identity }: IdentityContext
-): Promise<string | void> {
+): Promise<string> {
   const { _id } = args;
   const { addTags, createTags, message } = args.input;
 
@@ -184,12 +156,12 @@ async function updatePost(
     newTagsInsert = await tagDAO.createTags(createTags);
   }
 
-  const postData: string | void = await PostDAO.updatePost(
+  const updatedPostId = await PostDAO.updatePost(
     { _id: new ObjectId(_id) },
     {
       $set: {
         tags: tagChecker(
-          newTagsInsert && newTagsInsert > 0 ? createTags : [],
+          newTagsInsert > 0 ? createTags : [],
           addTags
         ),
         message,
@@ -197,52 +169,27 @@ async function updatePost(
       },
     }
   )
-    .then((data: ObjectId) => {
-      return data.toString();
-    })
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
-  return postData;
+
+  return updatedPostId.toString();
 }
 
 async function deletePost(
   _: unknown,
   args: PostIdArgs,
   { identity }: IdentityContext
-): Promise<boolean | void> {
+): Promise<boolean> {
   const { _id } = args;
 
   requireRole(identity, Role.ReadWrite);
 
-  const postData: Document | void = await PostDAO.deletePost({
+  const postData = await PostDAO.deletePost({
     _id: new ObjectId(_id),
-  })
-    .then((e: Document) => e)
-    .catch((e: unknown) => {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      } else {
-        console.error(e);
-      }
-    });
+  });
 
-  if (postData && postData.value && postData.value._id) {
-    const s3: any = getBucket();
+  const s3 = getBucket();
+  await s3.deleteObject({ Bucket: bucketName, Key: postData.imageId }).promise();
 
-    s3.deleteObject(
-      { Bucket: bucketName, Key: postData.value.imageId },
-      (e: unknown) => {
-        return true;
-      }
-    );
-    return true;
-  }
-  return false;
+  return true;
 }
 
 export { getPosts, getPostDetails, createPost, updatePost, deletePost };
