@@ -26,12 +26,12 @@ async function getPostDetails(
   _: unknown,
   args: PostIdArgs,
   { identity }: IdentityContext
-): Promise<Document[] | void> {
+): Promise<Document[]> {
   const { _id } = args;
 
   requireRole(identity, Role.ReadOnly);
 
-  const postData: Document[] | void = await PostDAO.findPosts([
+  const postData = await PostDAO.findPosts([
     {
       $match: { _id: new ObjectId(_id) },
     },
@@ -48,13 +48,8 @@ async function getPostDetails(
         tags: { $sortArray: { input: '$tags', sortBy: { label: 1 } } },
       },
     },
-  ]).catch((e: unknown) => {
-    if (e instanceof Error) {
-      throw new Error(e.message);
-    } else {
-      console.error(e);
-    }
-  });
+  ])
+
   return postData;
 }
 
