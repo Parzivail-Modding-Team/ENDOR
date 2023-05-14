@@ -16,9 +16,9 @@ type User = {
   username: string;
 };
 
-type IdentityContext = {
+interface IdentityContext {
   identity: User;
-};
+}
 
 /**
  * Tag and related request and response types

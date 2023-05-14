@@ -1,8 +1,8 @@
-import { ObjectId, Document } from 'mongodb';
+import { ObjectId, Document } from "mongodb";
 
-import tagDAO from '../dao/tagDAO';
-import PostDAO from '../dao/postDAO';
-import { getTime, requireRole, tagChecker } from './routeUtils';
+import tagDAO from "../dao/tagDAO";
+import PostDAO from "../dao/postDAO";
+import { getTime, requireRole, tagChecker } from "./routeUtils";
 
 import {
   Post,
@@ -13,9 +13,10 @@ import {
   Tag,
   Role,
   IdentityContext,
-} from '../types';
-import { bucketCdnUrl, bucketName } from '../environment';
-import { getBucket } from '../bucket';
+} from "../types";
+import { bucketCdnUrl, bucketName } from "../environment";
+import { getBucket } from "../bucket";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 async function getPostDetails(
   _: unknown,
@@ -32,15 +33,15 @@ async function getPostDetails(
     },
     {
       $lookup: {
-        from: 'endor-tag',
-        localField: 'tags',
-        foreignField: '_id',
-        as: 'tags',
+        from: "endor-tag",
+        localField: "tags",
+        foreignField: "_id",
+        as: "tags",
       },
     },
     {
       $addFields: {
-        tags: { $sortArray: { input: '$tags', sortBy: { label: 1 } } },
+        tags: { $sortArray: { input: "$tags", sortBy: { label: 1 } } },
       },
     },
   ]);
@@ -61,11 +62,13 @@ async function getPosts(
 
   const postData = await PostDAO.findPosts([
     {
-      $match: tags ? {
-        tags: {
-          $all: tags.map((tag: string) => new ObjectId(tag)),
-        },
-      } : {},
+      $match: tags
+        ? {
+            tags: {
+              $all: tags.map((tag: string) => new ObjectId(tag)),
+            },
+          }
+        : {},
     },
     {
       $sort: {
@@ -152,16 +155,20 @@ async function deletePost(
 
   requireRole(identity, Role.ReadWrite);
 
-  const postData = await PostDAO.deletePost({
+  const postData = await PostDAO.getPost({
     _id: new ObjectId(_id),
-  }) ;
+  });
 
   const s3 = getBucket();
-  await s3
-    .deleteObject({ Bucket: bucketName, Key: postData.imageId })
-    .promise();
+  await s3.send(
+    new DeleteObjectCommand({ Bucket: bucketName, Key: postData.imageId })
+  );
 
-  return true;
+  return (
+    (await PostDAO.deletePost({
+      _id: new ObjectId(_id),
+    })) > 0
+  );
 }
 
 export { getPosts, getPostDetails, createPost, updatePost, deletePost };

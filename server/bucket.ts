@@ -1,14 +1,13 @@
-import aws from 'aws-sdk';
+import { S3Client } from '@aws-sdk/client-s3';
 import { bucketAccessKey, bucketEndpointUrl, bucketKeyId } from './environment';
 
-export function getBucket(): aws.S3 {
-  return new aws.S3({
-    credentials: new aws.Credentials({
+export function getBucket(): S3Client {
+  return new S3Client({
+    region: 'us-east-1',
+    credentials: {
       accessKeyId: bucketKeyId,
       secretAccessKey: bucketAccessKey,
-    }),
-    endpoint: new aws.Endpoint(
-      bucketEndpointUrl
-    ),
+    },
+    endpoint: bucketEndpointUrl,
   });
 }

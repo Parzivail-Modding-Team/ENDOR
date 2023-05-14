@@ -3,11 +3,10 @@ import http from 'http';
 import moment from 'moment';
 import { ApolloServer } from '@apollo/server';
 import cors from 'cors';
-import { typeDefs } from './server/typedefs';
-import { resolvers } from './server/resolvers';
+import { typeDefs } from './typedefs';
+import { resolvers } from './resolvers';
 import ViteExpress from 'vite-express';
 
-import aws from 'aws-sdk';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,9 +25,9 @@ import passport from 'passport';
 import { expressMiddleware as apolloMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { json as jsonBodyParser } from 'body-parser';
-import { getEndorTable, getMongo } from './server/mongo';
-import { createPost } from './server/routes/post';
-import { Role, User } from './server/types';
+import { getEndorTable, getMongo } from './mongo';
+import { createPost } from './routes/post';
+import { CreatePostArgs, IdentityContext, Role, User } from './types';
 import {
   bucketName,
   databaseSessionTable,
@@ -37,10 +36,10 @@ import {
   discordRedirectUrl,
   discordSecret,
   port,
-  sessionSecret
-} from './server/environment';
-import { getBucket } from './server/bucket';
-import { getAvatar, isAuthenticated } from './server/routes/routeUtils';
+  sessionSecret,
+} from './environment';
+import { getBucket } from './bucket';
+import { getAvatar, isAuthenticated } from './routes/routeUtils';
 
 async function init() {
   const app = express();
@@ -73,20 +72,18 @@ async function init() {
   // The outgoing HTTP data needs to turn the server's representation
   // of the session (a user object) into something the client can keep,
   // which is their user ID (which I think gets encrypted with SESSION_SECRET?)
-  passport.serializeUser((user: any, done) => {
+  passport.serializeUser((user: Express.User, done) => {
+    const endorUser = user as User;
     process.nextTick(() => {
-      done(null, user.id);
+      done(null, endorUser.id);
     });
   });
 
   // The incoming HTTP request needs to turn the client's ID into a user object for the server to reference
   passport.deserializeUser((id: string, done) => {
     process.nextTick(async () => {
-      const useMongo = await getEndorTable(
-        mongo,
-        databaseUserTable
-      );
-      await useMongo
+      const table = getEndorTable(mongo, databaseUserTable);
+      await table
         .findOne({
           id,
         })
@@ -105,7 +102,7 @@ async function init() {
         callbackURL: discordRedirectUrl,
         scope: [Scope.IDENTIFY],
       },
-      async (
+      (
         accessToken: string,
         refreshToken: string,
         profile: Profile,
@@ -114,12 +111,9 @@ async function init() {
         // Once Discord has auth'd, insert the user's ID and username into
         // the database and always succeed, and the user object is passed
         // back to the server to keep as the session object
-        const useMongo = await getEndorTable(
-          mongo,
-          databaseUserTable
-        );
+        const table = getEndorTable(mongo, databaseUserTable);
 
-        await useMongo
+        table
           .updateOne(
             { id: profile.id },
             {
@@ -142,12 +136,15 @@ async function init() {
               username: profile.username,
               updatedAt: moment().unix(),
             });
+          })
+          .catch((e: Error | null | undefined) => {
+            cb(e);
           });
       }
     )
   );
 
-  const server = new ApolloServer({
+  const server = new ApolloServer<IdentityContext>({
     typeDefs,
     resolvers,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -162,13 +159,12 @@ async function init() {
     cors(),
     jsonBodyParser(),
     apolloMiddleware(server, {
-      context: async ({ req }: any) => {
-        return { identity: req.user as User };
-      },
+      // eslint-disable-next-line @typescript-eslint/require-await
+      context: async ({ req }) => ({ identity: req.user } as IdentityContext),
     })
   );
 
-  const s3: any = getBucket();
+  const s3 = getBucket();
 
   const uploadFunc = multer({
     storage: multerS3({
@@ -178,6 +174,7 @@ async function init() {
       key(_, __, cb) {
         cb(null, uuidv4());
       },
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       contentType: multerS3.AUTO_CONTENT_TYPE,
     }),
   });
@@ -186,15 +183,30 @@ async function init() {
     '/createPost',
     isAuthenticated,
     uploadFunc.single('file'),
-    async (req: any, res: any) => {
-      if (req.user.role < Role.ReadWrite) {
-        return res.status(403);
+    (req, res) => {
+      if (!req.user || !req.file) {
+        res.status(400);
+        return;
       }
-      const body = JSON.parse(JSON.stringify(req.body));
-      const newPost = await createPost(body, req.file.key);
-      if (newPost && newPost.length) {
-        return res.json({ _id: newPost });
+
+      const user = req.user as User;
+
+      if (user.role < Role.ReadWrite) {
+        res.status(403);
+        return;
       }
+
+      const multerFile = req.file as Express.MulterS3.File;
+
+      const body = JSON.parse(JSON.stringify(req.body)) as CreatePostArgs;
+      createPost(body, multerFile.key)
+        .then((newPost) => {
+          res.json({ _id: newPost });
+        })
+        .catch((e) => {
+          res.status(500);
+          res.json(JSON.stringify(e));
+        });
     }
   );
 
@@ -203,6 +215,7 @@ async function init() {
   // this endpoint internally generates and redirects to the long Discord
   // OAuth login URL using the callback URL and scopes defined in the
   // auth strategy above
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   app.get('/auth/discord', passport.authenticate('discord'));
 
   // The Discord OAuth login page in turn redirects back to this page,
@@ -210,6 +223,7 @@ async function init() {
   // status of the login
   app.get(
     '/auth/discord/callback',
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     passport.authenticate('discord', {
       failureRedirect: '/login',
       successRedirect: '/',
@@ -225,16 +239,15 @@ async function init() {
     });
   });
 
-  app.get('/*', isAuthenticated, async (req, res, next) => {
+  app.get('/*', isAuthenticated, (req, res, next) => {
     next();
   });
 
-  ViteExpress.bind(app, httpServer);
+  await ViteExpress.bind(app, httpServer);
 
-  await new Promise((resolve: any) =>
-    httpServer.listen({ port }, resolve)
-  );
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-floating-promises, @typescript-eslint/no-explicit-any
+  await new Promise((resolve: any) => httpServer.listen({ port }, resolve));
   console.log(`Server running at port ${port}`);
 }
 
-init();
+init().catch((e) => console.log(e));
