@@ -1,14 +1,14 @@
-import { Document, ObjectId } from 'mongodb';
+import { Document, Filter, ObjectId, OptionalId, UpdateFilter } from 'mongodb';
 import { databaseTagTable } from '../environment';
 import { getTable } from '../mongo';
 
 class TagDAO {
-  static async findTags(query: any): Promise<Document[]> {
+  static async findTags(query: Document[]): Promise<Document[]> {
     const table = await getTable(databaseTagTable);
     return table.aggregate(query).toArray();
   }
 
-  static async createTags(tags: any): Promise<number> {
+  static async createTags(tags: OptionalId<Document[]>): Promise<number> {
     const table = await getTable(databaseTagTable);
     const response = await table.insertMany(tags, { ordered: true });
     if (!response.acknowledged) {
@@ -17,9 +17,9 @@ class TagDAO {
     return response.insertedCount;
   }
 
-  static async updateTag(query: any, updateObject: any): Promise<ObjectId> {
+  static async updateTag(query: Filter<Document>, updateObject: UpdateFilter<Document>): Promise<ObjectId> {
     const table = await getTable(databaseTagTable);
-    const response: any = await table.findOneAndUpdate(query, updateObject, {
+    const response = await table.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
     if (!response || !response.ok || !response.value){
@@ -28,7 +28,7 @@ class TagDAO {
     return response.value._id;
   }
 
-  static async deleteTag(query: any): Promise<number> {
+  static async deleteTag(query: Filter<Document>): Promise<number> {
     const table = await getTable(databaseTagTable);
     const response = await table.deleteOne(query);
     if (!response.acknowledged) {
