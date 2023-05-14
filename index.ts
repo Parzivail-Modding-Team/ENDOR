@@ -26,9 +26,8 @@ import passport from 'passport';
 import { expressMiddleware as apolloMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { json as jsonBodyParser } from 'body-parser';
-import { getMongo } from './server/mongo';
+import { getEndorTable, getMongo } from './server/mongo';
 import { createPost } from './server/routes/post';
-import { getEndorTable } from './server/dao/utils';
 import { Role, User } from './server/types';
 import {
   bucketName,
@@ -41,7 +40,7 @@ import {
   sessionSecret
 } from './server/environment';
 import { getBucket } from './server/bucket';
-import { getAvatar, isAuthenticated } from './server/routes/utils';
+import { getAvatar, isAuthenticated } from './server/routes/routeUtils';
 
 async function init() {
   const app = express();

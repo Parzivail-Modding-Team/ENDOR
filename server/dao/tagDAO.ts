@@ -1,5 +1,5 @@
 import { databaseTagTable } from '../environment';
-import { connectToMongo } from './utils';
+import { connectToMongo } from '../mongo';
 
 class TagDAO {
   static async findTags(query: any) {

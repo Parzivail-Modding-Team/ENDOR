@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import UserDAO from '../dao/userDAO';
 import { IdentityContext, Role } from '../types';
-import { requireRole } from './utils';
+import { requireRole } from './routeUtils';
 import { GraphQLError } from 'graphql';
 
 async function getUser(_: unknown, __: unknown, { identity }: IdentityContext) {

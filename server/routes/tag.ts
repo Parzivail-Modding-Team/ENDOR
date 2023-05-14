@@ -8,7 +8,7 @@ import {
   Tag,
   UpdateTagArgs,
 } from '../types';
-import { requireRole } from './utils';
+import { requireRole } from './routeUtils';
 
 async function getTags(
   _: unknown,

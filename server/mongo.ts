@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { databaseUrl } from './environment';
+import { databaseName, databaseUrl } from './environment';
 
 export async function getMongo(): Promise<MongoClient> {
   try {
@@ -14,4 +14,17 @@ export async function getMongo(): Promise<MongoClient> {
       throw new Error("No Mongo client: " + e);
     }
   }
+}
+
+export async function getEndorTable(client: MongoClient, name: string) {
+  if (!client) throw new Error('No Mongo client');
+  const database = client.db(databaseName);
+  const table = database.collection(name);
+  return table;
+}
+
+export async function connectToMongo(name: string) {
+  const client: void | MongoClient = await getMongo();
+  if (!client) throw new Error('No Mongo client');
+  return getEndorTable(client, name);
 }

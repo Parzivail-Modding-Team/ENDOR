@@ -1,5 +1,5 @@
 import { databaseUserTable } from '../environment';
-import { connectToMongo } from './utils';
+import { connectToMongo } from '../mongo';
 
 class UserDAO {
   static async findUser(query: any) {

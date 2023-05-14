@@ -1,7 +1,7 @@
 import { Document, ObjectId } from 'mongodb';
 import { Post } from '../types';
-import { connectToMongo } from './utils';
 import { databasePostTable } from '../environment';
+import { connectToMongo } from '../mongo';
 
 class PostDAO {
   static async findPosts(query: Document[], limit?: boolean) {
