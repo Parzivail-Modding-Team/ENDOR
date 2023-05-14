@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import UserDAO from '../dao/userDAO';
-import { IdentityContext, Role } from '../types';
+import { IdentityContext, Role, User } from '../types';
 import { requireRole } from './routeUtils';
 import { GraphQLError } from 'graphql';
 
@@ -32,7 +32,7 @@ async function getUsers(
 
 async function updateUser(
   _: unknown,
-  { id, role }: any,
+  { id, role }: User,
   { identity }: IdentityContext
 ): Promise<string | void> {
   requireRole(identity, Role.Admin);

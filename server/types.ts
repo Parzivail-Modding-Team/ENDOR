@@ -53,7 +53,7 @@ type Post = {
   imageUrl: string;
   imageId: string;
   message: string;
-  tags: Tag[];
+  tags: ObjectId[];
 };
 
 type InsertResponseType = {

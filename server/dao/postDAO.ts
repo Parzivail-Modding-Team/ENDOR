@@ -7,12 +7,12 @@ class PostDAO {
   static async findPosts(
     query: Document[],
     limit?: boolean
-  ): Promise<Document[]> {
+  ): Promise<Post[]> {
     const table = await getTable(databasePostTable);
     if (limit) {
-      return table.aggregate(query).limit(50).toArray();
+      return table.aggregate(query).limit(50).map((t: Document) => t as Post).toArray();
     }
-    return table.aggregate(query).toArray();
+    return table.aggregate(query).map((t: Document) => t as Post).toArray();
   }
 
   static async createPost(post: Post): Promise<ObjectId> {
@@ -27,7 +27,7 @@ class PostDAO {
   static async updatePost(
     query: Document,
     updateObject: Document
-  ): Promise<Document> {
+  ): Promise<Post> {
     const table = await getTable(databasePostTable);
     const response = await table.findOneAndUpdate(query, updateObject, {
       upsert: false,
@@ -35,16 +35,16 @@ class PostDAO {
     if (!response || !response.ok || !response.value) {
       throw new Error('Database operation failed');
     }
-    return response.value;
+    return response.value as Post;
   }
 
-  static async deletePost(query: Document): Promise<Document> {
+  static async deletePost(query: Document): Promise<Post> {
     const table = await getTable(databasePostTable);
     const response = await table.findOneAndDelete(query);
     if (!response || !response.ok || !response.value) {
       throw new Error('Database operation failed');
     }
-    return response.value;
+    return response.value as Post;
   }
 }
 

@@ -1,22 +1,24 @@
-import { Document } from 'mongodb';
+import { Document, Filter, UpdateFilter } from 'mongodb';
 import { databaseUserTable } from '../environment';
 import { getTable } from '../mongo';
+import { User } from '../types';
 
 class UserDAO {
-  static async findUser(query: any): Promise<Document[]> {
+  static async findUser(query: Document[]): Promise<User[]> {
     const table = await getTable(databaseUserTable);
-    return table.aggregate(query).toArray();
+    return table.aggregate(query).map((t: Document) => t as User).toArray();
   }
 
-  static async updateUser(query: any, updateObject: any): Promise<string> {
+  static async updateUser(query: Filter<Document>, updateObject: UpdateFilter<Document>): Promise<string> {
     const table = await getTable(databaseUserTable);
-    const response: any = await table.findOneAndUpdate(query, updateObject, {
+    const response = await table.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
     if (!response || !response.ok || !response.value){
       throw new Error("Database operation failed");
     }
-    return response.value.id;
+    const user = response.value as User;
+    return user.id;
   }
 }
 

@@ -1,21 +1,16 @@
 import { ObjectId, Document } from 'mongodb';
-import aws from 'aws-sdk';
 
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
 import { getTime, requireRole, tagChecker } from './routeUtils';
 
-import { GraphQLError } from 'graphql';
-
 import {
   Post,
-  InsertResponseType,
   PostIdArgs,
   GetPostsArgs,
   UpdatePostArgs,
   CreatePostArgs,
   Tag,
-  User,
   Role,
   IdentityContext,
 } from '../types';
@@ -64,37 +59,20 @@ async function getPosts(
 
   requireRole(identity, Role.ReadOnly);
 
-  if (tags) {
-    const postData = await PostDAO.findPosts([
-      {
-        $match: {
-          tags: {
-            $all: tags.map((tag: string) => new ObjectId(tag)),
-          },
+  const postData = await PostDAO.findPosts([
+    {
+      $match: tags ? {
+        tags: {
+          $all: tags.map((tag: string) => new ObjectId(tag)),
         },
+      } : {},
+    },
+    {
+      $sort: {
+        createdAt: 1,
       },
-      {
-        $sort: {
-          createdAt: 1,
-        },
-      },
-    ]);
-    return postData;
-  }
-
-  const postData = await PostDAO.findPosts(
-    [
-      {
-        $match: {},
-      },
-      {
-        $sort: {
-          createdAt: 1,
-        },
-      },
-    ],
-    true
-  );
+    },
+  ]);
   return postData;
 }
 
@@ -104,8 +82,8 @@ async function createPost(
 ): Promise<string> {
   const { addTags, createTags, message } = args;
 
-  const parsedAddTags: Tag[] = JSON.parse(addTags);
-  const parsedCreateTags: Tag[] = JSON.parse(createTags);
+  const parsedAddTags = JSON.parse(addTags) as Tag[];
+  const parsedCreateTags = JSON.parse(createTags) as Tag[];
 
   const time: number = getTime();
 
@@ -176,7 +154,7 @@ async function deletePost(
 
   const postData = await PostDAO.deletePost({
     _id: new ObjectId(_id),
-  });
+  }) ;
 
   const s3 = getBucket();
   await s3

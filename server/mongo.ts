@@ -11,7 +11,7 @@ export async function getMongo(): Promise<MongoClient> {
     if (e instanceof Error) {
       throw new Error(e.message);
     } else {
-      throw new Error('Unable to connect to database: ' + e);
+      throw new Error(`Unable to connect to database: {e}`);
     }
   }
 }

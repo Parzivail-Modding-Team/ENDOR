@@ -3,12 +3,13 @@ import { ObjectId } from 'mongodb';
 import { Role, Tag, User } from '../types';
 import { GraphQLError } from 'graphql';
 import { Profile } from '@oauth-everything/passport-discord';
+import { NextFunction, Request, Response } from 'express';
 
-export function tagChecker(newT: Tag[], addT: Tag[]): any {
+export function tagChecker(newT: Tag[], addT: Tag[]): ObjectId[] {
   // TODO: tags are all kinds of weird, clean it up
   if (newT && newT.length && newT.length > 0) {
     return newT
-      .map((tag: Tag) => tag._id)
+      .map((tag: Tag) => tag._id as ObjectId)
       .concat(addT.map((tag: Tag) => new ObjectId(tag.value)));
   } else {
     return addT.map((tag: Tag) => new ObjectId(tag.value));
@@ -25,7 +26,7 @@ export function requireRole(user: User, role: Role) {
   }
 }
 
-export function isAuthenticated(req: any, res: any, next: any) {
+export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (req.user) {
     next();
   } else {

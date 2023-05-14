@@ -1,11 +1,12 @@
 import { Document, Filter, ObjectId, OptionalId, UpdateFilter } from 'mongodb';
 import { databaseTagTable } from '../environment';
 import { getTable } from '../mongo';
+import { Tag } from '../types';
 
 class TagDAO {
-  static async findTags(query: Document[]): Promise<Document[]> {
+  static async findTags(query: Document[]): Promise<Tag[]> {
     const table = await getTable(databaseTagTable);
-    return table.aggregate(query).toArray();
+    return table.aggregate(query).map((t: Document) => t as Tag).toArray();
   }
 
   static async createTags(tags: OptionalId<Document[]>): Promise<number> {
