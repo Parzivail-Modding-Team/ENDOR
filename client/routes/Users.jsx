@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import { Select, Table, Typography, message } from 'antd';
 import { useState } from 'react';
-import { Role } from '../utils';
+import { Role, notifyGqlFetchError, notifyGqlUpdateError } from '../utils';
 import { keys, values } from 'lodash';
 import { GetUsers, UpdateUser } from '../queries';
 import { useMutation, useQuery } from '@apollo/client';
@@ -24,8 +24,8 @@ export default function Users() {
     onCompleted: (data) => {
       setUsers(data.getUsers);
     },
-    onError: () => {
-      message.error('There was a problem fetching users');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'users');
     },
   });
 
@@ -35,8 +35,8 @@ export default function Users() {
         message.success('User Updated');
       }
     },
-    onError: () => {
-      message.error('There was a problem updating the user');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlUpdateError(graphQLErrors, 'the user');
     },
   });
 

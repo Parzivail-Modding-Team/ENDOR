@@ -17,6 +17,7 @@ import { theme } from '../theme';
 
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
+import { notifyGqlDeleteError, notifyGqlFetchError, notifyGqlUpdateError } from '../utils';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
@@ -31,8 +32,8 @@ export default function Tags() {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
-    onError: () => {
-      message.error('There was a problem fetching tags');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'tags');
     },
   });
 
@@ -43,8 +44,8 @@ export default function Tags() {
         message.success('Tag Updated');
       }
     },
-    onError: () => {
-      message.error('There was a problem updating the tag');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlUpdateError(graphQLErrors, 'the tag');
     },
   });
 
@@ -58,8 +59,8 @@ export default function Tags() {
         setDeleteIndex(-1);
       }
     },
-    onError: () => {
-      message.error('There was a problem deleting the tag');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlDeleteError(graphQLErrors, 'the tag');
     },
   });
 

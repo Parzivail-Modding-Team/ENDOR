@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import { useEffect, useState } from 'react';
 import { Button, Form, Input, message, Select, Typography } from 'antd';
-import { tagRender } from '../utils';
+import { notifyGqlFetchError, tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
@@ -47,8 +47,8 @@ export default function UploadRoute() {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
-    onError: () => {
-      message.error('There was a problem fetching tags');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'tags');
     },
   });
 

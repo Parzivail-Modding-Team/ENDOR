@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { useState, useEffect, useCallback } from 'react';
-import { Skeleton, Select, message } from 'antd';
+import { Skeleton, Select } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GetPosts, GetTags, GetUser } from '../queries';
@@ -9,7 +9,7 @@ import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
 import { theme } from '../theme';
 import { TagOutlined } from '@ant-design/icons';
-import { tagRender } from '../utils';
+import { notifyGqlFetchError, tagRender } from '../utils';
 
 export default function Browse() {
   const [search, setSearch] = useState([]);
@@ -24,10 +24,8 @@ export default function Browse() {
       setLoading(false);
     },
     onError: ({ graphQLErrors }) => {
-      if (graphQLErrors) {
-        setLoading(false);
-        message.error(graphQLErrors[0].message);
-      }
+      notifyGqlFetchError(graphQLErrors, 'posts');
+      setLoading(false);
     },
   });
 
@@ -35,8 +33,8 @@ export default function Browse() {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
-    onError: () => {
-      message.error('There was a problem fetching tags');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'tags');
     },
   });
 

@@ -25,7 +25,7 @@ import {
   EditOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { Role, tagRender } from '../utils';
+import { Role, notifyGqlFetchError, notifyGqlDeleteError, notifyGqlUpdateError, tagRender } from '../utils';
 import { useAuthContext } from '../contexts/AuthContext';
 
 function RowItem({ title, content }) {
@@ -86,8 +86,8 @@ export default function PostDetail() {
     onCompleted: (data) => {
       setPost(data.getPostDetails[0]);
     },
-    onError: () => {
-      message.error('There was a problem fetching the post');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'the post');
     },
   });
 
@@ -95,8 +95,8 @@ export default function PostDetail() {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
-    onError: () => {
-      message.error('There was a problem fetching tags');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlFetchError(graphQLErrors, 'the post\'s tags');
     },
   });
 
@@ -104,8 +104,8 @@ export default function PostDetail() {
     onCompleted: () => {
       window.location.reload();
     },
-    onError: () => {
-      message.error('There was a problem updating the post');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlUpdateError(graphQLErrors, 'the post');
     },
   });
 
@@ -118,8 +118,8 @@ export default function PostDetail() {
         message.error('There was a problem deleting the post');
       }
     },
-    onError: () => {
-      message.error('There was a problem deleting the post');
+    onError: ({ graphQLErrors }) => {
+      notifyGqlDeleteError(graphQLErrors, 'the post');
     },
   });
 

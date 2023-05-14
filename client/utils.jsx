@@ -1,4 +1,4 @@
-import { Tag } from 'antd';
+import { Tag, message } from 'antd';
 
 export const Role = {
   Unauthorized: 0,
@@ -9,6 +9,30 @@ export const Role = {
 
 export function capitalizeString(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function notifyGqlFetchError(graphQLErrors, target) {
+  if (graphQLErrors) {
+    message.error('There was a problem fetching ' + target + ': ' + graphQLErrors[0].message);
+  } else {
+    message.error('There was a problem fetching ' + target);
+  }
+}
+
+export function notifyGqlUpdateError(graphQLErrors, target) {
+  if (graphQLErrors) {
+    message.error('There was a problem updating ' + target + ': ' + graphQLErrors[0].message);
+  } else {
+    message.error('There was a problem updating ' + target);
+  }
+}
+
+export function notifyGqlDeleteError(graphQLErrors, target) {
+  if (graphQLErrors) {
+    message.error('There was a problem deleting ' + target + ': ' + graphQLErrors[0].message);
+  } else {
+    message.error('There was a problem deleting ' + target);
+  }
 }
 
 export const tagRender = (props, allowSparseTags) => {

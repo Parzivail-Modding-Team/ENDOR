@@ -21,7 +21,7 @@ export function getTime(): number {
 
 export function requireRole(user: User, role: Role) {
   if (user.role < role) {
-    throw new GraphQLError('Unauthorized');
+    throw new GraphQLError('User is not authorized to access this function');
   }
 }
 
