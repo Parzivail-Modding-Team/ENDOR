@@ -4,16 +4,16 @@ import { getTable } from '../mongo';
 
 class PostDAO {
   static async findPosts(query: Document[], limit?: boolean): Promise<Document[]> {
-    const useMongo = await getTable(databasePostTable);
+    const table = await getTable(databasePostTable);
     if (limit) {
-      return useMongo.aggregate(query).limit(50).toArray();
+      return table.aggregate(query).limit(50).toArray();
     }
-    return useMongo.aggregate(query).toArray();
+    return table.aggregate(query).toArray();
   }
 
   static async createPost(post: any): Promise<ObjectId> {
-    const useMongo = await getTable(databasePostTable);
-    const response = await useMongo.insertOne(post);
+    const table = await getTable(databasePostTable);
+    const response = await table.insertOne(post);
     if (!response.acknowledged) {
       throw new Error("Database operation failed");
     }
@@ -21,8 +21,8 @@ class PostDAO {
   }
 
   static async updatePost(query: Document, updateObject: any): Promise<Document> {
-    const useMongo = await getTable(databasePostTable);
-    const response = await useMongo.findOneAndUpdate(query, updateObject, {
+    const table = await getTable(databasePostTable);
+    const response = await table.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });
     if (!response || !response.ok || !response.value){
@@ -32,8 +32,8 @@ class PostDAO {
   }
 
   static async deletePost(query: Document): Promise<Document> {
-    const useMongo = await getTable(databasePostTable);
-    const response = await useMongo.findOneAndDelete(query);
+    const table = await getTable(databasePostTable);
+    const response = await table.findOneAndDelete(query);
     if (!response || !response.ok || !response.value){
       throw new Error("Database operation failed");
     }
