@@ -34,7 +34,6 @@
     "express-session": "^1.17.3",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "graphql-upload": "^16.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mongodb": "^5.0.1",
