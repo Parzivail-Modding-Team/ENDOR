@@ -71,7 +71,7 @@ module.exports = {
     '@typescript-eslint/no-namespace': 'warn',
     '@typescript-eslint/no-parameter-properties': 'off',
     '@typescript-eslint/no-shadow': [
-      'warn',
+      'error',
       {
         hoist: 'all',
       },
@@ -87,7 +87,7 @@ module.exports = {
     '@typescript-eslint/prefer-for-of': 'warn',
     '@typescript-eslint/prefer-function-type': 'warn',
     '@typescript-eslint/prefer-namespace-keyword': 'warn',
-    '@typescript-eslint/restrict-plus-operands': 'warn',
+    '@typescript-eslint/restrict-plus-operands': 'error',
     '@typescript-eslint/triple-slash-reference': [
       'warn',
       {
