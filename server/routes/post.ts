@@ -3,7 +3,7 @@ import aws from 'aws-sdk';
 
 import tagDAO from '../dao/tagDAO';
 import PostDAO from '../dao/postDAO';
-import { getTime, requireRole, rethrowAsGqlError, tagChecker } from './routeUtils';
+import { getTime, requireRole, tagChecker } from './routeUtils';
 
 import { GraphQLError } from 'graphql';
 
