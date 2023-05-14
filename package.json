@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
+    "prebuild": "eslint -c .eslintrc.js --ext .ts ./server tsconfig.json",
     "build": "tsc",
     "predev": "npm run build",
     "dev": "nodemon -r dotenv/config ./index.ts"

@@ -46,7 +46,7 @@ type DeleteTagArgs = {
  * Posts and related request and response types
  */
 type Post = {
-  _id?: string | ObjectId;
+  _id?: ObjectId;
   author?: User;
   createdAt: number;
   updatedAt: number;
