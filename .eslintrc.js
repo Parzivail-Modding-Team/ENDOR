@@ -14,11 +14,7 @@ module.exports = {
     sourceType: 'module',
     tsconfigRootDir: __dirname,
   },
-  plugins: [
-    'eslint-plugin-jsdoc',
-    'eslint-plugin-prefer-arrow',
-    '@typescript-eslint',
-  ],
+  plugins: ['eslint-plugin-jsdoc', '@typescript-eslint'],
   root: true,
 
   rules: {
