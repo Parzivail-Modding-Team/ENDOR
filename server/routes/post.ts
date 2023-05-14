@@ -19,6 +19,8 @@ import {
   Role,
   IdentityContext,
 } from '../types';
+import { bucketCdnUrl, bucketName } from '../environment';
+import { getBucket } from '../bucket';
 
 async function getPostDetails(
   _: unknown,
@@ -144,7 +146,7 @@ async function createPost(
     message,
     createdAt: time,
     updatedAt: time,
-    imageUrl: process.env.CDN_URL + imageId,
+    imageUrl: bucketCdnUrl + imageId,
     imageId,
   };
 
@@ -230,20 +232,10 @@ async function deletePost(
     });
 
   if (postData && postData.value && postData.value._id) {
-    const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
-      String(process.env.ENDPOINT_URL)
-    );
-    const creds = new aws.Credentials({
-      accessKeyId: String(process.env.BUCKET_KEY_ID),
-      secretAccessKey: String(process.env.BUCKET_ACCESS_KEY),
-    });
-    const s3: any = new aws.S3({
-      credentials: creds,
-      endpoint: spacesEndpoint,
-    });
+    const s3: any = getBucket();
 
     s3.deleteObject(
-      { Bucket: String(process.env.BUCKET), Key: postData.value.imageId },
+      { Bucket: bucketName, Key: postData.value.imageId },
       (e: unknown) => {
         return true;
       }

@@ -1,13 +1,14 @@
+import { databaseUserTable } from '../environment';
 import { connectToMongo } from './utils';
 
 class UserDAO {
   static async findUser(query: any) {
-    const useMongo = await connectToMongo(String(process.env.MONGO_USER_TABLE));
+    const useMongo = await connectToMongo(databaseUserTable);
     return useMongo.aggregate(query).toArray();
   }
 
   static async updateUser(query: any, updateObject: any) {
-    const useMongo = await connectToMongo(String(process.env.MONGO_USER_TABLE));
+    const useMongo = await connectToMongo(databaseUserTable);
     const response: any = await useMongo.findOneAndUpdate(query, updateObject, {
       upsert: false,
     });

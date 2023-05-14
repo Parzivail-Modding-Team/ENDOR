@@ -30,26 +30,18 @@ import { getMongo } from './server/mongo';
 import { createPost } from './server/routes/post';
 import { getEndorTable } from './server/dao/utils';
 import { Role, User } from './server/types';
-
-function isAuthenticated(req: any, res: any, next: any) {
-  if (req.user) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
-}
-
-function getAvatar(profile: Profile): string {
-  if (profile.photos)
-  {
-    for (const { primary, type, value } of profile.photos)
-    {
-      if (primary && type == 'avatar')
-        return value;
-    }
-  }
-  return "/unknown_avatar.png";
-}
+import {
+  bucketName,
+  databaseSessionTable,
+  databaseUserTable,
+  discordClientId,
+  discordRedirectUrl,
+  discordSecret,
+  port,
+  sessionSecret
+} from './server/environment';
+import { getBucket } from './server/bucket';
+import { getAvatar, isAuthenticated } from './server/routes/utils';
 
 async function init() {
   const app = express();
@@ -67,10 +59,10 @@ async function init() {
   // uses the master session secret and mongo user table
   app.use(
     session({
-      secret: String(process.env.SESSION_SECRET),
+      secret: sessionSecret,
       store: MongoStore.create({
         clientPromise: mongoPromise,
-        collectionName: String(process.env.MONGO_SESSION_TABLE),
+        collectionName: databaseSessionTable,
       }),
       cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
       resave: false,
@@ -93,7 +85,7 @@ async function init() {
     process.nextTick(async () => {
       const useMongo = await getEndorTable(
         mongo,
-        String(process.env.MONGO_USER_TABLE)
+        databaseUserTable
       );
       await useMongo
         .findOne({
@@ -109,9 +101,9 @@ async function init() {
   passport.use(
     new Strategy(
       {
-        clientID: String(process.env.DISCORD_CLIENT_ID),
-        clientSecret: String(process.env.DISCORD_SECRET),
-        callbackURL: String(process.env.DISCORD_REDIRECT_URL),
+        clientID: discordClientId,
+        clientSecret: discordSecret,
+        callbackURL: discordRedirectUrl,
         scope: [Scope.IDENTIFY],
       },
       async (
@@ -125,7 +117,7 @@ async function init() {
         // back to the server to keep as the session object
         const useMongo = await getEndorTable(
           mongo,
-          String(process.env.MONGO_USER_TABLE)
+          databaseUserTable
         );
 
         await useMongo
@@ -177,22 +169,12 @@ async function init() {
     })
   );
 
-  const spacesEndpoint: aws.Endpoint = new aws.Endpoint(
-    String(process.env.ENDPOINT_URL)
-  );
-  const creds = new aws.Credentials({
-    accessKeyId: String(process.env.BUCKET_KEY_ID),
-    secretAccessKey: String(process.env.BUCKET_ACCESS_KEY),
-  });
-  const s3: any = new aws.S3({
-    credentials: creds,
-    endpoint: spacesEndpoint,
-  });
+  const s3: any = getBucket();
 
   const uploadFunc = multer({
     storage: multerS3({
       s3,
-      bucket: String(process.env.BUCKET),
+      bucket: bucketName,
       acl: 'public-read',
       key(_, __, cb) {
         cb(null, uuidv4());
@@ -251,9 +233,9 @@ async function init() {
   ViteExpress.bind(app, httpServer);
 
   await new Promise((resolve: any) =>
-    httpServer.listen({ port: process.env.PORT }, resolve)
+    httpServer.listen({ port }, resolve)
   );
-  console.log(`Server running at port ${process.env.PORT}`);
+  console.log(`Server running at port ${port}`);
 }
 
 init();

@@ -1,8 +1,9 @@
 import { MongoClient } from 'mongodb';
+import { databaseUrl } from './environment';
 
 export async function getMongo(): Promise<MongoClient> {
   try {
-    const uri: string = String(process.env.NEW_MONGO_URL);
+    const uri: string = databaseUrl;
     const client: MongoClient = new MongoClient(uri);
     await client.connect();
     return client;
