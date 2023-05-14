@@ -48,7 +48,7 @@ async function getPostDetails(
         tags: { $sortArray: { input: '$tags', sortBy: { label: 1 } } },
       },
     },
-  ])
+  ]);
 
   return postData;
 }
@@ -109,7 +109,7 @@ async function createPost(
 
   const time: number = getTime();
 
-  let newTagsInsert: number = 0;
+  let newTagsInsert = 0;
 
   if (
     parsedCreateTags &&
@@ -145,7 +145,7 @@ async function updatePost(
 
   requireRole(identity, Role.ReadWrite);
 
-  let newTagsInsert: number = 0;
+  let newTagsInsert = 0;
 
   if (createTags && createTags.length && createTags.length > 0) {
     newTagsInsert = await tagDAO.createTags(createTags);
@@ -155,15 +155,12 @@ async function updatePost(
     { _id: new ObjectId(_id) },
     {
       $set: {
-        tags: tagChecker(
-          newTagsInsert > 0 ? createTags : [],
-          addTags
-        ),
+        tags: tagChecker(newTagsInsert > 0 ? createTags : [], addTags),
         message,
         updatedAt: getTime(),
       },
     }
-  )
+  );
 
   return updatedPostId.toString();
 }
@@ -182,7 +179,9 @@ async function deletePost(
   });
 
   const s3 = getBucket();
-  await s3.deleteObject({ Bucket: bucketName, Key: postData.imageId }).promise();
+  await s3
+    .deleteObject({ Bucket: bucketName, Key: postData.imageId })
+    .promise();
 
   return true;
 }

@@ -16,7 +16,7 @@ export async function getMongo(): Promise<MongoClient> {
   }
 }
 
-export async function getEndorTable(client: MongoClient, name: string) {
+export function getEndorTable(client: MongoClient, name: string) {
   if (!client) throw new Error('No Mongo client');
   const database = client.db(databaseName);
   const table = database.collection(name);
