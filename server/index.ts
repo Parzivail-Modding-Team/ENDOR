@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import moment from 'moment';
 import { ApolloServer } from '@apollo/server';
 import cors from 'cors';
@@ -45,11 +46,13 @@ async function init() {
   const app = express();
   const httpServer = http.createServer(app);
 
+  const clientPath = path.resolve(__dirname, '../client');
+
   const mongoPromise = getMongo();
   const mongo = await mongoPromise;
 
   app.get('/login', function (req, res) {
-    res.sendFile(__dirname + '/client/login.html');
+    res.sendFile(path.resolve(clientPath, 'login.html'));
   });
 
   // Apply a middleware that manages translating session
