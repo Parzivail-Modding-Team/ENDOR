@@ -277,17 +277,19 @@ export default function PostDetail() {
             }}
           >
             {post.tags.map((tag) => (
-              <Tag
-                color={theme.colors.primary}
-                key={tag._id}
-                style={{
-                  width: 'fit-content',
-                  marginRight: '0.5rem',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                {tag.label}
-              </Tag>
+              <a href={`/?q=${tag.label}`}>
+                <Tag
+                  color={theme.colors.primary}
+                  key={tag._id}
+                  style={{
+                    width: 'fit-content',
+                    marginRight: '0.5rem',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  {tag.label}
+                </Tag>
+              </a>
             ))}
           </div>
         )}
