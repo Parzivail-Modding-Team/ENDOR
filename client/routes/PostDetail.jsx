@@ -14,7 +14,12 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { DeletePost, GetPostDetails, GetTags, UpdatePost } from '../queries';
+import {
+  DeletePost,
+  GetPostDetails,
+  GetAllTagLabels,
+  UpdatePost,
+} from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
 import { theme } from '../theme';
 import { useColorMode } from 'theme-ui';
@@ -25,7 +30,13 @@ import {
   EditOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { Role, notifyGqlFetchError, notifyGqlDeleteError, notifyGqlUpdateError, tagRender } from '../utils';
+import {
+  Role,
+  notifyGqlFetchError,
+  notifyGqlDeleteError,
+  notifyGqlUpdateError,
+  tagRender,
+} from '../utils';
 import { useAuthContext } from '../contexts/AuthContext';
 
 function RowItem({ title, content }) {
@@ -91,12 +102,12 @@ export default function PostDetail() {
     },
   });
 
-  const [getTags] = useLazyQuery(GetTags, {
+  const [getAllTagLabels] = useLazyQuery(GetAllTagLabels, {
     onCompleted: (data) => {
-      setTags(data.getTags);
+      setTags(data.getAllTagLabels);
     },
     onError: ({ graphQLErrors }) => {
-      notifyGqlFetchError(graphQLErrors, 'the post\'s tags');
+      notifyGqlFetchError(graphQLErrors, "the post's tags");
     },
   });
 
@@ -249,7 +260,7 @@ export default function PostDetail() {
             onChange={(e) => {
               setEditedPost({ ...editedPost, tags: e });
             }}
-            fieldNames={{ value: '_id' }}
+            fieldNames={{ value: 'label' }}
             options={tags}
             value={editedPost.tags}
             optionFilterProp="label"
@@ -348,7 +359,6 @@ export default function PostDetail() {
                   icon={<CloseOutlined />}
                   onClick={() => {
                     setEditing(false);
-                    setEditedPost(post);
                   }}
                   style={{ marginRight: '1rem' }}
                 />
@@ -359,21 +369,13 @@ export default function PostDetail() {
                   type="primary"
                   icon={<CheckOutlined />}
                   onClick={() => {
+                    console.log(editedPost.tags);
                     updatePost({
                       variables: {
                         _id: post._id,
                         input: {
                           message: editedPost.message,
-                          addTags: editedPost.tags
-                            .filter((tag) => !!tag.key)
-                            .map((tag2) => {
-                              return { label: tag2.label, value: tag2.value };
-                            }),
-                          createTags: editedPost.tags
-                            .filter((tag) => !tag.key)
-                            .map((tag2) => {
-                              return { label: tag2.value };
-                            }),
+                          tags: editedPost.tags.map((o) => o.value),
                         },
                       },
                     });
@@ -385,18 +387,17 @@ export default function PostDetail() {
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => {
+                    console.log(post);
                     setEditedPost({
                       ...post,
                       tags: post.tags.map((tag) => {
                         return {
-                          key: tag._id,
-                          label: tag.label,
-                          value: tag._id,
+                          value: tag.label,
                         };
                       }),
                     });
                     setEditing(true);
-                    getTags();
+                    getAllTagLabels();
                   }}
                 />
               )}

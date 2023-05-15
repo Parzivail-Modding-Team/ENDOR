@@ -13,7 +13,9 @@ export function capitalizeString(string) {
 
 export function notifyGqlFetchError(graphQLErrors, target) {
   if (graphQLErrors) {
-    message.error('There was a problem fetching ' + target + ': ' + graphQLErrors[0].message);
+    message.error(
+      'There was a problem fetching ' + target + ': ' + graphQLErrors[0].message
+    );
   } else {
     message.error('There was a problem fetching ' + target);
   }
@@ -21,7 +23,9 @@ export function notifyGqlFetchError(graphQLErrors, target) {
 
 export function notifyGqlUpdateError(graphQLErrors, target) {
   if (graphQLErrors) {
-    message.error('There was a problem updating ' + target + ': ' + graphQLErrors[0].message);
+    message.error(
+      'There was a problem updating ' + target + ': ' + graphQLErrors[0].message
+    );
   } else {
     message.error('There was a problem updating ' + target);
   }
@@ -29,7 +33,9 @@ export function notifyGqlUpdateError(graphQLErrors, target) {
 
 export function notifyGqlDeleteError(graphQLErrors, target) {
   if (graphQLErrors) {
-    message.error('There was a problem deleting ' + target + ': ' + graphQLErrors[0].message);
+    message.error(
+      'There was a problem deleting ' + target + ': ' + graphQLErrors[0].message
+    );
   } else {
     message.error('There was a problem deleting ' + target);
   }
@@ -42,13 +48,9 @@ export const tagRender = (props, allowSparseTags) => {
     event.stopPropagation();
   };
 
-  if (!allowSparseTags && label === value) {
-    return;
-  }
-
   return (
     <Tag
-      key={value}
+      key={label}
       color="#389e0d"
       onMouseDown={onPreventMouseDown}
       closable={closable}

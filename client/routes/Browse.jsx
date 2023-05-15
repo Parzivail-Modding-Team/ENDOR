@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Skeleton, Select } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GetPosts, GetTags, GetUser } from '../queries';
+import { GetPosts, GetAllTagLabels } from '../queries';
 import LocalResult from '../components/LocalResult';
 import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
@@ -29,9 +29,9 @@ export default function Browse() {
     },
   });
 
-  useQuery(GetTags, {
+  useQuery(GetAllTagLabels, {
     onCompleted: (data) => {
-      setTags(data.getTags);
+      setTags(data.getAllTagLabels);
     },
     onError: ({ graphQLErrors }) => {
       notifyGqlFetchError(graphQLErrors, 'tags');
@@ -133,7 +133,7 @@ export default function Browse() {
             value={search}
             maxTagCount="responsive"
             optionFilterProp="label"
-            fieldNames={{ value: '_id' }}
+            fieldNames={{ value: 'label' }}
             labelInValue
           />
         </div>

@@ -1,4 +1,4 @@
-import { getTags, updateTag, deleteTag } from './routes/tag';
+import { getTags, getAllTagLabels, updateTag, deleteTag } from './routes/tag';
 import {
   createPost,
   getPosts,
@@ -9,7 +9,14 @@ import {
 import { getUser, getUsers, updateUser } from './routes/user';
 
 export const resolvers = {
-  Query: { getTags, getPosts, getPostDetails, getUser, getUsers },
+  Query: {
+    getTags,
+    getAllTagLabels,
+    getPosts,
+    getPostDetails,
+    getUser,
+    getUsers,
+  },
   Mutation: {
     createPost,
     updatePost,

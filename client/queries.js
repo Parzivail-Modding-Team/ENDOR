@@ -27,10 +27,9 @@ export const UpdateUser = gql`
   }
 `;
 
-export const GetTags = gql`
-  query GetTags($label: String) {
-    getTags(label: $label) {
-      _id
+export const GetAllTagLabels = gql`
+  query GetAllTagLabels {
+    getAllTagLabels {
       label
     }
   }
@@ -54,7 +53,6 @@ export const GetPostDetails = gql`
       createdAt
       updatedAt
       tags {
-        _id
         label
       }
     }

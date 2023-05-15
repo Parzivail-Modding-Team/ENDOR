@@ -6,6 +6,7 @@ import {
   IdentityContext,
   Role,
   Tag,
+  TagLabel,
   UpdateTagArgs,
 } from '../types';
 import { requireRole } from './routeUtils';
@@ -35,6 +36,16 @@ async function getTags(
   return await TagDAO.findTags(query);
 }
 
+async function getAllTagLabels(
+  _: unknown,
+  __: unknown,
+  { identity }: IdentityContext
+): Promise<TagLabel[]> {
+  requireRole(identity, Role.ReadOnly);
+
+  return await TagDAO.getAllTagLabels();
+}
+
 async function createTags(
   _: unknown,
   tags: Tag[],
@@ -58,7 +69,7 @@ async function updateTag(
   const tagData = await TagDAO.updateTag(
     { _id: new ObjectId(_id) },
     { $set: { label } }
-  )
+  );
   return tagData.toString();
 }
 
@@ -71,9 +82,11 @@ async function deleteTag(
 
   requireRole(identity, Role.ReadWrite);
 
-  return await TagDAO.deleteTag({
-    _id: new ObjectId(_id),
-  }) > 0;
+  return (
+    (await TagDAO.deleteTag({
+      _id: new ObjectId(_id),
+    })) > 0
+  );
 }
 
-export { getTags, createTags, updateTag, deleteTag };
+export { getTags, getAllTagLabels, createTags, updateTag, deleteTag };

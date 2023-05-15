@@ -24,9 +24,12 @@ interface IdentityContext {
  * Tag and related request and response types
  */
 type Tag = {
-  _id?: string | ObjectId;
+  _id: ObjectId;
   label: string;
-  value?: string;
+};
+
+type TagLabel = {
+  label: string;
 };
 
 type GetTagsArgs = {
@@ -66,13 +69,12 @@ type PostIdArgs = {
 };
 
 type GetPostsArgs = {
-  tags: string[];
+  tags?: string[];
 };
 
 type CreatePostArgs = {
   message: string;
-  addTags: string;
-  createTags: string;
+  tags: string;
 };
 
 type UpdatePostArgs = {
@@ -82,8 +84,7 @@ type UpdatePostArgs = {
 
 type UpdatePostInput = {
   message: string;
-  addTags: Tag[];
-  createTags: Tag[];
+  tags: string[];
 };
 
 export {
@@ -91,6 +92,7 @@ export {
   Role,
   IdentityContext,
   Tag,
+  TagLabel,
   Post,
   InsertResponseType,
   PostIdArgs,

@@ -24,20 +24,16 @@ export const typeDefs = `#graphql
     label: String
   }
 
-  input PostInput {
-    message: String
-    addTags: [TagInput]
-    createTags: [TagInput]
+  type TagLabel {
+    label: String
   }
 
-  input TagInput {
-    _id: String
-    label: String
-    value: String
+  input PostInput {
+    message: String
+    tags: [String]
   }
 
   input UpdateTagInput {
-    _id: String
     label: String
   }
 
@@ -45,6 +41,7 @@ export const typeDefs = `#graphql
     getPosts(tags: [String]): [Post]
     getPostDetails(_id: String): [Post]
     getTags(label: String): [Tag]
+    getAllTagLabels: [TagLabel]
     getUser: User
     getUsers: [User]
   }

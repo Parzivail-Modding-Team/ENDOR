@@ -5,7 +5,7 @@ import { notifyGqlFetchError, tagRender } from '../utils';
 import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { GetTags } from '../queries';
+import { GetAllTagLabels } from '../queries';
 import axios from 'axios';
 import { useColorMode } from 'theme-ui';
 import { theme } from '../theme';
@@ -43,9 +43,9 @@ export default function UploadRoute() {
 
   const navigate = useNavigate();
 
-  useQuery(GetTags, {
+  useQuery(GetAllTagLabels, {
     onCompleted: (data) => {
-      setTags(data.getTags);
+      setTags(data.getAllTagLabels);
     },
     onError: ({ graphQLErrors }) => {
       notifyGqlFetchError(graphQLErrors, 'tags');
@@ -62,28 +62,13 @@ export default function UploadRoute() {
 
   function onSubmit() {
     setSubmitLoading(true);
-
-    const newSubmission = { ...submission };
-    newSubmission.addTags = newSubmission.tags
-      .filter((tag) => !!tag.key)
-      .map((tag2) => {
-        return { label: tag2.label, value: tag2.value };
-      });
-    newSubmission.createTags = newSubmission.tags
-      .filter((tag) => !tag.key)
-      .map((tag2) => {
-        return { label: tag2.value };
-      });
-    delete newSubmission.tags;
-
     let formData = new FormData();
+    formData.append('message', submission.message ? submission.message : '');
     formData.append(
-      'message',
-      newSubmission.message ? newSubmission.message : ''
+      'tags',
+      JSON.stringify(submission.tags.map((o) => o.value))
     );
-    formData.append('createTags', JSON.stringify(newSubmission.createTags));
-    formData.append('addTags', JSON.stringify(newSubmission.addTags));
-    formData.append('file', newSubmission.file);
+    formData.append('file', submission.file);
 
     axios
       .post('/createPost', formData, {
@@ -215,10 +200,11 @@ export default function UploadRoute() {
                   tags: e,
                 });
               }}
-              fieldNames={{ value: '_id', label: 'label' }}
+              optionFilterProp="label"
+              fieldNames={{ value: 'label' }}
+              labelInValue
               options={tags}
               value={submission.tags}
-              labelInValue
               notFoundContent={null}
             />
           </Form.Item>

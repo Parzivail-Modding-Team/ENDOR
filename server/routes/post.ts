@@ -1,8 +1,7 @@
-import { ObjectId, Document } from "mongodb";
+import { ObjectId, Document } from 'mongodb';
 
-import tagDAO from "../dao/tagDAO";
-import PostDAO from "../dao/postDAO";
-import { getTime, requireRole, tagChecker } from "./routeUtils";
+import PostDAO from '../dao/postDAO';
+import { getTime, requireRole } from './routeUtils';
 
 import {
   Post,
@@ -13,10 +12,11 @@ import {
   Tag,
   Role,
   IdentityContext,
-} from "../types";
-import { bucketCdnUrl, bucketName } from "../environment";
-import { getBucket } from "../bucket";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+} from '../types';
+import { bucketCdnUrl, bucketName } from '../environment';
+import { getBucket } from '../bucket';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import TagDAO from '../dao/tagDAO';
 
 async function getPostDetails(
   _: unknown,
@@ -33,15 +33,15 @@ async function getPostDetails(
     },
     {
       $lookup: {
-        from: "endor-tag",
-        localField: "tags",
-        foreignField: "_id",
-        as: "tags",
+        from: 'endor-tag',
+        localField: 'tags',
+        foreignField: '_id',
+        as: 'tags',
       },
     },
     {
       $addFields: {
-        tags: { $sortArray: { input: "$tags", sortBy: { label: 1 } } },
+        tags: { $sortArray: { input: '$tags', sortBy: { label: 1 } } },
       },
     },
   ]);
@@ -60,15 +60,29 @@ async function getPosts(
 
   requireRole(identity, Role.ReadOnly);
 
+  const mappedTags = await TagDAO.findTags([
+    {
+      $match:
+        tags && tags.length > 0
+          ? {
+              label: {
+                $in: tags,
+              },
+            }
+          : {},
+    },
+  ]);
+
   const postData = await PostDAO.findPosts([
     {
-      $match: tags
-        ? {
-            tags: {
-              $all: tags.map((tag: string) => new ObjectId(tag)),
-            },
-          }
-        : {},
+      $match:
+        tags && tags.length > 0
+          ? {
+              tags: {
+                $all: mappedTags.map((tag) => tag._id),
+              },
+            }
+          : {},
     },
     {
       $sort: {
@@ -79,32 +93,55 @@ async function getPosts(
   return postData;
 }
 
+async function findAndCreateTags(tagLabels: string[]): Promise<ObjectId[]> {
+  // find the tags that already exist in the database
+  const existingTags = await TagDAO.findTags([
+    {
+      $match:
+        tagLabels.length > 0
+          ? {
+              label: {
+                $in: tagLabels,
+              },
+            }
+          : {},
+    },
+  ]);
+
+  // Remove the existing tags from the set of post tags
+  const tagSet = new Set<string>(tagLabels);
+  existingTags.forEach((tag) => {
+    tagSet.delete(tag.label);
+  });
+
+  // Create the missing tags, allowing the mongo driver to
+  // give each array entry an _id in-situ
+  const newTags = [...tagSet].map((label) => {
+    return { label };
+  });
+  if (newTags.length > 0) {
+    await TagDAO.createTags(newTags);
+  }
+
+  // Re-combine the arrays of tags
+  return existingTags
+    .concat(newTags.map((document) => document as Tag))
+    .map((tag) => tag._id);
+}
+
 async function createPost(
   args: CreatePostArgs,
   imageId: string
 ): Promise<string> {
-  const { addTags, createTags, message } = args;
+  const { tags, message } = args;
 
-  const parsedAddTags = JSON.parse(addTags) as Tag[];
-  const parsedCreateTags = JSON.parse(createTags) as Tag[];
+  const tagLabels = (JSON.parse(tags) as string[]).map((o) => String(o));
+  const tagIds = await findAndCreateTags(tagLabels);
 
+  // Create the post
   const time: number = getTime();
-
-  let newTagsInsert = 0;
-
-  if (
-    parsedCreateTags &&
-    parsedCreateTags.length &&
-    parsedCreateTags.length > 0
-  ) {
-    newTagsInsert = await tagDAO.createTags(parsedCreateTags);
-  }
-
   const post: Post = {
-    tags: tagChecker(
-      newTagsInsert && newTagsInsert > 0 ? parsedCreateTags : [],
-      parsedAddTags
-    ),
+    tags: tagIds,
     message,
     createdAt: time,
     updatedAt: time,
@@ -122,21 +159,17 @@ async function updatePost(
   { identity }: IdentityContext
 ): Promise<string> {
   const { _id } = args;
-  const { addTags, createTags, message } = args.input;
+  const { tags, message } = args.input;
 
   requireRole(identity, Role.ReadWrite);
 
-  let newTagsInsert = 0;
-
-  if (createTags && createTags.length && createTags.length > 0) {
-    newTagsInsert = await tagDAO.createTags(createTags);
-  }
+  const tagIds = await findAndCreateTags(tags);
 
   const updatedPostId = await PostDAO.updatePost(
     { _id: new ObjectId(_id) },
     {
       $set: {
-        tags: tagChecker(newTagsInsert > 0 ? createTags : [], addTags),
+        tags: tagIds,
         message,
         updatedAt: getTime(),
       },
