@@ -1,5 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Skeleton, Select } from 'antd';
 import ImageGrid from '../components/ImageGrid';
 import { useLazyQuery, useQuery } from '@apollo/client';
@@ -11,12 +12,31 @@ import { theme } from '../theme';
 import { TagOutlined } from '@ant-design/icons';
 import { notifyGqlFetchError, tagRender } from '../utils';
 
+function getQuery(searchParams) {
+  const query = searchParams.get('q');
+  if (!query) {
+    return [];
+  }
+  return query.split('+').map((s) => decodeURI(s));
+}
+
+function setQuery(setSearchParams, query) {
+  setSearchParams(
+    query && query.length > 0
+      ? {
+          q: query.map((s) => encodeURI(s)).join('+'),
+        }
+      : {}
+  );
+}
+
 export default function Browse() {
-  const [search, setSearch] = useState([]);
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
   const [colorMode] = useColorMode();
   const [loading, setLoading] = useState(true);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [getPosts] = useLazyQuery(GetPosts, {
     onCompleted: (data) => {
@@ -41,19 +61,9 @@ export default function Browse() {
   const postDebouncer = useCallback(_.debounce(getPosts, 200), []);
 
   useEffect(() => {
-    if (localStorage.getItem('search')) {
-      const properSearch = JSON.parse(localStorage.getItem('search'));
-      if (properSearch && properSearch.length) {
-        setSearch(properSearch);
-        getPosts({
-          variables: { tags: properSearch },
-        });
-      } else {
-        getPosts();
-      }
-    } else {
-      getPosts();
-    }
+    getPosts({
+      variables: { tags: getQuery(searchParams) },
+    });
   }, []);
 
   return (
@@ -113,24 +123,15 @@ export default function Browse() {
             }
             tagRender={(e) => tagRender(e, false)}
             onChange={(e) => {
-              if (e.length == 0) {
-                getPosts();
-                localStorage.removeItem('search');
-              }
-              if (localStorage.getItem('search')) {
-                postDebouncer({
-                  variables: { tags: e.map((item) => item.value) },
-                });
-              }
-              setSearch(e);
-              localStorage.setItem(
-                'search',
-                JSON.stringify(e.map((item) => item.value))
-              );
+              const tags = e.map((item) => item.value);
+              setQuery(setSearchParams, tags);
+              postDebouncer({
+                variables: { tags },
+              });
             }}
             notFoundContent={null}
             options={tags}
-            value={search}
+            defaultValue={getQuery(searchParams)}
             maxTagCount="responsive"
             optionFilterProp="label"
             fieldNames={{ value: 'label' }}
