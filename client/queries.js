@@ -27,6 +27,15 @@ export const UpdateUser = gql`
   }
 `;
 
+export const GetTags = gql`
+  query GetTags {
+    getTags {
+      _id
+      label
+    }
+  }
+`;
+
 export const GetAllTagLabels = gql`
   query GetAllTagLabels {
     getAllTagLabels {
