@@ -1,4 +1,8 @@
 /** @jsxImportSource theme-ui */
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   Button,
   Divider,
@@ -10,10 +14,13 @@ import {
   Typography,
   message,
 } from 'antd';
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import moment from 'moment';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  TagOutlined,
+} from '@ant-design/icons';
 import {
   DeletePost,
   GetPostDetails,
@@ -22,14 +29,6 @@ import {
 } from '../queries';
 import ImageSkeleton from '../components/ImageSkeleton';
 import { theme } from '../theme';
-import { useColorMode } from 'theme-ui';
-import {
-  CheckOutlined,
-  CloseOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  TagOutlined,
-} from '@ant-design/icons';
 import {
   Role,
   notifyGqlFetchError,
@@ -40,8 +39,6 @@ import {
 import { useAuthContext } from '../contexts/AuthContext';
 
 function RowItem({ title, content }) {
-  const [colorMode] = useColorMode();
-
   return (
     <div
       sx={{
@@ -55,10 +52,6 @@ function RowItem({ title, content }) {
         style={{
           margin: 0,
           marginRight: '0.5rem',
-          color:
-            colorMode === 'light'
-              ? theme.colors.text
-              : theme.colors.modes.dark.text,
         }}
         strong
       >
@@ -67,10 +60,6 @@ function RowItem({ title, content }) {
       <Typography.Text
         style={{
           margin: 0,
-          color:
-            colorMode === 'light'
-              ? theme.colors.textAlt
-              : theme.colors.modes.dark.textAlt,
         }}
         type="secondary"
         italic
@@ -86,8 +75,6 @@ export default function PostDetail() {
   const [tags, setTags] = useState([]);
   const [editing, setEditing] = useState(false);
   const [editedPost, setEditedPost] = useState();
-
-  const [colorMode] = useColorMode();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -191,11 +178,6 @@ export default function PostDetail() {
               setEditedPost({ ...editedPost, message: e.target.value });
             }}
             allowClear
-            className={
-              colorMode === 'light'
-                ? 'light-input-standard'
-                : 'dark-input-standard'
-            }
             style={{ marginBottom: '0.75rem' }}
             value={editedPost.message}
           />
@@ -206,10 +188,6 @@ export default function PostDetail() {
                 level={4}
                 style={{
                   margin: 0,
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
                 }}
               >
                 {post.message}
@@ -220,25 +198,15 @@ export default function PostDetail() {
         <Divider
           style={{
             margin: !post.message ? '0 0 0.9rem 0' : '0.5rem 0rem 0.9rem 0rem',
-            backgroundColor:
-              colorMode === 'light'
-                ? theme.colors.divider
-                : theme.colors.modes.dark.divider,
           }}
         />
         {editing ? (
           <Select
             mode="tags"
             allowClear
-            className={colorMode === 'light' ? 'light-input' : 'dark-input'}
             style={{
               width: '100%',
               marginBottom: '0.5rem',
-            }}
-            popupClassName={colorMode === 'light' ? 'light-drop' : 'dark-drop'}
-            dropdownStyle={{
-              backgroundColor:
-                colorMode === 'dark' && theme.colors.modes.dark.input,
             }}
             placeholder={
               <div
@@ -297,10 +265,6 @@ export default function PostDetail() {
         <Divider
           style={{
             margin: '0.4rem 0rem 0.5rem 0rem',
-            backgroundColor:
-              colorMode === 'light'
-                ? theme.colors.divider
-                : theme.colors.modes.dark.divider,
           }}
         />
         <RowItem
@@ -318,10 +282,6 @@ export default function PostDetail() {
         <Divider
           style={{
             margin: '0.4rem 0rem 1rem 0rem',
-            backgroundColor:
-              colorMode === 'light'
-                ? theme.colors.divider
-                : theme.colors.modes.dark.divider,
           }}
         />
         {role < Role.ReadWrite ? null : (
@@ -371,7 +331,6 @@ export default function PostDetail() {
                   type="primary"
                   icon={<CheckOutlined />}
                   onClick={() => {
-                    console.log(editedPost.tags);
                     updatePost({
                       variables: {
                         _id: post._id,
@@ -389,7 +348,6 @@ export default function PostDetail() {
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => {
-                    console.log(post);
                     setEditedPost({
                       ...post,
                       tags: post.tags.map((tag) => {

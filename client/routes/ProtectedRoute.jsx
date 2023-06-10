@@ -1,7 +1,5 @@
-import { Role } from '../utils';
 import LocalResult from '../components/LocalResult';
 import { useAuthContext } from '../contexts/AuthContext';
-import { Skeleton } from 'antd';
 
 export default function ProtectedRoute({ role, children }) {
   const { role: userRole } = useAuthContext();

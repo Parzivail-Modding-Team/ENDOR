@@ -27,7 +27,6 @@ export default function ImageSkeleton() {
       >
         <Skeleton active />
         <Divider style={{ margin: '0.5rem 0rem 0.9rem 0rem' }} />
-
         <Skeleton active />
       </div>
     </div>

@@ -6,9 +6,7 @@ import ImageGrid from '../components/ImageGrid';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GetPosts, GetAllTagLabels } from '../queries';
 import LocalResult from '../components/LocalResult';
-import { useColorMode } from 'theme-ui';
 import _ from 'lodash';
-import { theme } from '../theme';
 import { TagOutlined } from '@ant-design/icons';
 import { notifyGqlFetchError, tagRender } from '../utils';
 
@@ -33,7 +31,6 @@ function setQuery(setSearchParams, query) {
 export default function Browse() {
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
-  const [colorMode] = useColorMode();
   const [loading, setLoading] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -96,14 +93,8 @@ export default function Browse() {
           <Select
             mode="multiple"
             allowClear
-            className={colorMode === 'light' ? 'light-input' : 'dark-input'}
             style={{
               width: '100%',
-            }}
-            popupClassName={colorMode === 'light' ? 'light-drop' : 'dark-drop'}
-            dropdownStyle={{
-              backgroundColor:
-                colorMode === 'dark' && theme.colors.modes.dark.input,
             }}
             placeholder={
               <div

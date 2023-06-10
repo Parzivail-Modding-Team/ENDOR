@@ -17,7 +17,11 @@ import { theme } from '../theme';
 
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { notifyGqlDeleteError, notifyGqlFetchError, notifyGqlUpdateError } from '../utils';
+import {
+  notifyGqlDeleteError,
+  notifyGqlFetchError,
+  notifyGqlUpdateError,
+} from '../utils';
 
 export default function Tags() {
   const [tags, setTags] = useState([]);
@@ -77,11 +81,6 @@ export default function Tags() {
       return (
         <Input
           defaultValue={tag.label}
-          className={
-            colorMode === 'light'
-              ? 'light-input-standard'
-              : 'dark-input-standard'
-          }
           onChange={(e) => {
             const newTags = [...tags];
             newTags.splice(index, 1, {
@@ -214,11 +213,6 @@ export default function Tags() {
             >
               <Input
                 allowClear
-                className={
-                  colorMode === 'light'
-                    ? 'light-input-standard'
-                    : 'dark-input-standard'
-                }
                 style={{
                   width: '100%',
                 }}
@@ -232,32 +226,11 @@ export default function Tags() {
               />
             </div>
             <Statistic
-              title={
-                <Typography.Text
-                  style={{
-                    color:
-                      colorMode === 'light'
-                        ? theme.colors.text
-                        : theme.colors.modes.dark.text,
-                  }}
-                >
-                  Results
-                </Typography.Text>
-              }
+              title={<Typography.Text>Results</Typography.Text>}
               value={tags.length}
               style={{
                 marginLeft: '1rem',
                 width: 'fit-content',
-                color:
-                  colorMode === 'light'
-                    ? theme.colors.text
-                    : theme.colors.modes.dark.text,
-              }}
-              valueStyle={{
-                color:
-                  colorMode === 'light'
-                    ? theme.colors.text
-                    : theme.colors.modes.dark.text,
               }}
             />
           </div>
@@ -265,10 +238,6 @@ export default function Tags() {
             style={{
               marginTop: '1rem',
               marginBottom: '1rem',
-              backgroundColor:
-                colorMode === 'light'
-                  ? theme.colors.divider
-                  : theme.colors.modes.dark.divider,
             }}
           />
 

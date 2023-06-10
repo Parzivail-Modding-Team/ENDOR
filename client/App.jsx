@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { ThemeProvider } from 'theme-ui';
-import { ConfigProvider, Spin } from 'antd';
+import { ConfigProvider, Spin, theme as antdTheme } from 'antd';
 import { theme } from './theme';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
@@ -10,6 +10,7 @@ import loadable from '@loadable/component';
 import { AuthContextProvider } from './contexts/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { Role } from './utils';
+import { useReadLocalStorage } from 'usehooks-ts';
 
 const Header = loadable(() => import('./components/Header'));
 const PostDetail = loadable(() => import('./routes/PostDetail'));
@@ -17,6 +18,8 @@ const Browse = loadable(() => import('./routes/Browse'));
 const UploadRoute = loadable(() => import('./routes/Upload'));
 const Tags = loadable(() => import('./routes/Tags'));
 const Users = loadable(() => import('./routes/Users'));
+
+const { darkAlgorithm, defaultAlgorithm } = antdTheme;
 
 const router = createBrowserRouter([
   {
@@ -63,6 +66,9 @@ const router = createBrowserRouter([
 
 function App() {
   const [client, setClient] = useState();
+  const [algorithm, setAlgorithm] = useState(
+    localStorage.getItem('theme-ui-color-mode')
+  );
 
   async function setup() {
     setClient(await getClient());
@@ -79,6 +85,8 @@ function App() {
         <AuthContextProvider>
           <ConfigProvider
             theme={{
+              algorithm:
+                algorithm === 'dark' ? darkAlgorithm : defaultAlgorithm,
               token: {
                 colorPrimary: theme.colors.primary,
               },
@@ -96,7 +104,7 @@ function App() {
                   'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
               }}
             >
-              <Header />
+              <Header setAlgorithm={setAlgorithm} />
               <div
                 sx={{
                   display: 'flex',

@@ -14,7 +14,7 @@ import { theme } from '../theme';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Role } from '../utils';
 
-export default function Header() {
+export default function Header({ setAlgorithm }) {
   const [scrolled, setScrolled] = useState(false);
   const [colorMode, setColorMode] = useColorMode();
 
@@ -74,10 +74,6 @@ export default function Header() {
                     cursor: 'pointer',
                     transition:
                       'background 0.3s,width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s',
-                    color:
-                      colorMode === 'light'
-                        ? theme.colors.text
-                        : theme.colors.modes.dark.text,
                   }}
                 >
                   ENDOR
@@ -109,10 +105,6 @@ export default function Header() {
                   <a
                     style={{
                       textDecoration: 'none',
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
                     }}
                     href="/upload"
                   >
@@ -120,16 +112,7 @@ export default function Header() {
                   </a>
                 ),
                 key: '/upload',
-                icon: (
-                  <PlusOutlined
-                    style={{
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
-                    }}
-                  />
-                ),
+                icon: <PlusOutlined />,
               },
           role < Role.Admin
             ? null
@@ -138,10 +121,6 @@ export default function Header() {
                   <a
                     style={{
                       textDecoration: 'none',
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
                     }}
                     href="/users"
                   >
@@ -149,16 +128,7 @@ export default function Header() {
                   </a>
                 ),
                 key: '/users',
-                icon: (
-                  <UserOutlined
-                    style={{
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
-                    }}
-                  />
-                ),
+                icon: <UserOutlined />,
               },
           role < Role.ReadWrite
             ? null
@@ -167,10 +137,6 @@ export default function Header() {
                   <a
                     style={{
                       textDecoration: 'none',
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
                     }}
                     href="/tags"
                   >
@@ -178,16 +144,7 @@ export default function Header() {
                   </a>
                 ),
                 key: '/tags',
-                icon: (
-                  <TagOutlined
-                    style={{
-                      color:
-                        colorMode === 'light'
-                          ? theme.colors.text
-                          : theme.colors.modes.dark.text,
-                    }}
-                  />
-                ),
+                icon: <TagOutlined />,
               },
           {
             label: (
@@ -210,10 +167,6 @@ export default function Header() {
                 <a
                   style={{
                     textDecoration: 'none',
-                    color:
-                      colorMode === 'light'
-                        ? theme.colors.text
-                        : theme.colors.modes.dark.text,
                   }}
                   onClick={() =>
                     axios.post('/logout').then(window.location.assign('/login'))
@@ -230,17 +183,19 @@ export default function Header() {
                 <EyeTwoTone
                   twoToneColor={theme.colors.text}
                   style={{ height: '100%', width: '100%' }}
-                  onClick={() =>
-                    setColorMode(colorMode === 'light' ? 'dark' : 'light')
-                  }
+                  onClick={() => {
+                    setColorMode(colorMode === 'light' ? 'dark' : 'light');
+                    setAlgorithm(colorMode === 'light' ? 'dark' : 'light');
+                  }}
                 />
               ) : (
                 <EyeInvisibleTwoTone
                   twoToneColor={theme.colors.modes.dark.text}
                   style={{ height: '100%', width: '100%' }}
-                  onClick={() =>
-                    setColorMode(colorMode === 'light' ? 'dark' : 'light')
-                  }
+                  onClick={() => {
+                    setColorMode(colorMode === 'light' ? 'dark' : 'light');
+                    setAlgorithm(colorMode === 'light' ? 'dark' : 'light');
+                  }}
                 />
               ),
           },

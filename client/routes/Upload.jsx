@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { GetAllTagLabels } from '../queries';
 import axios from 'axios';
-import { useColorMode } from 'theme-ui';
-import { theme } from '../theme';
 
 const fileToDataUri = (file) =>
   new Promise((resolve) => {
@@ -26,8 +24,6 @@ export default function UploadRoute() {
   const [valid, setValid] = useState(false);
 
   const [dataUri, setDataUri] = useState();
-
-  const [colorMode] = useColorMode();
 
   const localFileSaver = (file) => {
     if (!file) {
@@ -121,10 +117,6 @@ export default function UploadRoute() {
                 level={4}
                 style={{
                   marginBottom: '0.25rem',
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
                 }}
               >
                 Message
@@ -137,11 +129,6 @@ export default function UploadRoute() {
                 setSubmission({ ...submission, message: e.target.value });
               }}
               allowClear
-              className={
-                colorMode === 'light'
-                  ? 'light-input-standard'
-                  : 'dark-input-standard'
-              }
             />
           </Form.Item>
           <Form.Item
@@ -152,10 +139,6 @@ export default function UploadRoute() {
                 style={{
                   marginBottom: '0.25rem',
                   marginTop: 0,
-                  color:
-                    colorMode === 'light'
-                      ? theme.colors.text
-                      : theme.colors.modes.dark.text,
                 }}
               >
                 Tags
@@ -166,16 +149,8 @@ export default function UploadRoute() {
             <Select
               mode="tags"
               allowClear
-              className={colorMode === 'light' ? 'light-input' : 'dark-input'}
               style={{
                 width: '100%',
-              }}
-              popupClassName={
-                colorMode === 'light' ? 'light-drop' : 'dark-drop'
-              }
-              dropdownStyle={{
-                backgroundColor:
-                  colorMode === 'dark' && theme.colors.modes.dark.input,
               }}
               placeholder={
                 <div
@@ -264,7 +239,6 @@ export default function UploadRoute() {
               onClick={() => onSubmit()}
               loading={submitLoading}
               disabled={!valid}
-              className={colorMode === 'light' ? 'light-btn' : 'dark-btn'}
             >
               Submit
             </Button>
