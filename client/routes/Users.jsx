@@ -60,64 +60,62 @@ export default function Users() {
           alignItems: 'center',
         }}
       >
-        {users && (
-          <Table
-            tableLayout="fixed"
-            style={{ width: '100%' }}
-            columns={[
-              {
-                title: 'User ID',
-                dataIndex: 'id',
-                defaultSortOrder: 'ascend',
-              },
-              {
-                title: 'User',
-                defaultSortOrder: 'ascend',
-                render: (_, user) => (
-                  <div
+        <Table
+          tableLayout="fixed"
+          style={{ width: '100%' }}
+          columns={[
+            {
+              title: 'User ID',
+              dataIndex: 'id',
+              defaultSortOrder: 'ascend',
+            },
+            {
+              title: 'User',
+              defaultSortOrder: 'ascend',
+              render: (_, user) => (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <img
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
+                      width: '19px',
+                      height: '19px',
+                      borderRadius: '50%',
+                      marginRight: '0.5rem',
                     }}
-                  >
-                    <img
-                      style={{
-                        width: '19px',
-                        height: '19px',
-                        borderRadius: '50%',
-                        marginRight: '0.5rem',
-                      }}
-                      src={user.avatarUrl}
-                    />
-                    <Typography.Text>{user.username}</Typography.Text>
-                  </div>
-                ),
-              },
-              {
-                title: 'Actions',
-                render: (_, user) => (
-                  <Select
-                    options={roles}
-                    style={{ width: '150px' }}
-                    defaultValue={user.role}
-                    onSelect={(role) => {
-                      setSelectedUser(user.id);
-                      updateUser({
-                        variables: { id: user.id, role },
-                      });
-                    }}
-                    loading={user.id === selectedUser && updateUserLoading}
-                    disabled={user.id === id}
+                    src={user.avatarUrl}
                   />
-                ),
-              },
-            ]}
-            rowKey="id"
-            dataSource={users}
-            pagination={false}
-            loading={loading}
-          />
-        )}
+                  <Typography.Text>{user.username}</Typography.Text>
+                </div>
+              ),
+            },
+            {
+              title: 'Actions',
+              render: (_, user) => (
+                <Select
+                  options={roles}
+                  style={{ width: '150px' }}
+                  defaultValue={user.role}
+                  onSelect={(role) => {
+                    setSelectedUser(user.id);
+                    updateUser({
+                      variables: { id: user.id, role },
+                    });
+                  }}
+                  loading={user.id === selectedUser && updateUserLoading}
+                  disabled={user.id === id}
+                />
+              ),
+            },
+          ]}
+          rowKey="id"
+          dataSource={users}
+          pagination={false}
+          loading={loading}
+        />
       </div>
     </div>
   );

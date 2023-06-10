@@ -24,11 +24,16 @@ MongoDB
 
 Digital Ocean Spaces
 
+Discord OAuth
+
 ## Notes
 
 - Fully mobile friendly
-- Supports a Light and Dark theme via `theme-ui`
+- Supports a Light and Dark theme via a combination of `theme-ui` and `antd`
 - Tag Editor view for changing tag labels without manually editing the db
+- Login via Discord OAuth with full session management
+- User Editor view for changing registered user roles without manually editing the db
+- Route access and user control levels determined by user roles
 - Supports editing and deleting of posts inline from the Post Detail view
 - Split via `@loadable/component`
 - Image lazy loading in the Home route

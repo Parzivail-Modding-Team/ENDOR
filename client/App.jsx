@@ -10,7 +10,6 @@ import loadable from '@loadable/component';
 import { AuthContextProvider } from './contexts/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { Role } from './utils';
-import { useReadLocalStorage } from 'usehooks-ts';
 
 const Header = loadable(() => import('./components/Header'));
 const PostDetail = loadable(() => import('./routes/PostDetail'));

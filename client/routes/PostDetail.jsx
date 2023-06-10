@@ -162,12 +162,8 @@ export default function PostDetail() {
           height: 'fit-content',
           width: '100%',
           marginTop: '1rem',
-          padding: 0,
-          '@media screen and (min-width: 750px)': {
-            width: '60%',
-            padding: '0 1rem',
-            marginTop: 0,
-          },
+          maxWidth: '900px',
+          padding: '0 1rem',
           flexDirection: 'column',
         }}
       >

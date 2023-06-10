@@ -32,7 +32,7 @@ export default function Tags() {
 
   const [oldValue, setOldValue] = useState('Tag updated');
 
-  const { getTagsLoading } = useQuery(GetTags, {
+  const { loading: getTagsLoading } = useQuery(GetTags, {
     onCompleted: (data) => {
       setTags(data.getTags);
     },
@@ -181,7 +181,7 @@ export default function Tags() {
         sx={{
           height: '100%',
           width: '100%',
-          maxWidth: '800px',
+          maxWidth: '600px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -263,6 +263,7 @@ export default function Tags() {
                 title: 'Actions',
                 key: 'actions',
                 render: (_, tag, index) => changeActions(tag, index),
+                width: 110,
               },
             ]}
             dataSource={tags.filter(
