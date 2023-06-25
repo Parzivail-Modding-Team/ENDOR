@@ -7,7 +7,6 @@ node_modules
 dist-ssr
 *.local
 .env
-package-lock.json
 
 # Editor directories and files
 .vscode/*
