@@ -33,7 +33,11 @@ async function getTags(
     query[0].$match = { label: { $regex: `^${label}.*` } };
   }
 
-  return await TagDAO.findTags(query);
+  const thing = await TagDAO.findTags(query);
+
+  console.log(thing);
+
+  return thing;
 }
 
 async function getAllTagLabels(

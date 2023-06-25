@@ -26,7 +26,6 @@ import {
 export default function Tags() {
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState('');
-  const [colorMode] = useColorMode();
   const [editIndex, setEditIndex] = useState(-1);
   const [deleteIndex, setDeleteIndex] = useState(-1);
 
@@ -77,13 +76,14 @@ export default function Tags() {
   }
 
   function changeInput(tag, index) {
+    console.log(tag, index, editIndex);
     if (index === editIndex) {
       return (
         <Input
           defaultValue={tag.label}
           onChange={(e) => {
             const newTags = [...tags];
-            newTags.splice(index, 1, {
+            newTags.splice(editIndex, 1, {
               ...tag,
               label: e.target.value,
             });
@@ -137,10 +137,10 @@ export default function Tags() {
             type="primary"
             icon={<CloseOutlined />}
             onClick={() => {
-              setEditIndex(null);
               const thing = [...tags];
               thing[index].label = oldValue;
               setTags(thing);
+              setEditIndex(null);
             }}
             loading={updateTagLoading}
           />
@@ -248,16 +248,6 @@ export default function Tags() {
                 dataIndex: 'label',
                 key: '_id',
                 render: (_, tag, index) => changeInput(tag, index),
-                defaultSortOrder: 'ascend',
-                sorter: (a, b) => {
-                  if (a.label < b.label) {
-                    return -1;
-                  } else if (a.label > b.label) {
-                    return 1;
-                  } else {
-                    return 0;
-                  }
-                },
               },
               {
                 title: 'Actions',

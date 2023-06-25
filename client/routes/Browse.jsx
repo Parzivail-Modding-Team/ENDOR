@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Skeleton, Select } from 'antd';
 import ImageGrid from '../components/ImageGrid';
@@ -54,8 +54,6 @@ export default function Browse() {
       notifyGqlFetchError(graphQLErrors, 'tags');
     },
   });
-
-  const postDebouncer = useCallback(_.debounce(getPosts, 200), []);
 
   useEffect(() => {
     getPosts({
@@ -116,7 +114,7 @@ export default function Browse() {
             onChange={(e) => {
               const tags = e.map((item) => item.value);
               setQuery(setSearchParams, tags);
-              postDebouncer({
+              getPosts({
                 variables: { tags },
               });
             }}

@@ -1,0 +1,1 @@
+import{bh as s}from"./index-f79488dc.js";function o(e,n,t,a){var r=s.unstable_batchedUpdates?function(i){s.unstable_batchedUpdates(t,i)}:t;return e.addEventListener&&e.addEventListener(n,r,a),{remove:function(){e.removeEventListener&&e.removeEventListener(n,r,a)}}}export{o as a};
